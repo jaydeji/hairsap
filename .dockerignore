@@ -5,3 +5,4 @@
 *.md
 test.rest
 tsconfig.json
+node_modules

@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+RUN echo $(ls)
 RUN npm run build
 EXPOSE 3000/tcp
 # ENV Jwt__SecretKey=$Jwt__SecretKey

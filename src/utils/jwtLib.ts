@@ -12,18 +12,15 @@ const generateJwt = (
   return jwt.sign(data, secret, expiresIn)
 }
 
+const decodeJwt = (token: string) => {
+  return jwt.decode(token) as Record<string, unknown>
+}
+
 const verifyJwt = (token: string, admin: boolean) => {
   const secret =
     (admin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || ''
 
-  return jwt.verify(token, secret, async (error, decoded) => {
-    if (error)
-      if (decoded) {
-        return decoded
-      } else {
-        throw new ForbiddenError()
-      }
-  })
+  return jwt.verify(token, secret)
 }
 
-export { generateJwt, verifyJwt }
+export { generateJwt, decodeJwt, verifyJwt }

@@ -1,14 +1,14 @@
-import { Role } from '@prisma/client'
-import { signUpEmailTemplate } from 'config/email/templates/signup'
-import { emailQueue } from 'config/queue'
+import { ROLES } from '../../config/constants'
+import { signUpEmailTemplate } from '../../config/email/templates/signup'
+import { emailQueue } from '../../config/queue'
 import {
   PostSignupProRequest,
   PostSignupProRequestSchema,
   PostSignupRequestSchema,
   PostSignupUserRequest,
   PostSignupUserRequestSchema,
-} from 'schemas/request/postSignup'
-import { hashPassword } from 'utils'
+} from '../../schemas/request/postSignup'
+import { hashPassword } from '../../utils'
 import { ZodError } from 'zod'
 import {
   PostLoginProRequest,
@@ -16,7 +16,7 @@ import {
   PostLoginRequestSchema,
   PostLoginUserRequest,
 } from '../../schemas/request/postLogin'
-import type { Repo } from '../../types'
+import type { Repo, Role } from '../../types'
 import {
   ForbiddenError,
   InternalError,
@@ -35,14 +35,9 @@ const login = async ({
 }) => {
   if (!role) throw new ValidationError('Param role not passed')
 
-  let req
-  try {
-    req = PostLoginRequestSchema.parse({ ...body, role })
-  } catch (error) {
-    throw new ValidationError((error as ZodError).issues)
-  }
+  const req = PostLoginRequestSchema.parse({ ...body, role })
 
-  const isAdmin = role === Role.ADMIN
+  const isAdmin = role === ROLES.ADMIN
 
   let user
   try {
@@ -61,7 +56,7 @@ const login = async ({
     throw new ForbiddenError('account inactive, contact support')
   }
 
-  if (role === Role.PRO && !user.verified) {
+  if (role === ROLES.PRO && !user.verified) {
     throw new ForbiddenError('user not verified')
   }
 
@@ -97,16 +92,12 @@ const signup = async ({
   //TODO: verify faceId
   if (!role) throw new ValidationError('Param role not passed')
 
-  try {
-    if (role === Role.USER) {
-      PostSignupUserRequestSchema.parse({ ...body, role })
-    } else if (role === Role.PRO) {
-      PostSignupProRequestSchema.parse({ ...body, role })
-    } else {
-      PostSignupRequestSchema.parse({ ...body, role })
-    }
-  } catch (error) {
-    throw new ValidationError((error as ZodError).issues)
+  if (role === ROLES.USER) {
+    PostSignupUserRequestSchema.parse({ ...body, role })
+  } else if (role === ROLES.PRO) {
+    PostSignupProRequestSchema.parse({ ...body, role })
+  } else {
+    PostSignupRequestSchema.parse({ ...body, role })
   }
 
   const _user = await repo.user.getUserByEmailandRole(body.email, role)
@@ -114,8 +105,10 @@ const signup = async ({
 
   const hashedPassword = hashPassword(body.password)
 
+  const { deviceInfo, ...newBody } = body //eslint-disable-line
+
   const user = await repo.user.createUser({
-    ...body,
+    ...newBody,
     role: role,
     password: hashedPassword,
     devices: {

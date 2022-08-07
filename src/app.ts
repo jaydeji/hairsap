@@ -9,6 +9,8 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../docs/swagger.yml'
 import { handleError } from './utils/Error'
+import makeUserRouter from './handlers/user'
+import auth from './middleware/auth'
 
 const createApp = () => {
   const repo = makeRepo({ db })
@@ -27,6 +29,7 @@ const createApp = () => {
     res.send('welcome to hairsap')
   })
   app.use('/auth', makeAuthRouter({ router, service }))
+  app.use('/user', auth(), makeUserRouter({ router, service }))
   app.use(handleError)
 
   return app

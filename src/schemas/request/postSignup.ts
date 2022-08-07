@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client'
+import { ROLES } from '../../config/constants'
 import { z } from 'zod'
 
 export const PostSignupRequestSchema = z
@@ -6,23 +6,23 @@ export const PostSignupRequestSchema = z
     email: z.string().email(),
     name: z.string(),
     password: z.string().min(6).max(32),
-    type: z
-      .nativeEnum(Role)
-      .refine((role) => role === Role.PRO || role === Role.USER, {
+    role: z
+      .nativeEnum(ROLES)
+      .refine((role) => role === ROLES.PRO || role === ROLES.USER, {
         message: 'type must be user or admin',
       }),
   })
   .strict()
 
 export const PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
-  deviceInfo: z.string(),
+  deviceInfo: z.string().min(1),
 })
 
 export type PostSignupUserRequest = z.infer<typeof PostSignupUserRequestSchema>
 
 export const PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: z.string(),
-  deviceInfo: z.string(),
+  deviceInfo: z.string().min(1),
 })
 
 export type PostSignupProRequest = z.infer<typeof PostSignupProRequestSchema>

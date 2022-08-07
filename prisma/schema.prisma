@@ -2,19 +2,14 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
   provider          = "mysql"
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-}
-
-enum Role {
-  ADMIN
-  USER
-  PRO
 }
 
 model Subscription {
@@ -77,13 +72,6 @@ model BookingSubService {
   @@id([bookingId, subServiceId])
 }
 
-enum BookingStatus {
-  CANCELLED
-  REJECTED
-  ACCEPTED
-  COMPLETED
-}
-
 model Invoice {
   invoiceId     Int     @id @default(autoincrement())
   booking       Booking @relation(fields: [bookingId], references: [bookingId])
@@ -106,25 +94,20 @@ model Booking {
   bookedSubServices BookingSubService[]
   location          String
   locationPhotoUrl  String
-  status            BookingStatus
+  status            String
   invoiceId         Invoice?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum MessageType {
-  TEXT
-  PHOTO
-}
-
 model Chat {
-  chatId      Int         @id @default(autoincrement())
-  sender      User        @relation("sender", fields: [senderId], references: [userId])
+  chatId      Int    @id @default(autoincrement())
+  sender      User   @relation("sender", fields: [senderId], references: [userId])
   senderId    Int
-  receiver    User        @relation("receiver", fields: [receiverId], references: [userId])
+  receiver    User   @relation("receiver", fields: [receiverId], references: [userId])
   receiverId  Int
-  messageType MessageType
+  messageType String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,7 +120,7 @@ model User {
   name              String
   userName          String?
   password          String
-  role              Role            @unique
+  role              String
   phone             String?
   photoUrl          String?
   approved          Boolean?        @default(false)

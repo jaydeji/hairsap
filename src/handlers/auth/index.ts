@@ -1,8 +1,6 @@
-import { emailQueue, mainQueue, paymentThreshold } from '../../config/queue'
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Service } from '../../types'
-import { Role } from '@prisma/client'
+import type { Role, Service } from '../../types'
 
 //TODO:
 
@@ -23,7 +21,7 @@ const makeAuthRouter = ({
   router.post(
     '/login',
     ah(async (req, res) => {
-      const data = await service.auth.login(req.body, req.params.role as Role)
+      const data = await service.auth.login(req.body, req.query.role as Role)
       res.status(200).send({ data })
     }),
   )
@@ -31,7 +29,7 @@ const makeAuthRouter = ({
   router.post(
     '/signup',
     ah(async (req, res) => {
-      const data = await service.auth.signup(req.body, req.params.role as Role)
+      const data = await service.auth.signup(req.body, req.query.role as Role)
       res.status(200).send({ data })
     }),
   )

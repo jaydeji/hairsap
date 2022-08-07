@@ -13,7 +13,17 @@ npx prisma migrate dev --name <migration_name>
 To clear the database and reseed
 npx prisma migrate reset -f
 To deploy to prod
-npx prisma migrate deploy
+npx prisma migrate deploy --skip-generate
+
+## Endpoint authorization
+
+The project JWT tokens. Auth protected endpoints expect a token to be passed into the `Authorization` header according to the following format:
+
+`Authorization: Bearer <jwt>`
+
+If the header is missing, incorrect or the JWT cannot be correctly decoded, the authorizer will reject the request with an appropriate error.
+
+A JWT payload can be created for development testing using the debugger tool at https://jwt.io/ - ensure you paste the correct secret string in when creating the JWT.
 
 
 ## Documentation

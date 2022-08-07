@@ -1,3 +1,4 @@
+import { BOOKING_STATUS, MESSAGE_TYPE, ROLES } from './config/constants'
 import makeRepo from './repo'
 import makeServices from './services'
 
@@ -16,3 +17,6 @@ export interface HsapResponse {
 }
 
 export type HsapError = Error
+export type Role = keyof typeof ROLES
+export type MessageType = keyof typeof MESSAGE_TYPE
+export type BookingStatus = keyof typeof BOOKING_STATUS

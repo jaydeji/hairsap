@@ -1,11 +1,11 @@
-import { Role } from '@prisma/client'
 import { z } from 'zod'
+import { ROLES } from '../../config/constants'
 
 export const PostLoginRequestSchema = z
   .object({
     email: z.string().email(),
     password: z.string().min(6).max(32),
-    role: z.nativeEnum(Role),
+    role: z.nativeEnum(ROLES),
   })
   .strict()
 

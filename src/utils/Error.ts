@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { ZodError } from 'zod'
 import logger from './logger'
 
 const ErrorType = {
@@ -31,11 +32,21 @@ class ValidationError extends HsapError {
     super(
       typeof error === 'string' ? error : ErrorType.VALIDATION_ERROR,
       400,
-      typeof error !== 'string' ? error : undefined,
+      error instanceof ZodError
+        ? error.issues
+        : typeof error !== 'string'
+        ? error
+        : undefined,
     )
     this.message =
       typeof error === 'string' ? error : ErrorType.VALIDATION_ERROR
-    this.validationError = typeof error !== 'string' ? error : undefined
+    this.validationError =
+      error instanceof ZodError
+        ? error.issues
+        : typeof error !== 'string'
+        ? error
+        : undefined
+    this.name = this.constructor.name
   }
 }
 
@@ -46,6 +57,7 @@ class InternalError extends HsapError {
   constructor(message: string = ErrorType.INTERNAL_ERROR) {
     super(message, 500)
     this.message = message
+    this.name = this.constructor.name
   }
 }
 
@@ -56,6 +68,7 @@ class ForbiddenError extends HsapError {
   constructor(message: string = ErrorType.FORBIDDEN) {
     super(message, 403)
     this.message = message
+    this.name = this.constructor.name
   }
 }
 
@@ -66,6 +79,7 @@ class NotFoundError extends HsapError {
   constructor(message: string = ErrorType.NOT_FOUND) {
     super(message, 404)
     this.message = message
+    this.name = this.constructor.name
   }
 }
 
@@ -76,6 +90,7 @@ class UnauthorizedError extends HsapError {
   constructor(message: string = ErrorType.UNAUTHORIZED) {
     super(message, 401)
     this.message = message
+    this.name = this.constructor.name
   }
 }
 
@@ -86,16 +101,24 @@ const handleError = (
   _next: NextFunction,
 ) => {
   let err = _err
+
+  if ((err as any)?.type === 'entity.parse.failed') {
+    err = new HsapError('entity.parse.failed', 413)
+  }
+
   if (err instanceof InternalError || !(err instanceof HsapError)) {
     //TODO: send to sentry or email
-    logger.err(err.message)
+    logger.err(err.message, err.stack)
   }
 
   if (!(err instanceof HsapError)) {
-    err = new InternalError((err as Error).message)
+    //Don't send error to user
+    err = new InternalError()
   }
 
-  res.status(err.status).send(err.message)
+  res
+    .status(err.status)
+    .send({ message: err.message, validationError: err.validationError })
 }
 
 export {
