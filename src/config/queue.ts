@@ -19,6 +19,7 @@ mainQueue.process(async (job, done) => {
 })
 
 emailQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== 'production') return done()
   sendMail(job.data)
     .then((_info) => {
       done()

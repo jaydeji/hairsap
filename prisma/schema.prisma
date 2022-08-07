@@ -133,24 +133,27 @@ model Chat {
 model User {
   userId            Int             @id @default(autoincrement())
   email             String?         @unique @db.VarChar(255)
-  Address           String
+  address           String?
   name              String
-  userName          String
-  role              Role
-  phone             String
-  photoUrl          String
-  deviceInfo        String
-  deactivated       Boolean
-  deactivatedReason Int
-  deactivationCount Int
-  reactivationCount Int
-  terminated        Boolean
-  longitude         Decimal
-  latitude          Decimal
-  resumptionAt      DateTime
-  closingAt         DateTime
-  workVideoUrl      String
-  businessName      String
+  userName          String?
+  password          String
+  role              Role            @unique
+  phone             String?
+  photoUrl          String?
+  approved          Boolean?        @default(false)
+  deactivated       Boolean?        @default(false)
+  deactivatedReason Int?
+  deactivationCount Int?
+  reactivationCount Int?
+  terminated        Boolean?        @default(false)
+  verified          Boolean?        @default(false)
+  longitude         Decimal?
+  latitude          Decimal?
+  resumptionAt      DateTime?
+  closingAt         DateTime?
+  workVideoUrl      String?
+  businessName      String?
+  devices           Device[]
   services          UserService[]
   subscribers       Subscription[]  @relation("user")
   subscribedTos     Subscription[]  @relation("pro")
@@ -167,6 +170,13 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([email])
+}
+
+model Device {
+  deviceId Int    @id @default(autoincrement())
+  value    String
+  User     User   @relation(fields: [userId], references: [userId])
+  userId   Int
 }
 
 model PasswordReset {

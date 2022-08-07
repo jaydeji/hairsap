@@ -1,2 +1,2 @@
 export { default as logger } from './logger'
-export * from './responses'
+export { hashPassword } from './hashPassword'
