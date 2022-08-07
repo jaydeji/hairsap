@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+  PRO
+}
+
+model Subscription {
+  user   User @relation("user", fields: [userId], references: [userId])
+  userId Int
+  pro    User @relation("pro", fields: [proId], references: [userId])
+  proId  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, proId])
+  @@unique([userId, proId])
+}
+
+model UserService {
+  user      User    @relation(fields: [userId], references: [userId])
+  userId    Int
+  service   Service @relation(fields: [serviceId], references: [serviceId])
+  serviceId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, serviceId])
+}
+
+model Service {
+  serviceId   Int           @id @default(autoincrement())
+  name        String
+  photoUrl    String
+  User        UserService[]
+  subServices SubService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubService {
+  subServiceId      Int                 @id @default(autoincrement())
+  name              String
+  photoUrl          String
+  service           Service             @relation(fields: [serviceId], references: [serviceId])
+  serviceId         Int
+  bookedSubServices BookingSubService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BookingSubService {
+  booking      Booking    @relation(fields: [bookingId], references: [bookingId])
+  bookingId    Int
+  subService   SubService @relation(fields: [subServiceId], references: [subServiceId])
+  subServiceId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([bookingId, subServiceId])
+}
+
+enum BookingStatus {
+  CANCELLED
+  REJECTED
+  ACCEPTED
+  COMPLETED
+}
+
+model Invoice {
+  invoiceId     Int     @id @default(autoincrement())
+  booking       Booking @relation(fields: [bookingId], references: [bookingId])
+  bookingId     Int     @unique
+  transportFee  Int
+  subServiceFee Int
+  distance      Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  bookingId         Int                 @id @default(autoincrement())
+  user              User                @relation("user", fields: [userId], references: [userId])
+  userId            Int
+  pro               User                @relation("pro", fields: [proId], references: [userId])
+  proId             Int
+  cancelled         Boolean
+  bookedSubServices BookingSubService[]
+  location          String
+  locationPhotoUrl  String
+  status            BookingStatus
+  invoiceId         Invoice?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MessageType {
+  TEXT
+  PHOTO
+}
+
+model Chat {
+  chatId      Int         @id @default(autoincrement())
+  sender      User        @relation("sender", fields: [senderId], references: [userId])
+  senderId    Int
+  receiver    User        @relation("receiver", fields: [receiverId], references: [userId])
+  receiverId  Int
+  messageType MessageType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  userId            Int             @id @default(autoincrement())
+  email             String?         @unique @db.VarChar(255)
+  Address           String
+  name              String
+  userName          String
+  role              Role
+  phone             String
+  photoUrl          String
+  deviceInfo        String
+  deactivated       Boolean
+  deactivatedReason Int
+  deactivationCount Int
+  reactivationCount Int
+  terminated        Boolean
+  longitude         Decimal
+  latitude          Decimal
+  resumptionAt      DateTime
+  closingAt         DateTime
+  workVideoUrl      String
+  businessName      String
+  services          UserService[]
+  subscribers       Subscription[]  @relation("user")
+  subscribedTos     Subscription[]  @relation("pro")
+  userBookings      Booking[]       @relation("user")
+  proBookings       Booking[]       @relation("pro")
+  sentMessages      Chat[]          @relation("sender")
+  receivedMessages  Chat[]          @relation("receiver")
+  bonuses           Bonus[]
+  notifications     Notification[]
+  redeemPayments    RedeemPayment[]
+  PasswordReset     PasswordReset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model PasswordReset {
+  resetId String @id @default(uuid())
+  user    User   @relation(fields: [userId], references: [userId])
+  userId  Int
+
+  createdAt DateTime @default(now())
+  expiredAt DateTime @default(now())
+}
+
+model Notification {
+  notificationId Int    @id @default(autoincrement())
+  user           User   @relation(fields: [userId], references: [userId])
+  userId         Int
+  message        String
+}
+
+model RedeemPayment {
+  redeemId  Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [userId])
+  userId    Int
+  confirmed Boolean
+  amount    Int
+}
+
+model Bonus {
+  bonusId Int  @id @default(autoincrement())
+  user    User @relation(fields: [userId], references: [userId])
+  userId  Int
+  amount  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// model Sample {
+//     largeNum    BigInt
+//     ratingf     Float
+//     rating      Decimal
+//     preferences Json
+//     blob        Bytes
+//     uns         Unsupported("")
+// }

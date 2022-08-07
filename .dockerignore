@@ -1,0 +1,7 @@
+.env.*
+.eslintrc.*
+.prettierrc
+[dD]ocker*
+*.md
+test.rest
+tsconfig.json

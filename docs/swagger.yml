@@ -1,0 +1,144 @@
+openapi: 3.0.0
+components:
+  responses:
+     InternalError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Internal Error
+     ValidationError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Validation Error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 2
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Should be at least 2 characters
+              path:
+                type: array
+                items:
+                  type: string
+                  example: example
+     ForbiddenError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Forbidden
+     NotFoundError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Not Found
+     UnauthorizedError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Unauthorized
+     Success:
+      properties:
+        data:
+          type: 
+            oneOf:
+            - type: array
+            - type: object
+          default: Ok
+  schemas:
+    AuthLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: unique user email
+          example: 'john@hairsap.com'
+        password:
+          type: string
+          description: card type, either virtual or physical
+          example: 'john1234'
+          minimum: 7
+          maximum: 32
+    AuthLoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: a JWT token
+          example: '1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  
+
+info:
+  title: Hairsap-api
+  description: Hairsap API
+  version: v1.0.0
+servers:
+  - url: 'http://localhost:4000'
+    description: development
+paths:
+  /auth/login:
+    post:
+      operationId: postAuthLogin
+      description: allows a user to login
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      parameters: []
+      responses:
+        '201':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        '400':
+          description: Status 400 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/ValidationError'
+        '500':
+          description: Status 500 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/InternalError'

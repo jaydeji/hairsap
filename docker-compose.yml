@@ -1,0 +1,65 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: .
+      #  args:
+      #   - VITE_BASE_URL=https://pay-back.babajideadedeji.com/api/v1
+    command: npm run dev
+    ports:
+      - '4000:3000'
+    depends_on:
+      - db
+      - redis
+    restart: always
+    # user: '1000:1000'
+    # env_file:
+    #   - .env
+    environment:
+      NODE_ENV: development
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ADMIN_SECRET: ${JWT_ADMIN_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_SECURE: ${MAIL_SECURE}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      PORT: 3000
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    tty: true
+
+  db:
+    image: 'mysql:8.0.29'
+    environment:
+      - MYSQL_DATABASE=hairsap_dev
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      # for prisma shadow database
+    entrypoint: >-
+      sh -c "
+      echo 'CREATE DATABASE IF NOT EXISTS hairsap_dev_shad;GRANT ALL PRIVILEGES ON hairsap_dev_shad.* TO '$MYSQL_USER'' > /docker-entrypoint-initdb.d/init.sql;
+      /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      "
+    restart: always
+    container_name: mysql_db
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  redis:
+    image: 'redis:7.0.4-alpine3.16'
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: 'yes'
+    container_name: redis_db
+    command: redis-server --save 20 1 --loglevel warning
+    ports:
+      - '6379:6379'
+    volumes:
+      - './redis_data:/data'
