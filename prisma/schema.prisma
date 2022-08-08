@@ -90,7 +90,9 @@ model Booking {
   userId            Int
   pro               User                @relation("pro", fields: [proId], references: [userId])
   proId             Int
-  cancelled         Boolean
+  cancelled         Boolean             @default(false)
+  userCompleted     Boolean             @default(false)
+  proCompleted      Boolean             @default(false)
   bookedSubServices BookingSubService[]
   location          String
   locationPhotoUrl  String

@@ -32,7 +32,7 @@ const createApp = () => {
     res.send('welcome to hairsap')
   })
   app.use('/auth', makeAuthRouter({ router, service }))
-  app.use('/user', auth(), makeUserRouter({ router, service }))
+  app.use('/users', auth(), makeUserRouter({ router, service }))
   app.get('/webhook/paystack', (req, res) => {
     const secret = process.env.PAYMENT_SECRET as string
     const hash = crypto

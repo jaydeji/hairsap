@@ -75,10 +75,8 @@ const login = async ({
     throw new ForbiddenError('user not verified')
   }
 
-  // TODO: suspend face verification
-
+  //TODO: remove device verification
   if (!isAdmin) {
-    //TODO: verify faceId
     const device = user.devices.find(
       (device) =>
         device.value ===

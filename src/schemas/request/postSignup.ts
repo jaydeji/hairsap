@@ -16,6 +16,7 @@ export const PostSignupRequestSchema = z
 
 export const PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
   deviceInfo: z.string().min(1),
+  phone: z.string().min(8),
 }).strict()
 
 export type PostSignupUserRequest = z.infer<typeof PostSignupUserRequestSchema>
@@ -23,6 +24,7 @@ export type PostSignupUserRequest = z.infer<typeof PostSignupUserRequestSchema>
 export const PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: z.string(),
   deviceInfo: z.string().min(1),
+  phone: z.string().min(8),
 }).strict()
 
 export type PostSignupProRequest = z.infer<typeof PostSignupProRequestSchema>

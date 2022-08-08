@@ -237,11 +237,13 @@ var PostSignupRequestSchema = import_zod.z.object({
   })
 }).strict();
 var PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
-  deviceInfo: import_zod.z.string().min(1)
+  deviceInfo: import_zod.z.string().min(1),
+  phone: import_zod.z.string().min(8)
 }).strict();
 var PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: import_zod.z.string(),
-  deviceInfo: import_zod.z.string().min(1)
+  deviceInfo: import_zod.z.string().min(1),
+  phone: import_zod.z.string().min(8)
 }).strict();
 
 // src/schemas/request/postLogin.ts
@@ -747,7 +749,7 @@ var createApp = () => {
     res.send("welcome to hairsap");
   });
   app2.use("/auth", auth_default({ router, service }));
-  app2.use("/user", auth_default2(), user_default2({ router, service }));
+  app2.use("/users", auth_default2(), user_default2({ router, service }));
   app2.get("/webhook/paystack", (req, res) => {
     const secret = process.env.PAYMENT_SECRET;
     const hash = import_crypto3.default.createHmac("sha512", secret).update(JSON.stringify(req.body)).digest("hex");

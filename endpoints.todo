@@ -1,37 +1,55 @@
-chat
-otp
-push notification
-/register?type=user|beautypro   done
-/login?type=user|admin|beautypro
-/validate
-/getbeautyprosbylocation
-/getbeautyprobyname?filterby=service
-/getbeautypro
-/subscribe
-/subscriptions
-/subscribes
-/book
-/services
-/notifications
-/addservicetobooking
-GET /me
-PATCH /me done
-/uploadprofilephoto
-/resetpassword
-/transactionhistory
-/reactivaterequest
+TASKS
+
+NIYI
+--------------------------------------------------------------------------------
+/services - get all services and include subservices
+/notifications - get all notifications
+/subscribe - user should be able to subscribe to beauty pro
+/subscriptions - pro should be able to view all subscriptions
+/subscribes - user should be able to see a list of pros they are subscribed to
+/pro?userid - get beauty pro by userid
+/me/:id - get user/pro details
+--------------------------------------------------------------------------------
+
+UNDONE 
+/pro - this returns a list of nearest pros with pagination
+/pro?name&filterby=service
+/pro/verify - admin should be able to verify a pro account
+/bookings - user should be able to book a pro
+/bookings/:id/add - addservicetobooking
+/bookings - get all bookings paginated
+/bookings/accept - accept booking by pro
+/bookings/reject - reject booking by pro
+/bookings/cancel - reject booking by pro and user
+/bookings/:id - mark booking as completed by user and pro
+/user/photo - upload user profile picture except pro
+/reset/password - reset user password
+/transactions - get all transactions paginated
+/reactivate - pro should be able to send a request to admin to reactivate
+/reactivate/accept - admin should be able to reactivate pro
+
+PENDING
+/chats - pro or user should be able to get all chats with minimal info
+/chats/userid - pro or user should be able to get a specific chat history
 /setactivetimer
 /getinvoice?id=1
 /report/booking?returned=true&status=completed&period=weekly
 /report/tasktarget?period=monthly
-/bookings
-/acceptbooking
-/rejectbooking
-/cancelbooking
 /confirmpayout
-/acceptreactivaterequest
-/verifyuser
-/verifydevice
+chat sockets
+
+DONE
+/register?type=user|beautypro   ✅
+/login?type=user|admin|beautypro ✅
+/validateotp ✅
+/users - update user ✅ 
+/users/faceid - upload live pro photo ✅ 
 
 LATER
-Auto deduction
+/verifydevice
+design emails
+design invoice
+Auto payment deduction
+otp
+push notification
+DOcean spaces
