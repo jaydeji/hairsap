@@ -18,6 +18,7 @@ services:
     #   - .env
     environment:
       NODE_ENV: development
+      PORT: 3000
       JWT_SECRET: ${JWT_SECRET}
       JWT_ADMIN_SECRET: ${JWT_ADMIN_SECRET}
       DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY}
@@ -28,7 +29,10 @@ services:
       MAIL_SECURE: ${MAIL_SECURE}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-      PORT: 3000
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_KEY: ${STORAGE_KEY}
+      STORAGE_SECRET: ${STORAGE_SECRET}
+      PAYMENT_SECRET: ${PAYMENT_SECRET}
     volumes:
       - '.:/app'
       # - '/app/node_modules'

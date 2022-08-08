@@ -2,6 +2,7 @@ import Queue from 'bull'
 import { sendMail } from './email'
 import { SendMailOptions } from 'nodemailer'
 import { logger } from '../utils'
+import db from '../config/db'
 
 const mainQueue = new Queue('main', process.env.REDIS_URL as string)
 const emailQueue = new Queue<SendMailOptions>(
@@ -9,6 +10,7 @@ const emailQueue = new Queue<SendMailOptions>(
   process.env.REDIS_URL as string,
 )
 const phoneQueue = new Queue('phone', process.env.REDIS_URL as string)
+const paymentQueue = new Queue('payment', process.env.REDIS_URL as string)
 const paymentThreshold = new Queue(
   'payment_threshold',
   process.env.REDIS_URL as string,
@@ -36,4 +38,12 @@ phoneQueue.process(async (job, done) => {
   //  TODO: send test message
 })
 
-export { emailQueue, mainQueue, paymentThreshold, phoneQueue }
+paymentQueue.process(async (job, done) => {
+  await db.paymentEvents.create(job.data)
+  if (job.data?.event === 'paymentrequest.success') {
+    //TODO: mark payment as confirmed
+  }
+  done()
+})
+
+export { emailQueue, mainQueue, paymentThreshold, phoneQueue, paymentQueue }

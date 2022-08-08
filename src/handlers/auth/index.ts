@@ -1,6 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { OtpType, Role, Service } from '../../types'
+import type { Role, Service } from '../../types'
 
 //TODO:
 

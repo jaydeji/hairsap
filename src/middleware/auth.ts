@@ -15,7 +15,7 @@ const auth = () =>
       throw new ForbiddenError()
     }
 
-    res.locals.tokenData = decodedToken
+    ;(req as any).tokenData = decodedToken
     next()
   })
 

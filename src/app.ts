@@ -8,9 +8,12 @@ import helmet from 'helmet'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../docs/swagger.yml'
-import { handleError } from './utils/Error'
+import { ForbiddenError, handleError } from './utils/Error'
 import makeUserRouter from './handlers/user'
 import auth from './middleware/auth'
+import crypto from 'crypto'
+import { logger } from './utils'
+import { paymentQueue } from './config/queue'
 
 const createApp = () => {
   const repo = makeRepo({ db })
@@ -30,6 +33,24 @@ const createApp = () => {
   })
   app.use('/auth', makeAuthRouter({ router, service }))
   app.use('/user', auth(), makeUserRouter({ router, service }))
+  app.get('/webhook/paystack', (req, res) => {
+    const secret = process.env.PAYMENT_SECRET as string
+    const hash = crypto
+      .createHmac('sha512', secret)
+      .update(JSON.stringify(req.body))
+      .digest('hex')
+    if (hash !== req.headers['x-paystack-signature']) {
+      logger.info(req.body)
+      throw new ForbiddenError()
+    }
+    paymentQueue.add({
+      userId: null,
+      event: req.body.event,
+      reason: req.body.reason,
+      data: req.body.data,
+    })
+    res.sendStatus(200)
+  })
   app.use(handleError)
 
   return app

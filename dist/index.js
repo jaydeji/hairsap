@@ -84,6 +84,10 @@ var OTP_TYPE = {
   EMAIL: "email",
   PHONE: "phone"
 };
+var BUCKET = {
+  PHOTO: "photo",
+  VIDEO: "video"
+};
 
 // src/config/email/templates/signup.ts
 var signUpEmailTemplate = (name) => {
@@ -177,6 +181,13 @@ var hashPassword = (plainTextPassword) => {
   ).update(plainTextPassword).digest("hex");
 };
 
+// src/config/db.ts
+var import_client = require("@prisma/client");
+var prisma = new import_client.PrismaClient({
+  log: ["query"]
+});
+var db_default = prisma;
+
 // src/config/queue.ts
 var mainQueue = new import_bull.default("main", process.env.REDIS_URL);
 var emailQueue = new import_bull.default(
@@ -184,6 +195,7 @@ var emailQueue = new import_bull.default(
   process.env.REDIS_URL
 );
 var phoneQueue = new import_bull.default("phone", process.env.REDIS_URL);
+var paymentQueue = new import_bull.default("payment", process.env.REDIS_URL);
 var paymentThreshold = new import_bull.default(
   "payment_threshold",
   process.env.REDIS_URL
@@ -205,6 +217,13 @@ emailQueue.process(async (job, done) => {
 phoneQueue.process(async (job, done) => {
   if (process.env.NODE_ENV !== "production")
     return done();
+});
+paymentQueue.process(async (job, done) => {
+  var _a;
+  await db_default.paymentEvents.create(job.data);
+  if (((_a = job.data) == null ? void 0 : _a.event) === "paymentrequest.success") {
+  }
+  done();
 });
 
 // src/schemas/request/postSignup.ts
@@ -242,6 +261,7 @@ var PostLoginProRequestSchema = PostLoginRequestSchema.extend({
 
 // src/utils/Error.ts
 var import_zod3 = require("zod");
+var import_multer = require("multer");
 var ErrorType = {
   VALIDATION_ERROR: "Validation Error",
   INTERNAL_ERROR: "Internal Error",
@@ -302,6 +322,9 @@ var handleError = (_err, _req, res, _next) => {
   }
   if (err2 instanceof import_zod3.ZodError) {
     err2 = new ValidationError(err2.issues);
+  }
+  if (err2 instanceof import_multer.MulterError) {
+    err2 = new ValidationError(err2.message);
   }
   if (err2 instanceof InternalError || !(err2 instanceof HsapError)) {
     logger_default.err(err2.message, err2.stack);
@@ -490,11 +513,21 @@ var validateOtp = ({ repo }) => async (body) => {
   );
   return { user: PostLoginResponseSchema.parse(user), token };
 };
+var uploadFaceId = ({ repo }) => async (userId, path) => {
+  logger_default.info(path);
+  if (!path)
+    throw new InternalError();
+  await repo.user.updateUser(userId, {
+    livePhotoUrl: path
+  });
+  return { path };
+};
 var makeAuth = ({ repo }) => {
   return {
     login: (body, role) => login({ repo, body, role }),
     signup: (body, role) => signup({ repo, body, role }),
-    validateOtp: validateOtp({ repo })
+    validateOtp: validateOtp({ repo }),
+    uploadFaceId: uploadFaceId({ repo })
   };
 };
 var Auth_default = makeAuth;
@@ -605,13 +638,6 @@ var makeRepo = ({ db }) => {
 };
 var repo_default = makeRepo;
 
-// src/config/db.ts
-var import_client = require("@prisma/client");
-var prisma = new import_client.PrismaClient({
-  log: ["query"]
-});
-var db_default = prisma;
-
 // src/app.ts
 var import_compression = __toESM(require("compression"));
 var import_helmet = __toESM(require("helmet"));
@@ -624,13 +650,43 @@ var swagger_default = { openapi: "3.0.0", components: { responses: { InternalErr
 // src/handlers/user/index.ts
 var import_express_async_handler2 = __toESM(require("express-async-handler"));
 
+// src/config/multer-cloud.ts
+var import_multer2 = __toESM(require("multer"));
+var import_multer_s3 = __toESM(require("multer-s3"));
+var import_aws_sdk = require("aws-sdk");
+var spacesEndpoint = new import_aws_sdk.Endpoint(process.env.STORAGE_ENDPOINT);
+var s3 = new import_aws_sdk.S3({
+  endpoint: spacesEndpoint,
+  accessKeyId: process.env.STORAGE_KEY,
+  secretAccessKey: process.env.STORAGE_SECRET
+});
+var oneMB = 1024 * 1024;
+var _upload = (bucket) => (0, import_multer2.default)({
+  storage: (0, import_multer_s3.default)({
+    s3,
+    bucket,
+    metadata: function(req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    acl: "public-read",
+    key: function(req, file, cb) {
+      var _a;
+      cb(null, `${(_a = req.tokenData) == null ? void 0 : _a.userId}/${file.originalname}`);
+    }
+  }),
+  limits: {
+    fileSize: 10 * oneMB
+  }
+});
+var upload = ({
+  fileName,
+  bucket
+}) => _upload(bucket).single(fileName);
+
 // src/handlers/user/patchUser.ts
 var patchUser = ({ service }) => async (req, res) => {
   var _a;
-  await service.user.updateUser(
-    (_a = res.locals.tokenData) == null ? void 0 : _a.userId,
-    req.body
-  );
+  await service.user.updateUser((_a = req.tokenData) == null ? void 0 : _a.userId, req.body);
   res.sendStatus(201);
 };
 
@@ -640,6 +696,18 @@ var makeUserRouter = ({
   service
 }) => {
   router.patch("/", (0, import_express_async_handler2.default)(patchUser({ service })));
+  router.post(
+    "/faceid",
+    upload({ fileName: "photo", bucket: BUCKET.PHOTO }),
+    (0, import_express_async_handler2.default)(async (req, res) => {
+      var _a, _b;
+      const data = await service.auth.uploadFaceId(
+        (_a = req.tokenData) == null ? void 0 : _a.userId,
+        (_b = req.file) == null ? void 0 : _b.path
+      );
+      res.status(200).send({ data });
+    })
+  );
   return router;
 };
 var user_default2 = makeUserRouter;
@@ -657,12 +725,14 @@ var auth = () => (0, import_express_async_handler3.default)((req, res, next) => 
   } catch (error) {
     throw new ForbiddenError();
   }
-  res.locals.tokenData = decodedToken;
+  ;
+  req.tokenData = decodedToken;
   next();
 });
 var auth_default2 = auth;
 
 // src/app.ts
+var import_crypto3 = __toESM(require("crypto"));
 var createApp = () => {
   const repo = repo_default({ db: db_default });
   const service = services_default({ repo });
@@ -678,6 +748,21 @@ var createApp = () => {
   });
   app2.use("/auth", auth_default({ router, service }));
   app2.use("/user", auth_default2(), user_default2({ router, service }));
+  app2.get("/webhook/paystack", (req, res) => {
+    const secret = process.env.PAYMENT_SECRET;
+    const hash = import_crypto3.default.createHmac("sha512", secret).update(JSON.stringify(req.body)).digest("hex");
+    if (hash !== req.headers["x-paystack-signature"]) {
+      logger_default.info(req.body);
+      throw new ForbiddenError();
+    }
+    paymentQueue.add({
+      userId: null,
+      event: req.body.event,
+      reason: req.body.reason,
+      data: req.body.data
+    });
+    res.sendStatus(200);
+  });
   app2.use(handleError);
   return app2;
 };

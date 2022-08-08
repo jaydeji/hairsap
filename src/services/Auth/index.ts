@@ -11,7 +11,7 @@ import {
   PostSignupUserRequest,
   PostSignupUserRequestSchema,
 } from '../../schemas/request/postSignup'
-import { hashPassword } from '../../utils'
+import { hashPassword, logger } from '../../utils'
 import {
   PostLoginProRequest,
   PostLoginProRequestSchema,
@@ -34,6 +34,7 @@ import {
 } from '../../schemas/request/postValidateOtp'
 import { generateLoginOtp } from '../../utils/otp'
 import dayjs from '../../utils/dayjs'
+import { upload } from '../../config/multer-cloud'
 
 const login = async ({
   repo,
@@ -212,12 +213,25 @@ const validateOtp =
     return { user: PostLoginResponseSchema.parse(user), token }
   }
 
+const uploadFaceId =
+  ({ repo }: { repo: Repo }) =>
+  async (userId: number, path?: string) => {
+    logger.info(path)
+    if (!path) throw new InternalError()
+    await repo.user.updateUser(userId, {
+      livePhotoUrl: path,
+    })
+
+    return { path }
+  }
+
 const makeAuth = ({ repo }: { repo: Repo }) => {
   return {
     login: (body: PostLoginRequest, role: Role) => login({ repo, body, role }),
     signup: (body: PostSignupProRequest | PostSignupUserRequest, role: Role) =>
       signup({ repo, body, role }),
     validateOtp: validateOtp({ repo }),
+    uploadFaceId: uploadFaceId({ repo }),
   }
 }
 

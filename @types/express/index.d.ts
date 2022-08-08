@@ -1,12 +1,13 @@
-import * as express from 'express'
+import { Role } from '../../src/types'
 
 declare global {
   namespace Express {
-    // interface Locals {
-    //   tokenData?: Record<strinf, unknown>
-    // }
-    // interface Response {
-    //   locals?: Locals
-    // }
+    interface Request {
+      tokenData?: {
+        email: string
+        userId: number
+        role: Role
+      }
+    }
   }
 }

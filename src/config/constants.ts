@@ -26,3 +26,11 @@ export const OTP_TYPE = {
   EMAIL: 'email',
   PHONE: 'phone',
 } as const
+
+export const BUCKET = {
+  PHOTO: 'photo',
+  VIDEO: 'video',
+} as const
+
+export const PLACEHOLDER =
+  'https://avatars.dicebear.com/api/adventurer/hairsap.svg'

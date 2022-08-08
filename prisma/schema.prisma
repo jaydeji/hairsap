@@ -150,11 +150,21 @@ model User {
   notifications     Notification[]
   redeemPayments    RedeemPayment[]
   PasswordReset     PasswordReset[]
+  paymentEvents     PaymentEvents[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
+}
+
+model PaymentEvents {
+  eventId Int    @id @default(autoincrement())
+  event   String
+  data    Json
+  reason  String
+  User    User?  @relation(fields: [userId], references: [userId])
+  userId  Int?
 }
 
 model Device {
