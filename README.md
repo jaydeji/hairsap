@@ -1,6 +1,9 @@
 # Hairsap
 
-## Running for the first time
+## Running for the first time 
+### Docker
+docker-compose up
+### Local
 create a .env file from the .env.example file and fill values without quotes
 npm install
 npm run prepare
