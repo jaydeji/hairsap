@@ -32,20 +32,11 @@ class ValidationError extends HsapError {
     super(
       typeof error === 'string' ? error : ErrorType.VALIDATION_ERROR,
       400,
-      error instanceof ZodError
-        ? error.issues
-        : typeof error !== 'string'
-        ? error
-        : undefined,
+      typeof error !== 'string' ? error : undefined,
     )
     this.message =
       typeof error === 'string' ? error : ErrorType.VALIDATION_ERROR
-    this.validationError =
-      error instanceof ZodError
-        ? error.issues
-        : typeof error !== 'string'
-        ? error
-        : undefined
+    this.validationError = typeof error !== 'string' ? error : undefined
     this.name = this.constructor.name
   }
 }
@@ -104,6 +95,10 @@ const handleError = (
 
   if ((err as any)?.type === 'entity.parse.failed') {
     err = new HsapError('entity.parse.failed', 413)
+  }
+
+  if (err instanceof ZodError) {
+    err = new ValidationError(err.issues)
   }
 
   if (err instanceof InternalError || !(err instanceof HsapError)) {

@@ -3,9 +3,10 @@ services:
   backend:
     build:
       context: .
+      dockerfile: Dockerfile.dev
       #  args:
       #   - VITE_BASE_URL=https://pay-back.babajideadedeji.com/api/v1
-    command: sh -c "npm rebuild esbuild && npm run dev"
+    # command: sh -c "npm rebuild esbuild && npm run dev"
     ports:
       - '4000:3000'
     depends_on:

@@ -1,0 +1,34 @@
+chat
+otp
+push notification
+/register?type=user|beautypro   done
+/login?type=user|admin|beautypro
+/validate
+/getbeautyprosbylocation
+/getbeautyprobyname?filterby=service
+/getbeautypro
+/subscribe
+/subscriptions
+/subscribes
+/book
+/services
+/notifications
+/addservicetobooking
+GET /me
+PATCH /me done
+/uploadprofilephoto
+/resetpassword
+/transactionhistory
+/reactivaterequest
+/setactivetimer
+/getinvoice?id=1
+/report/booking?returned=true&status=completed&period=weekly
+/report/tasktarget?period=monthly
+/bookings
+/acceptbooking
+/rejectbooking
+/cancelbooking
+/confirmpayout
+/acceptreactivaterequest
+/verifyuser
+/verifydevice

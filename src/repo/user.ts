@@ -14,6 +14,19 @@ const getUserById =
     })
   }
 
+const getUserByIdAndOtp =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) => {
+    return db.user.findUnique({
+      where: {
+        userId,
+      },
+      include: {
+        otp: true,
+      },
+    })
+  }
+
 const getUserByEmail = ({ email, db }: { db: PrismaClient; email: string }) => {
   return db.user.findUnique({
     where: {
@@ -53,18 +66,18 @@ const createUser = ({
 
 const updateUser =
   ({ db }: { db: PrismaClient }) =>
-  (user: Prisma.UserUpdateInput, userId: number) => {
+  (userId: number, user: Prisma.UserUpdateInput) =>
     db.user.update({
       data: user,
       where: {
         userId: userId,
       },
     })
-  }
 
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
+    getUserByIdAndOtp: getUserByIdAndOtp({ db }),
     getUserByEmail: (email: string) => getUserByEmail({ db, email }),
     getUserByEmailandRole: (email: string, role: Role) =>
       getUserByEmailandRole({ db, email, role }),

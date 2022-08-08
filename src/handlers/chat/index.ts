@@ -1,8 +1,9 @@
-import { io } from 'index'
+import { io } from '../../index'
+import { logger } from '../../utils'
 
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  logger.info('a user connected')
   socket.on('disconnect', () => {
-    console.log('user disconnected')
+    logger.info('user disconnected')
   })
 })

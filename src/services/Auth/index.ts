@@ -1,6 +1,6 @@
 import { ROLES } from '../../config/constants'
 import { signUpEmailTemplate } from '../../config/email/templates/signup'
-import { emailQueue } from '../../config/queue'
+import { emailQueue, phoneQueue } from '../../config/queue'
 import {
   PostSignupProRequest,
   PostSignupProRequestSchema,
@@ -9,20 +9,28 @@ import {
   PostSignupUserRequestSchema,
 } from '../../schemas/request/postSignup'
 import { hashPassword } from '../../utils'
-import { ZodError } from 'zod'
 import {
   PostLoginProRequest,
+  PostLoginProRequestSchema,
   PostLoginRequest,
   PostLoginRequestSchema,
   PostLoginUserRequest,
+  PostLoginUserRequestSchema,
 } from '../../schemas/request/postLogin'
-import type { Repo, Role } from '../../types'
+import type { OtpType, Repo, Role } from '../../types'
 import {
   ForbiddenError,
   InternalError,
   ValidationError,
 } from '../../utils/Error'
 import { generateJwt } from '../../utils/jwtLib'
+import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
+import {
+  PostValidateOtpReq,
+  PostValidateOtpReqSchema,
+} from '../../schemas/request/postValidateOtp'
+import { generateLoginOtp } from '../../utils/otp'
+import dayjs from '../../utils/dayjs'
 
 const login = async ({
   repo,
@@ -35,9 +43,13 @@ const login = async ({
 }) => {
   if (!role) throw new ValidationError('Param role not passed')
 
-  const req = PostLoginRequestSchema.parse({ ...body, role })
-
   const isAdmin = role === ROLES.ADMIN
+
+  if (!isAdmin && role === ROLES.USER)
+    PostLoginUserRequestSchema.parse({ ...body, role })
+  else if (!isAdmin && role === ROLES.PRO)
+    PostLoginProRequestSchema.parse({ ...body, role })
+  else PostLoginRequestSchema.parse({ ...body, role })
 
   let user
   try {
@@ -45,11 +57,10 @@ const login = async ({
   } catch (error) {
     throw new InternalError(error as string)
   }
-
   if (!user) throw new ForbiddenError('email or password incorrect')
   const hashedPassword = hashPassword(body.password)
 
-  if (body.password !== hashedPassword) {
+  if (user.password !== hashedPassword) {
     throw new ForbiddenError('email or password incorrect')
   }
   if (!isAdmin && (user.deactivated || user.terminated)) {
@@ -59,6 +70,8 @@ const login = async ({
   if (role === ROLES.PRO && !user.verified) {
     throw new ForbiddenError('user not verified')
   }
+
+  // TODO: suspend face verification
 
   if (!isAdmin) {
     //TODO: verify faceId
@@ -70,13 +83,25 @@ const login = async ({
     if (!device) throw new ForbiddenError('device not recognised')
   }
 
-  const token = generateJwt({ email: req.email, role }, isAdmin, {
-    expiresIn: isAdmin ? String(60 * 60 * 24) : String(60 * 60 * 24 * 7),
+  const otp = await generateLoginOtp()
+
+  await repo.user.updateUser(user.userId, {
+    otp: {
+      create: {
+        value: otp,
+        expiredAt: dayjs().add(10, 'm').toDate(),
+      },
+    },
+  })
+
+  phoneQueue.add({
+    phone: user.phone,
+    otp,
   })
 
   return {
-    user,
-    token,
+    user: PostLoginResponseSchema.parse(user),
+    otp,
   }
 }
 
@@ -107,6 +132,8 @@ const signup = async ({
 
   const { deviceInfo, ...newBody } = body //eslint-disable-line
 
+  const otp = await generateLoginOtp()
+
   const user = await repo.user.createUser({
     ...newBody,
     role: role,
@@ -116,9 +143,12 @@ const signup = async ({
         value: body.deviceInfo,
       },
     },
-  })
-  const token = generateJwt({ email: user.email, role }, false, {
-    expiresIn: String(60 * 60 * 24 * 7),
+    otp: {
+      create: {
+        value: otp,
+        expiredAt: dayjs().add(10, 'm').toDate(),
+      },
+    },
   })
 
   emailQueue.add(signUpEmailTemplate(user.name))
@@ -139,14 +169,48 @@ const signup = async ({
   //   },
   // )
 
-  return { user, token }
+  return { user: PostLoginResponseSchema.parse(user), otp }
 }
+
+const validateOtp =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostValidateOtpReq) => {
+    PostValidateOtpReqSchema.parse(body)
+
+    const user = await repo.user.getUserByIdAndOtp(body.userId)
+
+    if (!user) throw new ForbiddenError()
+    console.log(user)
+
+    if (!user.otp?.value) throw new ForbiddenError()
+    if (user.otp.value !== body.otp) throw new ForbiddenError()
+
+    if (dayjs(user?.otp?.expiredAt).isBefore(dayjs()))
+      throw new ForbiddenError()
+
+    await repo.user.updateUser(user.userId, {
+      otp: {
+        delete: true,
+      },
+    })
+
+    const token = generateJwt(
+      { email: user.email, role: user.role, userId: user.userId },
+      false,
+      {
+        expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+      },
+    )
+
+    return { user: PostLoginResponseSchema.parse(user), token }
+  }
 
 const makeAuth = ({ repo }: { repo: Repo }) => {
   return {
     login: (body: PostLoginRequest, role: Role) => login({ repo, body, role }),
     signup: (body: PostSignupProRequest | PostSignupUserRequest, role: Role) =>
       signup({ repo, body, role }),
+    validateOtp: validateOtp({ repo }),
   }
 }
 

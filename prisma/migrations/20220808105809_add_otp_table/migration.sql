@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `livePhotoUrl` VARCHAR(191) NULL;
+
+-- CreateTable
+CREATE TABLE `Otp` (
+    `otpId` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `expiredAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `Otp_userId_key`(`userId`),
+    PRIMARY KEY (`otpId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Otp` ADD CONSTRAINT `Otp_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;

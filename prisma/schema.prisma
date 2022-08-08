@@ -123,6 +123,7 @@ model User {
   role              String
   phone             String?
   photoUrl          String?
+  livePhotoUrl      String?
   approved          Boolean?        @default(false)
   deactivated       Boolean?        @default(false)
   deactivatedReason Int?
@@ -136,6 +137,7 @@ model User {
   closingAt         DateTime?
   workVideoUrl      String?
   businessName      String?
+  otp               Otp?
   devices           Device[]
   services          UserService[]
   subscribers       Subscription[]  @relation("user")
@@ -166,6 +168,16 @@ model PasswordReset {
   resetId String @id @default(uuid())
   user    User   @relation(fields: [userId], references: [userId])
   userId  Int
+
+  createdAt DateTime @default(now())
+  expiredAt DateTime @default(now())
+}
+
+model Otp {
+  otpId  String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [userId])
+  userId Int    @unique
+  value  String
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())

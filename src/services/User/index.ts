@@ -6,10 +6,9 @@ import type { Repo } from '../../types'
 
 const updateUser =
   ({ repo }: { repo: Repo }) =>
-  async (body: PatchUserRequest) => {
-    PatchUserRequestSchema.parse(body)
-    const { userId, ...newBody } = body
-    await repo.user.updateUser(newBody, userId)
+  async (userId: number, body: PatchUserRequest) => {
+    PatchUserRequestSchema.parse({ ...body, userId: userId })
+    await repo.user.updateUser(userId, body)
   }
 
 const makeUser = ({ repo }: { repo: Repo }) => {

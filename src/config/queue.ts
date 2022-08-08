@@ -8,13 +8,14 @@ const emailQueue = new Queue<SendMailOptions>(
   'email',
   process.env.REDIS_URL as string,
 )
+const phoneQueue = new Queue('phone', process.env.REDIS_URL as string)
 const paymentThreshold = new Queue(
   'payment_threshold',
   process.env.REDIS_URL as string,
 )
 
 mainQueue.process(async (job, done) => {
-  console.log(job.id, job.data)
+  logger.info(job.id, job.data)
   done()
 })
 
@@ -30,4 +31,9 @@ emailQueue.process(async (job, done) => {
     })
 })
 
-export { emailQueue, mainQueue, paymentThreshold }
+phoneQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== 'production') return done()
+  //  TODO: send test message
+})
+
+export { emailQueue, mainQueue, paymentThreshold, phoneQueue }

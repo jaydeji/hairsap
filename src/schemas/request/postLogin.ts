@@ -13,10 +13,10 @@ export type PostLoginRequest = z.infer<typeof PostLoginRequestSchema>
 
 export const PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
   deviceInfo: z.string(),
-})
+}).strict()
 export type PostLoginUserRequest = z.infer<typeof PostLoginUserRequestSchema>
 
 export const PostLoginProRequestSchema = PostLoginRequestSchema.extend({
   deviceInfo: z.string(),
-})
+}).strict()
 export type PostLoginProRequest = z.infer<typeof PostLoginProRequestSchema>

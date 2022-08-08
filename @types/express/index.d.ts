@@ -1,9 +1,12 @@
-import * as express from 'express';
+import * as express from 'express'
 
 declare global {
   namespace Express {
-    interface Response {
-      //   send: (message: string) => void;
-    }
+    // interface Locals {
+    //   tokenData?: Record<strinf, unknown>
+    // }
+    // interface Response {
+    //   locals?: Locals
+    // }
   }
 }

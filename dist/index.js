@@ -63,6 +63,13 @@ var makeAuthRouter = ({
       res.status(200).send({ data });
     })
   );
+  router.post(
+    "/validateotp",
+    (0, import_express_async_handler.default)(async (req, res) => {
+      const data = await service.auth.validateOtp(req.body);
+      res.status(200).send({ data });
+    })
+  );
   return router;
 };
 var auth_default = makeAuthRouter;
@@ -72,6 +79,10 @@ var ROLES = {
   USER: "user",
   ADMIN: "admin",
   PRO: "pro"
+};
+var OTP_TYPE = {
+  EMAIL: "email",
+  PHONE: "phone"
 };
 
 // src/config/email/templates/signup.ts
@@ -157,12 +168,13 @@ var emailQueue = new import_bull.default(
   "email",
   process.env.REDIS_URL
 );
+var phoneQueue = new import_bull.default("phone", process.env.REDIS_URL);
 var paymentThreshold = new import_bull.default(
   "payment_threshold",
   process.env.REDIS_URL
 );
 mainQueue.process(async (job, done) => {
-  console.log(job.id, job.data);
+  logger_default.info(job.id, job.data);
   done();
 });
 emailQueue.process(async (job, done) => {
@@ -174,6 +186,10 @@ emailQueue.process(async (job, done) => {
     logger_default.err(error.message);
     done();
   });
+});
+phoneQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== "production")
+    return done();
 });
 
 // src/schemas/request/postSignup.ts
@@ -188,11 +204,11 @@ var PostSignupRequestSchema = import_zod.z.object({
 }).strict();
 var PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
   deviceInfo: import_zod.z.string().min(1)
-});
+}).strict();
 var PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: import_zod.z.string(),
   deviceInfo: import_zod.z.string().min(1)
-});
+}).strict();
 
 // src/schemas/request/postLogin.ts
 var import_zod2 = require("zod");
@@ -203,10 +219,10 @@ var PostLoginRequestSchema = import_zod2.z.object({
 }).strict();
 var PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
   deviceInfo: import_zod2.z.string()
-});
+}).strict();
 var PostLoginProRequestSchema = PostLoginRequestSchema.extend({
   deviceInfo: import_zod2.z.string()
-});
+}).strict();
 
 // src/utils/Error.ts
 var import_zod3 = require("zod");
@@ -231,11 +247,11 @@ var ValidationError = class extends HsapError {
     super(
       typeof error === "string" ? error : ErrorType.VALIDATION_ERROR,
       400,
-      error instanceof import_zod3.ZodError ? error.issues : typeof error !== "string" ? error : void 0
+      typeof error !== "string" ? error : void 0
     );
     this.status = 400;
     this.message = typeof error === "string" ? error : ErrorType.VALIDATION_ERROR;
-    this.validationError = error instanceof import_zod3.ZodError ? error.issues : typeof error !== "string" ? error : void 0;
+    this.validationError = typeof error !== "string" ? error : void 0;
     this.name = this.constructor.name;
   }
 };
@@ -268,6 +284,9 @@ var handleError = (_err, _req, res, _next) => {
   if ((err2 == null ? void 0 : err2.type) === "entity.parse.failed") {
     err2 = new HsapError("entity.parse.failed", 413);
   }
+  if (err2 instanceof import_zod3.ZodError) {
+    err2 = new ValidationError(err2.issues);
+  }
   if (err2 instanceof InternalError || !(err2 instanceof HsapError)) {
     logger_default.err(err2.message, err2.stack);
   }
@@ -293,6 +312,40 @@ var verifyJwt = (token, admin) => {
   return import_jsonwebtoken.default.verify(token, secret);
 };
 
+// src/schemas/response/postLogin.ts
+var import_zod4 = require("zod");
+var PostLoginResponseSchema = import_zod4.z.object({
+  address: import_zod4.z.string().optional().nullable(),
+  email: import_zod4.z.string().email(),
+  name: import_zod4.z.string(),
+  photoUrl: import_zod4.z.string().optional().nullable(),
+  role: import_zod4.z.nativeEnum(ROLES),
+  userId: import_zod4.z.number()
+}).passthrough().strict().strip();
+
+// src/schemas/request/postValidateOtp.ts
+var import_zod5 = require("zod");
+var PostValidateOtpReqSchema = import_zod5.z.object({
+  userId: import_zod5.z.number().min(1),
+  otpType: import_zod5.z.nativeEnum(OTP_TYPE),
+  otp: import_zod5.z.string().min(6)
+}).strict();
+
+// src/utils/otp.ts
+var import_crypto2 = __toESM(require("crypto"));
+var generateLoginOtp = (size = 6) => new Promise(
+  (res) => import_crypto2.default.randomBytes(3, (err2, buffer) => {
+    const otp = parseInt(buffer.toString("hex"), 16).toString().substring(0, size);
+    res(String(otp));
+  })
+);
+
+// src/utils/dayjs.ts
+var import_dayjs = __toESM(require("dayjs"));
+var import_duration = __toESM(require("dayjs/plugin/duration"));
+import_dayjs.default.extend(import_duration.default);
+var dayjs_default = import_dayjs.default;
+
 // src/services/Auth/index.ts
 var login = async ({
   repo,
@@ -301,8 +354,13 @@ var login = async ({
 }) => {
   if (!role)
     throw new ValidationError("Param role not passed");
-  const req = PostLoginRequestSchema.parse({ ...body, role });
   const isAdmin = role === ROLES.ADMIN;
+  if (!isAdmin && role === ROLES.USER)
+    PostLoginUserRequestSchema.parse({ ...body, role });
+  else if (!isAdmin && role === ROLES.PRO)
+    PostLoginProRequestSchema.parse({ ...body, role });
+  else
+    PostLoginRequestSchema.parse({ ...body, role });
   let user;
   try {
     user = await repo.user.getUserByEmail(body.email);
@@ -312,7 +370,7 @@ var login = async ({
   if (!user)
     throw new ForbiddenError("email or password incorrect");
   const hashedPassword = hashPassword(body.password);
-  if (body.password !== hashedPassword) {
+  if (user.password !== hashedPassword) {
     throw new ForbiddenError("email or password incorrect");
   }
   if (!isAdmin && (user.deactivated || user.terminated)) {
@@ -328,12 +386,22 @@ var login = async ({
     if (!device)
       throw new ForbiddenError("device not recognised");
   }
-  const token = generateJwt({ email: req.email, role }, isAdmin, {
-    expiresIn: isAdmin ? String(60 * 60 * 24) : String(60 * 60 * 24 * 7)
+  const otp = await generateLoginOtp();
+  await repo.user.updateUser(user.userId, {
+    otp: {
+      create: {
+        value: otp,
+        expiredAt: dayjs_default().add(10, "m").toDate()
+      }
+    }
+  });
+  phoneQueue.add({
+    phone: user.phone,
+    otp
   });
   return {
-    user,
-    token
+    user: PostLoginResponseSchema.parse(user),
+    otp
   };
 };
 var signup = async ({
@@ -355,6 +423,7 @@ var signup = async ({
     throw new ValidationError("User with this email already exists");
   const hashedPassword = hashPassword(body.password);
   const { deviceInfo, ...newBody } = body;
+  const otp = await generateLoginOtp();
   const user = await repo.user.createUser({
     ...newBody,
     role,
@@ -363,39 +432,69 @@ var signup = async ({
       create: {
         value: body.deviceInfo
       }
+    },
+    otp: {
+      create: {
+        value: otp,
+        expiredAt: dayjs_default().add(10, "m").toDate()
+      }
     }
   });
-  const token = generateJwt({ email: user.email, role }, false, {
-    expiresIn: String(60 * 60 * 24 * 7)
-  });
   emailQueue.add(signUpEmailTemplate(user.name));
-  return { user, token };
+  return { user: PostLoginResponseSchema.parse(user), otp };
+};
+var validateOtp = ({ repo }) => async (body) => {
+  var _a, _b;
+  PostValidateOtpReqSchema.parse(body);
+  const user = await repo.user.getUserByIdAndOtp(body.userId);
+  if (!user)
+    throw new ForbiddenError();
+  console.log(user);
+  if (!((_a = user.otp) == null ? void 0 : _a.value))
+    throw new ForbiddenError();
+  if (user.otp.value !== body.otp)
+    throw new ForbiddenError();
+  if (dayjs_default((_b = user == null ? void 0 : user.otp) == null ? void 0 : _b.expiredAt).isBefore(dayjs_default()))
+    throw new ForbiddenError();
+  await repo.user.updateUser(user.userId, {
+    otp: {
+      delete: true
+    }
+  });
+  const token = generateJwt(
+    { email: user.email, role: user.role, userId: user.userId },
+    false,
+    {
+      expiresIn: String(dayjs_default.duration({ days: 7 }).as("ms"))
+    }
+  );
+  return { user: PostLoginResponseSchema.parse(user), token };
 };
 var makeAuth = ({ repo }) => {
   return {
     login: (body, role) => login({ repo, body, role }),
-    signup: (body, role) => signup({ repo, body, role })
+    signup: (body, role) => signup({ repo, body, role }),
+    validateOtp: validateOtp({ repo })
   };
 };
 var Auth_default = makeAuth;
 
 // src/schemas/request/patchUser.ts
-var import_zod4 = require("zod");
-var PatchUserRequestSchema = import_zod4.z.object({
-  userId: import_zod4.z.number(),
-  photoUrl: import_zod4.z.string().min(1)
+var import_zod6 = require("zod");
+var PatchUserRequestSchema = import_zod6.z.object({
+  userId: import_zod6.z.number(),
+  photoUrl: import_zod6.z.string().min(1)
 });
 var PatchUserUserRequestSchema = PatchUserRequestSchema.extend({});
 var PatchUserProRequestSchema = PatchUserRequestSchema.extend({
-  closingAt: import_zod4.z.date(),
-  resumptionAt: import_zod4.z.date()
+  closingAt: import_zod6.z.date(),
+  resumptionAt: import_zod6.z.date()
 });
 
 // src/services/User/index.ts
-var updateUser = ({ repo }) => async (body) => {
-  PatchUserRequestSchema.parse(body);
-  const { userId, ...newBody } = body;
-  await repo.user.updateUser(newBody, userId);
+var updateUser = ({ repo }) => async (userId, body) => {
+  PatchUserRequestSchema.parse({ ...body, userId });
+  await repo.user.updateUser(userId, body);
 };
 var makeUser = ({ repo }) => {
   return {
@@ -421,6 +520,16 @@ var getUserById = ({ db }) => (userId) => {
     },
     include: {
       devices: true
+    }
+  });
+};
+var getUserByIdAndOtp = ({ db }) => (userId) => {
+  return db.user.findUnique({
+    where: {
+      userId
+    },
+    include: {
+      otp: true
     }
   });
 };
@@ -450,17 +559,16 @@ var createUser = ({
   user,
   db
 }) => db.user.create({ data: user });
-var updateUser2 = ({ db }) => (user, userId) => {
-  db.user.update({
-    data: user,
-    where: {
-      userId
-    }
-  });
-};
+var updateUser2 = ({ db }) => (userId, user) => db.user.update({
+  data: user,
+  where: {
+    userId
+  }
+});
 var makeUserRepo = ({ db }) => {
   return {
     getUserById: getUserById({ db }),
+    getUserByIdAndOtp: getUserByIdAndOtp({ db }),
     getUserByEmail: (email) => getUserByEmail({ db, email }),
     getUserByEmailandRole: (email, role) => getUserByEmailandRole({ db, email, role }),
     createUser: (user) => createUser({ user, db }),
@@ -498,7 +606,11 @@ var import_express_async_handler2 = __toESM(require("express-async-handler"));
 
 // src/handlers/user/patchUser.ts
 var patchUser = ({ service }) => async (req, res) => {
-  await service.user.updateUser(req.body);
+  var _a;
+  await service.user.updateUser(
+    (_a = res.locals.tokenData) == null ? void 0 : _a.userId,
+    req.body
+  );
   res.sendStatus(201);
 };
 
@@ -513,7 +625,8 @@ var makeUserRouter = ({
 var user_default2 = makeUserRouter;
 
 // src/middleware/auth.ts
-var auth = () => (req, res, next) => {
+var import_express_async_handler3 = __toESM(require("express-async-handler"));
+var auth = () => (0, import_express_async_handler3.default)((req, res, next) => {
   let token = req.headers.authorization;
   if (!token)
     throw new UnauthorizedError();
@@ -526,7 +639,7 @@ var auth = () => (req, res, next) => {
   }
   res.locals.tokenData = decodedToken;
   next();
-};
+});
 var auth_default2 = auth;
 
 // src/app.ts

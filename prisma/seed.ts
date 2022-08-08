@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client'
+import { logger } from '../src/utils'
 
 const prisma = new PrismaClient()
 
@@ -34,7 +35,7 @@ const subServiceData: Prisma.SubServiceCreateManyInput[] = [
 ]
 
 async function main() {
-  console.log(`Start seeding ...`)
+  logger.info(`Start seeding ...`)
 
   await prisma.service.createMany({
     data: serviceData,
@@ -44,7 +45,7 @@ async function main() {
     data: subServiceData,
   })
 
-  console.log(`Seeding finished.`)
+  logger.info(`Seeding finished.`)
 }
 
 main()
@@ -52,7 +53,7 @@ main()
     await prisma.$disconnect()
   })
   .catch(async (e) => {
-    console.error(e)
+    logger.err(e)
     await prisma.$disconnect()
     process.exit(1)
   })
