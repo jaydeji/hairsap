@@ -121,7 +121,7 @@ model User {
   userName          String?
   password          String
   role              String
-  phone             String?
+  phone             String
   photoUrl          String?
   livePhotoUrl      String?
   approved          Boolean?        @default(false)

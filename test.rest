@@ -15,6 +15,7 @@ Content-Type: application/json
     "email":"jideadedejifirst@gmail.com",
     "password":"jide1234",
     "name":"Jide Adedeji",
+    "phone":"+2348118161237",
     "deviceInfo":"jide_phone"
 }
 
@@ -26,17 +27,17 @@ Content-Type: application/json
 {
     "email":"jideadedejifirst@gmail.com",
     "password":"jide1234",
-    "deviceInfo":"jide_phone"
+    "deviceInfo":"jide_phone",
+    "otpType":"phone"
 }
 
 ###
 # @name validateOtp
-POST {{base}}/auth/validateotp?otptype=phone&userid={{userid}} HTTP/1.1
+POST {{base}}/auth/validateotp HTTP/1.1
 Content-Type: application/json
 
 {
     "userId": {{userid}},
-    "otpType":"phone",
     "otp": {{otp}}
 }
 

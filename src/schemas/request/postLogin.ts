@@ -1,11 +1,12 @@
 import { z } from 'zod'
-import { ROLES } from '../../config/constants'
+import { OTP_TYPE, ROLES } from '../../config/constants'
 
 export const PostLoginRequestSchema = z
   .object({
     email: z.string().email(),
     password: z.string().min(6).max(32),
     role: z.nativeEnum(ROLES),
+    otpType: z.nativeEnum(OTP_TYPE),
   })
   .strict()
 

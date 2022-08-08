@@ -1,5 +1,8 @@
-import { ROLES } from '../../config/constants'
-import { signUpEmailTemplate } from '../../config/email/templates/signup'
+import { OTP_TYPE, ROLES } from '../../config/constants'
+import {
+  otpEmailTemplate,
+  signUpEmailTemplate,
+} from '../../config/email/templates/signup'
 import { emailQueue, phoneQueue } from '../../config/queue'
 import {
   PostSignupProRequest,
@@ -93,11 +96,16 @@ const login = async ({
       },
     },
   })
-
-  phoneQueue.add({
-    phone: user.phone,
-    otp,
-  })
+  if (body.otpType === OTP_TYPE.PHONE) {
+    phoneQueue.add({
+      phone: user.phone,
+      otp,
+    })
+  } else if (user.email && body.otpType === OTP_TYPE.EMAIL) {
+    emailQueue.add(
+      otpEmailTemplate({ name: user.name, email: user.email, otp }),
+    )
+  }
 
   return {
     user: PostLoginResponseSchema.parse(user),
@@ -180,7 +188,6 @@ const validateOtp =
     const user = await repo.user.getUserByIdAndOtp(body.userId)
 
     if (!user) throw new ForbiddenError()
-    console.log(user)
 
     if (!user.otp?.value) throw new ForbiddenError()
     if (user.otp.value !== body.otp) throw new ForbiddenError()

@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
-export const PatchUserRequestSchema = z.object({
-  userId: z.number(),
-  photoUrl: z.string().min(1),
-})
+export const PatchUserRequestSchema = z
+  .object({
+    userId: z.number(),
+    photoUrl: z.string().min(1),
+  })
+  .strict()
 
 export type PatchUserRequest = z.infer<typeof PatchUserRequestSchema>
 

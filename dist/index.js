@@ -95,6 +95,21 @@ var signUpEmailTemplate = (name) => {
     html: `<p>A new user with name ${name} has signed up</p>`
   };
 };
+var otpEmailTemplate = ({
+  email,
+  name,
+  otp
+}) => {
+  return {
+    from: '"Hairsap" <notify@hairsap.com>',
+    to: email,
+    subject: "Your OTP Code",
+    text: `Dear ${name},
+ Please use the OTP code: ${otp} to complete your login.`,
+    html: `<p>Dear ${name},
+ Please use the OTP code: ${otp} to complete your login.</p>`
+  };
+};
 
 // src/config/queue.ts
 var import_bull = __toESM(require("bull"));
@@ -215,7 +230,8 @@ var import_zod2 = require("zod");
 var PostLoginRequestSchema = import_zod2.z.object({
   email: import_zod2.z.string().email(),
   password: import_zod2.z.string().min(6).max(32),
-  role: import_zod2.z.nativeEnum(ROLES)
+  role: import_zod2.z.nativeEnum(ROLES),
+  otpType: import_zod2.z.nativeEnum(OTP_TYPE)
 }).strict();
 var PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
   deviceInfo: import_zod2.z.string()
@@ -327,7 +343,6 @@ var PostLoginResponseSchema = import_zod4.z.object({
 var import_zod5 = require("zod");
 var PostValidateOtpReqSchema = import_zod5.z.object({
   userId: import_zod5.z.number().min(1),
-  otpType: import_zod5.z.nativeEnum(OTP_TYPE),
   otp: import_zod5.z.string().min(6)
 }).strict();
 
@@ -395,10 +410,16 @@ var login = async ({
       }
     }
   });
-  phoneQueue.add({
-    phone: user.phone,
-    otp
-  });
+  if (body.otpType === OTP_TYPE.PHONE) {
+    phoneQueue.add({
+      phone: user.phone,
+      otp
+    });
+  } else if (user.email && body.otpType === OTP_TYPE.EMAIL) {
+    emailQueue.add(
+      otpEmailTemplate({ name: user.name, email: user.email, otp })
+    );
+  }
   return {
     user: PostLoginResponseSchema.parse(user),
     otp
@@ -449,7 +470,6 @@ var validateOtp = ({ repo }) => async (body) => {
   const user = await repo.user.getUserByIdAndOtp(body.userId);
   if (!user)
     throw new ForbiddenError();
-  console.log(user);
   if (!((_a = user.otp) == null ? void 0 : _a.value))
     throw new ForbiddenError();
   if (user.otp.value !== body.otp)
@@ -484,7 +504,7 @@ var import_zod6 = require("zod");
 var PatchUserRequestSchema = import_zod6.z.object({
   userId: import_zod6.z.number(),
   photoUrl: import_zod6.z.string().min(1)
-});
+}).strict();
 var PatchUserUserRequestSchema = PatchUserRequestSchema.extend({});
 var PatchUserProRequestSchema = PatchUserRequestSchema.extend({
   closingAt: import_zod6.z.date(),
