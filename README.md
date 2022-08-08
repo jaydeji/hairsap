@@ -1,8 +1,11 @@
 # Hairsap
 
 ## Running for the first time 
+
 ### Docker
+create a .env file from the .env.example file and fill values without quotes
 docker-compose up
+npx prisma db seed
 ### Local
 create a .env file from the .env.example file and fill values without quotes
 npm install
