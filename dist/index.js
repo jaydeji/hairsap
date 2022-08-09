@@ -36,101 +36,19 @@ var import_socket = require("socket.io");
 
 // src/app.ts
 var import_express = __toESM(require("express"));
+var import_compression = __toESM(require("compression"));
+var import_helmet = __toESM(require("helmet"));
+var import_cors = __toESM(require("cors"));
 
-// src/handlers/auth/index.ts
-var import_express_async_handler = __toESM(require("express-async-handler"));
-var makeAuthRouter = ({
-  router,
-  service
-}) => {
-  router.get(
-    "/",
-    (0, import_express_async_handler.default)((_req, res) => {
-      res.send("Birds home page");
-    })
-  );
-  router.post(
-    "/login",
-    (0, import_express_async_handler.default)(async (req, res) => {
-      const data = await service.auth.login(req.body, req.query.role);
-      res.status(200).send({ data });
-    })
-  );
-  router.post(
-    "/signup",
-    (0, import_express_async_handler.default)(async (req, res) => {
-      const data = await service.auth.signup(req.body, req.query.role);
-      res.status(200).send({ data });
-    })
-  );
-  router.post(
-    "/validateotp",
-    (0, import_express_async_handler.default)(async (req, res) => {
-      const data = await service.auth.validateOtp(req.body);
-      res.status(200).send({ data });
-    })
-  );
-  return router;
-};
-var auth_default = makeAuthRouter;
-
-// src/config/constants.ts
-var ROLES = {
-  USER: "user",
-  ADMIN: "admin",
-  PRO: "pro"
-};
-var OTP_TYPE = {
-  EMAIL: "email",
-  PHONE: "phone"
-};
-var BUCKET = {
-  PHOTO: "photo",
-  VIDEO: "video"
-};
-
-// src/config/email/templates/signup.ts
-var signUpEmailTemplate = (name) => {
-  return {
-    from: '"Hairsap" <notify@hairsap.com>',
-    to: "admin@hairsap.com",
-    subject: "New SignUp",
-    text: `A new user with name ${name} has signed up`,
-    html: `<p>A new user with name ${name} has signed up</p>`
-  };
-};
-var otpEmailTemplate = ({
-  email,
-  name,
-  otp
-}) => {
-  return {
-    from: '"Hairsap" <notify@hairsap.com>',
-    to: email,
-    subject: "Your OTP Code",
-    text: `Dear ${name},
- Please use the OTP code: ${otp} to complete your login.`,
-    html: `<p>Dear ${name},
- Please use the OTP code: ${otp} to complete your login.</p>`
-  };
-};
-
-// src/config/queue.ts
-var import_bull = __toESM(require("bull"));
-
-// src/config/email/index.ts
-var import_nodemailer = __toESM(require("nodemailer"));
-var MAIL_PORT = Number(process.env.MAIL_PORT || 0);
-var transporter = import_nodemailer.default.createTransport({
-  host: process.env.MAIL_HOST,
-  port: MAIL_PORT,
-  secure: process.env.MAIL_SECURE === "true" || MAIL_PORT === 465,
-  auth: {
-    user: process.env.MAIL_USERNAME,
-    pass: process.env.MAIL_PASSWORD
-  }
+// src/config/db.ts
+var import_client = require("@prisma/client");
+var prisma = new import_client.PrismaClient({
+  log: ["query"]
 });
-var sendMail = transporter.sendMail.bind(transporter);
+var db_default = prisma;
+
+// src/utils/Error.ts
+var import_zod = require("zod");
 
 // src/utils/logger.ts
 var import_debug = require("debug");
@@ -172,97 +90,7 @@ var warn = (obj, message, formatter) => {
 };
 var logger_default = { info, err, warn };
 
-// src/utils/hashPassword.ts
-var import_crypto = require("crypto");
-var hashPassword = (plainTextPassword) => {
-  return (0, import_crypto.createHmac)(
-    "sha256" /* SHA256 */,
-    process.env.DATA_ENCRYPTION_KEY || ""
-  ).update(plainTextPassword).digest("hex");
-};
-
-// src/config/db.ts
-var import_client = require("@prisma/client");
-var prisma = new import_client.PrismaClient({
-  log: ["query"]
-});
-var db_default = prisma;
-
-// src/config/queue.ts
-var mainQueue = new import_bull.default("main", process.env.REDIS_URL);
-var emailQueue = new import_bull.default(
-  "email",
-  process.env.REDIS_URL
-);
-var phoneQueue = new import_bull.default("phone", process.env.REDIS_URL);
-var paymentQueue = new import_bull.default("payment", process.env.REDIS_URL);
-var paymentThreshold = new import_bull.default(
-  "payment_threshold",
-  process.env.REDIS_URL
-);
-mainQueue.process(async (job, done) => {
-  logger_default.info(job.id, job.data);
-  done();
-});
-emailQueue.process(async (job, done) => {
-  if (process.env.NODE_ENV !== "production")
-    return done();
-  sendMail(job.data).then((_info) => {
-    done();
-  }).catch((error) => {
-    logger_default.err(error.message);
-    done();
-  });
-});
-phoneQueue.process(async (job, done) => {
-  if (process.env.NODE_ENV !== "production")
-    return done();
-});
-paymentQueue.process(async (job, done) => {
-  var _a;
-  await db_default.paymentEvents.create(job.data);
-  if (((_a = job.data) == null ? void 0 : _a.event) === "paymentrequest.success") {
-  }
-  done();
-});
-
-// src/schemas/request/postSignup.ts
-var import_zod = require("zod");
-var PostSignupRequestSchema = import_zod.z.object({
-  email: import_zod.z.string().email(),
-  name: import_zod.z.string(),
-  password: import_zod.z.string().min(6).max(32),
-  role: import_zod.z.nativeEnum(ROLES).refine((role) => role === ROLES.PRO || role === ROLES.USER, {
-    message: "type must be user or admin"
-  })
-}).strict();
-var PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
-  deviceInfo: import_zod.z.string().min(1),
-  phone: import_zod.z.string().min(8)
-}).strict();
-var PostSignupProRequestSchema = PostSignupRequestSchema.extend({
-  businessName: import_zod.z.string(),
-  deviceInfo: import_zod.z.string().min(1),
-  phone: import_zod.z.string().min(8)
-}).strict();
-
-// src/schemas/request/postLogin.ts
-var import_zod2 = require("zod");
-var PostLoginRequestSchema = import_zod2.z.object({
-  email: import_zod2.z.string().email(),
-  password: import_zod2.z.string().min(6).max(32),
-  role: import_zod2.z.nativeEnum(ROLES),
-  otpType: import_zod2.z.nativeEnum(OTP_TYPE)
-}).strict();
-var PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
-  deviceInfo: import_zod2.z.string()
-}).strict();
-var PostLoginProRequestSchema = PostLoginRequestSchema.extend({
-  deviceInfo: import_zod2.z.string()
-}).strict();
-
 // src/utils/Error.ts
-var import_zod3 = require("zod");
 var import_multer = require("multer");
 var ErrorType = {
   VALIDATION_ERROR: "Validation Error",
@@ -322,7 +150,7 @@ var handleError = (_err, _req, res, _next) => {
   if ((err2 == null ? void 0 : err2.type) === "entity.parse.failed") {
     err2 = new HsapError("entity.parse.failed", 413);
   }
-  if (err2 instanceof import_zod3.ZodError) {
+  if (err2 instanceof import_zod.ZodError) {
     err2 = new ValidationError(err2.issues);
   }
   if (err2 instanceof import_multer.MulterError) {
@@ -352,6 +180,171 @@ var verifyJwt = (token, admin) => {
   const secret = (admin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || "";
   return import_jsonwebtoken.default.verify(token, secret);
 };
+
+// src/middleware/auth.ts
+var import_express_async_handler = __toESM(require("express-async-handler"));
+var auth = () => (0, import_express_async_handler.default)((req, res, next) => {
+  let token = req.headers.authorization;
+  if (!token)
+    throw new UnauthorizedError();
+  token = token.replace(/Bearer /g, "");
+  const decodedToken = decodeJwt(token);
+  try {
+    verifyJwt(token, decodedToken == null ? void 0 : decodedToken.admin);
+  } catch (error) {
+    throw new ForbiddenError();
+  }
+  ;
+  req.tokenData = decodedToken;
+  next();
+});
+var auth_default = auth;
+
+// src/app.ts
+var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
+
+// yaml:/app/docs/swagger.yml
+var swagger_default = { openapi: "3.0.0", components: { responses: { InternalError: { required: ["message"], properties: { message: { type: "string", default: "Internal Error" } } }, ValidationError: { required: ["message"], properties: { message: { type: "string", default: "Validation Error" }, validationError: { type: "array", minimum: 1, items: { type: "object", properties: { code: { type: "string", example: "too small" }, minimum: { type: "number", example: 2 }, type: { type: "string", example: "string" }, inclusive: { type: "boolean", example: true }, message: { type: "string", example: "Should be at least 2 characters" }, path: { type: "array", items: { type: "string", example: "example" } } } } } } }, ForbiddenError: { required: ["message"], properties: { message: { type: "string", default: "Forbidden" } } }, NotFoundError: { required: ["message"], properties: { message: { type: "string", default: "Not Found" } } }, UnauthorizedError: { required: ["message"], properties: { message: { type: "string", default: "Unauthorized" } } }, Success: { properties: { data: { type: { oneOf: [{ type: "array" }, { type: "object" }] }, default: "Ok" } } } }, schemas: { AuthLoginRequest: { type: "object", required: ["email", "password"], properties: { email: { type: "string", description: "unique user email", example: "john@hairsap.com" }, password: { type: "string", description: "card type, either virtual or physical", example: "john1234", minimum: 7, maximum: 32 } } }, AuthLoginResponse: { type: "object", required: ["token"], properties: { token: { type: "string", description: "a JWT token", example: "1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC" } } } }, securitySchemes: { BearerAuth: { type: "http", scheme: "bearer" } } }, info: { title: "Hairsap-api", description: "Hairsap API", version: "v1.0.0" }, servers: [{ url: "http://localhost:4000", description: "development" }], paths: { "/auth/login": { post: { operationId: "postAuthLogin", description: "allows a user to login", tags: ["Auth"], requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginRequest" } } } }, parameters: [], responses: { "201": { description: "Status 201 Response", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginResponse" } } } }, "400": { description: "Status 400 Response", content: { "application/json": { schema: { $ref: "#/components/responses/ValidationError" } } } }, "500": { description: "Status 500 Response", content: { "application/json": { schema: { $ref: "#/components/responses/InternalError" } } } } } } } } };
+
+// src/config/constants.ts
+var ROLES = {
+  USER: "user",
+  ADMIN: "admin",
+  PRO: "pro"
+};
+var OTP_TYPE = {
+  EMAIL: "email",
+  PHONE: "phone"
+};
+var BUCKET = {
+  PHOTO: "photo",
+  VIDEO: "video"
+};
+
+// src/config/email/templates/signup.ts
+var signUpEmailTemplate = (name) => {
+  return {
+    from: '"Hairsap" <notify@hairsap.com>',
+    to: "admin@hairsap.com",
+    subject: "New SignUp",
+    text: `A new user with name ${name} has signed up`,
+    html: `<p>A new user with name ${name} has signed up</p>`
+  };
+};
+var otpEmailTemplate = ({
+  email,
+  name,
+  otp
+}) => {
+  return {
+    from: '"Hairsap" <notify@hairsap.com>',
+    to: email,
+    subject: "Your OTP Code",
+    text: `Dear ${name},
+ Please use the OTP code: ${otp} to complete your login.`,
+    html: `<p>Dear ${name},
+ Please use the OTP code: ${otp} to complete your login.</p>`
+  };
+};
+
+// src/config/queue.ts
+var import_bull = __toESM(require("bull"));
+
+// src/config/email/index.ts
+var import_nodemailer = __toESM(require("nodemailer"));
+var MAIL_PORT = Number(process.env.MAIL_PORT || 0);
+var transporter = import_nodemailer.default.createTransport({
+  host: process.env.MAIL_HOST,
+  port: MAIL_PORT,
+  secure: process.env.MAIL_SECURE === "true" || MAIL_PORT === 465,
+  auth: {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD
+  }
+});
+var sendMail = transporter.sendMail.bind(transporter);
+
+// src/utils/hashPassword.ts
+var import_crypto = require("crypto");
+var hashPassword = (plainTextPassword) => {
+  return (0, import_crypto.createHmac)(
+    "sha256" /* SHA256 */,
+    process.env.DATA_ENCRYPTION_KEY || ""
+  ).update(plainTextPassword).digest("hex");
+};
+
+// src/config/queue.ts
+var mainQueue = new import_bull.default("main", process.env.REDIS_URL);
+var emailQueue = new import_bull.default(
+  "email",
+  process.env.REDIS_URL
+);
+var phoneQueue = new import_bull.default("phone", process.env.REDIS_URL);
+var paymentQueue = new import_bull.default("payment", process.env.REDIS_URL);
+var paymentThreshold = new import_bull.default(
+  "payment_threshold",
+  process.env.REDIS_URL
+);
+mainQueue.process(async (job, done) => {
+  logger_default.info(job.id, job.data);
+  done();
+});
+emailQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== "production")
+    return done();
+  sendMail(job.data).then((_info) => {
+    done();
+  }).catch((error) => {
+    logger_default.err(error.message);
+    done();
+  });
+});
+phoneQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== "production")
+    return done();
+});
+paymentQueue.process(async (job, done) => {
+  var _a;
+  await db_default.paymentEvents.create(job.data);
+  if (((_a = job.data) == null ? void 0 : _a.event) === "paymentrequest.success") {
+  }
+  done();
+});
+
+// src/schemas/request/postSignup.ts
+var import_zod2 = require("zod");
+var PostSignupRequestSchema = import_zod2.z.object({
+  email: import_zod2.z.string().email(),
+  name: import_zod2.z.string(),
+  password: import_zod2.z.string().min(6).max(32),
+  role: import_zod2.z.nativeEnum(ROLES).refine((role) => role === ROLES.PRO || role === ROLES.USER, {
+    message: "type must be user or admin"
+  })
+}).strict();
+var PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
+  deviceInfo: import_zod2.z.string().min(1),
+  phone: import_zod2.z.string().min(8)
+}).strict();
+var PostSignupProRequestSchema = PostSignupRequestSchema.extend({
+  businessName: import_zod2.z.string(),
+  deviceInfo: import_zod2.z.string().min(1),
+  phone: import_zod2.z.string().min(8)
+}).strict();
+
+// src/schemas/request/postLogin.ts
+var import_zod3 = require("zod");
+var PostLoginRequestSchema = import_zod3.z.object({
+  email: import_zod3.z.string().email(),
+  password: import_zod3.z.string().min(6).max(32),
+  role: import_zod3.z.nativeEnum(ROLES),
+  otpType: import_zod3.z.nativeEnum(OTP_TYPE)
+}).strict();
+var PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
+  deviceInfo: import_zod3.z.string()
+}).strict();
+var PostLoginProRequestSchema = PostLoginRequestSchema.extend({
+  deviceInfo: import_zod3.z.string()
+}).strict();
 
 // src/schemas/response/postLogin.ts
 var import_zod4 = require("zod");
@@ -640,17 +633,45 @@ var makeRepo = ({ db }) => {
 };
 var repo_default = makeRepo;
 
-// src/app.ts
-var import_compression = __toESM(require("compression"));
-var import_helmet = __toESM(require("helmet"));
-var import_cors = __toESM(require("cors"));
-var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
-
-// yaml:/app/docs/swagger.yml
-var swagger_default = { openapi: "3.0.0", components: { responses: { InternalError: { required: ["message"], properties: { message: { type: "string", default: "Internal Error" } } }, ValidationError: { required: ["message"], properties: { message: { type: "string", default: "Validation Error" }, validationError: { type: "array", minimum: 1, items: { type: "object", properties: { code: { type: "string", example: "too small" }, minimum: { type: "number", example: 2 }, type: { type: "string", example: "string" }, inclusive: { type: "boolean", example: true }, message: { type: "string", example: "Should be at least 2 characters" }, path: { type: "array", items: { type: "string", example: "example" } } } } } } }, ForbiddenError: { required: ["message"], properties: { message: { type: "string", default: "Forbidden" } } }, NotFoundError: { required: ["message"], properties: { message: { type: "string", default: "Not Found" } } }, UnauthorizedError: { required: ["message"], properties: { message: { type: "string", default: "Unauthorized" } } }, Success: { properties: { data: { type: { oneOf: [{ type: "array" }, { type: "object" }] }, default: "Ok" } } } }, schemas: { AuthLoginRequest: { type: "object", required: ["email", "password"], properties: { email: { type: "string", description: "unique user email", example: "john@hairsap.com" }, password: { type: "string", description: "card type, either virtual or physical", example: "john1234", minimum: 7, maximum: 32 } } }, AuthLoginResponse: { type: "object", required: ["token"], properties: { token: { type: "string", description: "a JWT token", example: "1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC" } } } }, securitySchemes: { BearerAuth: { type: "http", scheme: "bearer" } } }, info: { title: "Hairsap-api", description: "Hairsap API", version: "v1.0.0" }, servers: [{ url: "http://localhost:4000", description: "development" }], paths: { "/auth/login": { post: { operationId: "postAuthLogin", description: "allows a user to login", tags: ["Auth"], requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginRequest" } } } }, parameters: [], responses: { "201": { description: "Status 201 Response", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginResponse" } } } }, "400": { description: "Status 400 Response", content: { "application/json": { schema: { $ref: "#/components/responses/ValidationError" } } } }, "500": { description: "Status 500 Response", content: { "application/json": { schema: { $ref: "#/components/responses/InternalError" } } } } } } } } };
+// src/handlers/auth/index.ts
+var import_express_async_handler2 = __toESM(require("express-async-handler"));
+var makeAuthRouter = ({
+  router,
+  service
+}) => {
+  router.get(
+    "/",
+    (0, import_express_async_handler2.default)((_req, res) => {
+      res.send("Birds home page");
+    })
+  );
+  router.post(
+    "/login",
+    (0, import_express_async_handler2.default)(async (req, res) => {
+      const data = await service.auth.login(req.body, req.query.role);
+      res.status(200).send({ data });
+    })
+  );
+  router.post(
+    "/signup",
+    (0, import_express_async_handler2.default)(async (req, res) => {
+      const data = await service.auth.signup(req.body, req.query.role);
+      res.status(200).send({ data });
+    })
+  );
+  router.post(
+    "/validateotp",
+    (0, import_express_async_handler2.default)(async (req, res) => {
+      const data = await service.auth.validateOtp(req.body);
+      res.status(200).send({ data });
+    })
+  );
+  return router;
+};
+var auth_default2 = makeAuthRouter;
 
 // src/handlers/user/index.ts
-var import_express_async_handler2 = __toESM(require("express-async-handler"));
+var import_express_async_handler3 = __toESM(require("express-async-handler"));
 
 // src/config/multer-cloud.ts
 var import_multer2 = __toESM(require("multer"));
@@ -697,11 +718,11 @@ var makeUserRouter = ({
   router,
   service
 }) => {
-  router.patch("/", (0, import_express_async_handler2.default)(patchUser({ service })));
+  router.patch("/", (0, import_express_async_handler3.default)(patchUser({ service })));
   router.post(
     "/faceid",
     upload({ fileName: "photo", bucket: BUCKET.PHOTO }),
-    (0, import_express_async_handler2.default)(async (req, res) => {
+    (0, import_express_async_handler3.default)(async (req, res) => {
       var _a, _b;
       const data = await service.auth.uploadFaceId(
         (_a = req.tokenData) == null ? void 0 : _a.userId,
@@ -714,27 +735,42 @@ var makeUserRouter = ({
 };
 var user_default2 = makeUserRouter;
 
-// src/middleware/auth.ts
-var import_express_async_handler3 = __toESM(require("express-async-handler"));
-var auth = () => (0, import_express_async_handler3.default)((req, res, next) => {
-  let token = req.headers.authorization;
-  if (!token)
-    throw new UnauthorizedError();
-  token = token.replace(/Bearer /g, "");
-  const decodedToken = decodeJwt(token);
-  try {
-    verifyJwt(token, decodedToken == null ? void 0 : decodedToken.admin);
-  } catch (error) {
-    throw new ForbiddenError();
-  }
-  ;
-  req.tokenData = decodedToken;
-  next();
-});
-var auth_default2 = auth;
+// src/handlers/index.ts
+var import_express_async_handler4 = __toESM(require("express-async-handler"));
+var import_crypto3 = __toESM(require("crypto"));
+var makeRouter = ({
+  router,
+  service
+}) => {
+  router.get(
+    "/",
+    (0, import_express_async_handler4.default)((req, res) => {
+      res.send("welcome to hairsap");
+    })
+  );
+  router.get(
+    "/webhook/paystack",
+    (0, import_express_async_handler4.default)((req, res) => {
+      const secret = process.env.PAYMENT_SECRET;
+      const hash = import_crypto3.default.createHmac("sha512", secret).update(JSON.stringify(req.body)).digest("hex");
+      if (hash !== req.headers["x-paystack-signature"]) {
+        logger_default.info(req.body);
+        throw new ForbiddenError();
+      }
+      paymentQueue.add({
+        userId: null,
+        event: req.body.event,
+        reason: req.body.reason,
+        data: req.body.data
+      });
+      res.sendStatus(200);
+    })
+  );
+  return router;
+};
+var handlers_default = makeRouter;
 
 // src/app.ts
-var import_crypto3 = __toESM(require("crypto"));
 var createApp = () => {
   const repo = repo_default({ db: db_default });
   const service = services_default({ repo });
@@ -745,26 +781,9 @@ var createApp = () => {
   app2.use(import_express.default.json());
   app2.use((0, import_cors.default)());
   app2.use("/reference", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(swagger_default));
-  app2.get("/", (req, res) => {
-    res.send("welcome to hairsap");
-  });
-  app2.use("/auth", auth_default({ router, service }));
-  app2.use("/users", auth_default2(), user_default2({ router, service }));
-  app2.get("/webhook/paystack", (req, res) => {
-    const secret = process.env.PAYMENT_SECRET;
-    const hash = import_crypto3.default.createHmac("sha512", secret).update(JSON.stringify(req.body)).digest("hex");
-    if (hash !== req.headers["x-paystack-signature"]) {
-      logger_default.info(req.body);
-      throw new ForbiddenError();
-    }
-    paymentQueue.add({
-      userId: null,
-      event: req.body.event,
-      reason: req.body.reason,
-      data: req.body.data
-    });
-    res.sendStatus(200);
-  });
+  app2.use("/auth", auth_default2({ router, service }));
+  app2.use("/users", auth_default(), user_default2({ router, service }));
+  app2.use("/", handlers_default({ router, service }));
   app2.use(handleError);
   return app2;
 };
