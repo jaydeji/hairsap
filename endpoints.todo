@@ -11,7 +11,7 @@ NIYI
 /me/:id - get user/pro details
 --------------------------------------------------------------------------------
 
-UNDONE 
+UNDONE
 /pro - this returns a list of nearest pros with pagination
 /pro?name&filterby=service
 /pro/verify - admin should be able to verify a pro account
@@ -43,8 +43,8 @@ DONE
 /auth/register?type=user|beautypro ✅
 /auth/login?type=user|admin|beautypro ✅
 /auth/validateotp ✅
-/users - update user ✅ 
-/users/faceid - upload live pro photo ✅ 
+/users - update user ✅
+/users/faceid - upload live pro photo ✅
 
 LATER
 /verifydevice

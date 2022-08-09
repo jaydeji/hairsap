@@ -19,7 +19,7 @@ model Subscription {
   proId  Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@id([userId, proId])
   @@unique([userId, proId])
@@ -32,7 +32,7 @@ model UserService {
   serviceId Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@id([userId, serviceId])
 }
@@ -45,7 +45,7 @@ model Service {
   subServices SubService[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model SubService {
@@ -57,7 +57,7 @@ model SubService {
   bookedSubServices BookingSubService[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model BookingSubService {
@@ -67,7 +67,7 @@ model BookingSubService {
   subServiceId Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@id([bookingId, subServiceId])
 }
@@ -81,7 +81,7 @@ model Invoice {
   distance      Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Booking {
@@ -100,7 +100,7 @@ model Booking {
   invoiceId         Invoice?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Chat {
@@ -112,7 +112,7 @@ model Chat {
   messageType String
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model User {
@@ -133,8 +133,8 @@ model User {
   reactivationCount Int?
   terminated        Boolean?        @default(false)
   verified          Boolean?        @default(false)
-  longitude         Decimal?
-  latitude          Decimal?
+  longitude         Decimal?        @db.Decimal(10, 6)
+  latitude          Decimal?        @db.Decimal(10, 6)
   resumptionAt      DateTime?
   closingAt         DateTime?
   workVideoUrl      String?
@@ -155,7 +155,7 @@ model User {
   paymentEvents     PaymentEvents[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([email])
 }
@@ -167,6 +167,9 @@ model PaymentEvents {
   reason  String
   User    User?  @relation(fields: [userId], references: [userId])
   userId  Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Device {
@@ -174,6 +177,9 @@ model Device {
   value    String
   User     User   @relation(fields: [userId], references: [userId])
   userId   Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model PasswordReset {
@@ -200,6 +206,9 @@ model Notification {
   user           User   @relation(fields: [userId], references: [userId])
   userId         Int
   message        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model RedeemPayment {
@@ -208,6 +217,9 @@ model RedeemPayment {
   userId    Int
   confirmed Boolean
   amount    Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Bonus {
@@ -217,14 +229,11 @@ model Bonus {
   amount  Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 // model Sample {
 //     largeNum    BigInt
-//     ratingf     Float
-//     rating      Decimal
-//     preferences Json
 //     blob        Bytes
-//     uns         Unsupported("")
+//     uns         Unsupported("circle") @default(dbgenerated("'<(10,4),11>'::circle"))
 // }
