@@ -3,24 +3,28 @@
 ## Running for the first time 
 
 ### Docker
-create a .env file from the .env.example file and fill values without quotes
+create a .env file from the `.env.example` file and fill values without quotes
+```
 docker-compose up
 npx prisma db seed
+```
 
 ### Local
-create a .env file from the .env.example file and fill values without quotes
+create a .env file from the `.env.example` file and fill values without quotes
+```
 npm install
 npm run prepare
 npx prisma migrate dev --name init
 npx prisma db seed
+```
 
 ## Database migration
 When you make changes to the  prisma schema, you need to run a migration.
-npx prisma migrate dev --name <migration_name>
-To clear the database and reseed
-npx prisma migrate reset -f
-To deploy to prod
-npx prisma migrate deploy --skip-generate
+```npx prisma migrate dev --name <migration_name>```\
+To clear the database and reseed \
+```npx prisma migrate reset -f``` \
+To deploy to prod\
+```npx prisma migrate deploy --skip-generate```
 
 ## Endpoint authorization
 
@@ -46,5 +50,5 @@ Avoid using console. Use the npm package debug logger instead
 ## Notes
 After installing a package in dev, run docker compose up --build
 Generate uuid with uuidgen on linux shell
-You must wrap your express handlers with ```ah```(express-async-handler) in order for errors to be handled properly
+You must wrap your express handlers with `ah`(express-async-handler) in order for errors to be handled properly
 All balances are held as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
