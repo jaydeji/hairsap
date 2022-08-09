@@ -1,4 +1,4 @@
-# Hairsap
+# Hairsap :haircut:
 
 ## Running for the first time 
 
@@ -19,7 +19,7 @@ npx prisma db seed
 ```
 
 ## Database migration
-When you make changes to the  prisma schema, you need to run a migration.
+When you make changes to the  prisma schema, you need to run a migration.\
 ```npx prisma migrate dev --name <migration_name>```\
 To clear the database and reseed \
 ```npx prisma migrate reset -f``` \
@@ -38,17 +38,17 @@ A JWT payload can be created for development testing using the debugger tool at 
 
 
 ## Documentation
-Add swagger documentation for new models and routes in swagger.yml file in the docs folder
+Add swagger documentation for new models and routes in swagger.yml file in the docs folder.
 The swagger docs are hosted on /reference
 
 ## Logging
 Avoid using console. Use the npm package debug logger instead
 
 ## CI / CD
-
+We will make use of the **Docker.prod** and **docker-compose.prod.yml** files
 
 ## Notes
-After installing a package in dev, run docker compose up --build
-Generate uuid with uuidgen on linux shell
-You must wrap your express handlers with `ah`(express-async-handler) in order for errors to be handled properly
-All balances are held as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
+- After installing a package in dev, run `docker compose up --build`
+- Generate uuid with uuidgen on linux shell
+- You must wrap your express handlers with `ah`*(express-async-handler)* in order for errors to be handled properly
+- All balances are held as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
