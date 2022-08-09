@@ -16,7 +16,7 @@ UNDONE
 /pro?name&filterby=service
 /pro/verify - admin should be able to verify a pro account
 /bookings - user should be able to book a pro
-/bookings/:id/add - addservicetobooking
+/bookings/:id/add - add service to booking
 /bookings - get all bookings paginated
 /bookings/accept - accept booking by pro
 /bookings/reject - reject booking by pro
@@ -37,11 +37,12 @@ PENDING
 /report/tasktarget?period=monthly
 /confirmpayout
 chat sockets
+deactivation crons
 
 DONE
-/register?type=user|beautypro   ✅
-/login?type=user|admin|beautypro ✅
-/validateotp ✅
+/auth/register?type=user|beautypro ✅
+/auth/login?type=user|admin|beautypro ✅
+/auth/validateotp ✅
 /users - update user ✅ 
 /users/faceid - upload live pro photo ✅ 
 
