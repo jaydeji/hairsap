@@ -49,3 +49,13 @@ Authorization: Bearer {{utoken}}
 {
     "photoUrl":"http"
 }
+
+###
+GET {{base}}/chats HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+###
+GET {{base}}/chats/2?cursor=&take=2&desc=true HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}

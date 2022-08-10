@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
-import { ForbiddenError, UnauthorizedError } from '../utils/Error'
+import { UnauthorizedError } from '../utils/Error'
 import { decodeJwt, verifyJwt } from '../utils/jwtLib'
 import ah from 'express-async-handler'
+import { ROLES } from '../config/constants'
 
 const auth = () =>
   ah((req: Request, res: Response, next: NextFunction) => {
@@ -10,12 +11,12 @@ const auth = () =>
     token = token.replace(/Bearer /g, '')
     const decodedToken = decodeJwt(token)
     try {
-      verifyJwt(token, decodedToken?.admin as boolean)
+      verifyJwt(token, decodedToken?.role === ROLES.ADMIN)
     } catch (error) {
-      throw new ForbiddenError()
+      throw new UnauthorizedError()
     }
 
-    ;(req as any).tokenData = decodedToken
+    req.tokenData = decodedToken
     next()
   })
 

@@ -109,6 +109,7 @@ model Chat {
   senderId    Int
   receiver    User   @relation("receiver", fields: [receiverId], references: [userId])
   receiverId  Int
+  message     String
   messageType String
 
   createdAt DateTime @default(now())

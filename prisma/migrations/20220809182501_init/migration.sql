@@ -3,7 +3,7 @@ CREATE TABLE `Subscription` (
     `userId` INTEGER NOT NULL,
     `proId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Subscription_userId_proId_key`(`userId`, `proId`),
     PRIMARY KEY (`userId`, `proId`)
@@ -14,7 +14,7 @@ CREATE TABLE `UserService` (
     `userId` INTEGER NOT NULL,
     `serviceId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`userId`, `serviceId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -25,7 +25,7 @@ CREATE TABLE `Service` (
     `name` VARCHAR(191) NOT NULL,
     `photoUrl` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`serviceId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -37,7 +37,7 @@ CREATE TABLE `SubService` (
     `photoUrl` VARCHAR(191) NOT NULL,
     `serviceId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`subServiceId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -47,7 +47,7 @@ CREATE TABLE `BookingSubService` (
     `bookingId` INTEGER NOT NULL,
     `subServiceId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`bookingId`, `subServiceId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -60,7 +60,7 @@ CREATE TABLE `Invoice` (
     `subServiceFee` INTEGER NOT NULL,
     `distance` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Invoice_bookingId_key`(`bookingId`),
     PRIMARY KEY (`invoiceId`)
@@ -71,12 +71,14 @@ CREATE TABLE `Booking` (
     `bookingId` INTEGER NOT NULL AUTO_INCREMENT,
     `userId` INTEGER NOT NULL,
     `proId` INTEGER NOT NULL,
-    `cancelled` BOOLEAN NOT NULL,
+    `cancelled` BOOLEAN NOT NULL DEFAULT false,
+    `userCompleted` BOOLEAN NOT NULL DEFAULT false,
+    `proCompleted` BOOLEAN NOT NULL DEFAULT false,
     `location` VARCHAR(191) NOT NULL,
     `locationPhotoUrl` VARCHAR(191) NOT NULL,
-    `status` ENUM('CANCELLED', 'REJECTED', 'ACCEPTED', 'COMPLETED') NOT NULL,
+    `status` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`bookingId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -86,9 +88,10 @@ CREATE TABLE `Chat` (
     `chatId` INTEGER NOT NULL AUTO_INCREMENT,
     `senderId` INTEGER NOT NULL,
     `receiverId` INTEGER NOT NULL,
-    `messageType` ENUM('TEXT', 'PHOTO') NOT NULL,
+    `message` VARCHAR(191) NOT NULL,
+    `messageType` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`chatId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -96,31 +99,58 @@ CREATE TABLE `Chat` (
 -- CreateTable
 CREATE TABLE `User` (
     `userId` INTEGER NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(191) NULL,
-    `Address` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(255) NULL,
+    `address` VARCHAR(191) NULL,
     `name` VARCHAR(191) NOT NULL,
-    `userName` VARCHAR(191) NOT NULL,
-    `role` ENUM('ADMIN', 'USER', 'PRO') NOT NULL,
+    `userName` VARCHAR(191) NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `role` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
-    `photoUrl` VARCHAR(191) NOT NULL,
-    `deviceInfo` VARCHAR(191) NOT NULL,
-    `deactivated` BOOLEAN NOT NULL,
-    `deactivatedReason` INTEGER NOT NULL,
-    `deactivationCount` INTEGER NOT NULL,
-    `reactivationCount` INTEGER NOT NULL,
-    `terminated` BOOLEAN NOT NULL,
-    `longitude` DECIMAL(65, 30) NOT NULL,
-    `latitude` DECIMAL(65, 30) NOT NULL,
-    `resumptionAt` DATETIME(3) NOT NULL,
-    `closingAt` DATETIME(3) NOT NULL,
-    `workVideoUrl` VARCHAR(191) NOT NULL,
-    `businessName` VARCHAR(191) NOT NULL,
+    `photoUrl` VARCHAR(191) NULL,
+    `livePhotoUrl` VARCHAR(191) NULL,
+    `approved` BOOLEAN NULL DEFAULT false,
+    `deactivated` BOOLEAN NULL DEFAULT false,
+    `deactivatedReason` INTEGER NULL,
+    `deactivationCount` INTEGER NULL,
+    `reactivationCount` INTEGER NULL,
+    `terminated` BOOLEAN NULL DEFAULT false,
+    `verified` BOOLEAN NULL DEFAULT false,
+    `longitude` DECIMAL(10, 6) NULL,
+    `latitude` DECIMAL(10, 6) NULL,
+    `resumptionAt` DATETIME(3) NULL,
+    `closingAt` DATETIME(3) NULL,
+    `workVideoUrl` VARCHAR(191) NULL,
+    `businessName` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `User_email_key`(`email`),
     INDEX `User_email_idx`(`email`),
     PRIMARY KEY (`userId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PaymentEvents` (
+    `eventId` INTEGER NOT NULL AUTO_INCREMENT,
+    `event` VARCHAR(191) NOT NULL,
+    `data` JSON NOT NULL,
+    `reason` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`eventId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Device` (
+    `deviceId` INTEGER NOT NULL AUTO_INCREMENT,
+    `value` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`deviceId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -134,10 +164,24 @@ CREATE TABLE `PasswordReset` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `Otp` (
+    `otpId` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `value` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `expiredAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `Otp_userId_key`(`userId`),
+    PRIMARY KEY (`otpId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Notification` (
     `notificationId` INTEGER NOT NULL AUTO_INCREMENT,
     `userId` INTEGER NOT NULL,
     `message` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`notificationId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -148,6 +192,8 @@ CREATE TABLE `RedeemPayment` (
     `userId` INTEGER NOT NULL,
     `confirmed` BOOLEAN NOT NULL,
     `amount` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`redeemId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -158,7 +204,7 @@ CREATE TABLE `Bonus` (
     `userId` INTEGER NOT NULL,
     `amount` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`bonusId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -200,7 +246,16 @@ ALTER TABLE `Chat` ADD CONSTRAINT `Chat_senderId_fkey` FOREIGN KEY (`senderId`) 
 ALTER TABLE `Chat` ADD CONSTRAINT `Chat_receiverId_fkey` FOREIGN KEY (`receiverId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `PaymentEvents` ADD CONSTRAINT `PaymentEvents_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Device` ADD CONSTRAINT `Device_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `PasswordReset` ADD CONSTRAINT `PasswordReset_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Otp` ADD CONSTRAINT `Otp_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Notification` ADD CONSTRAINT `Notification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`userId`) ON DELETE RESTRICT ON UPDATE CASCADE;

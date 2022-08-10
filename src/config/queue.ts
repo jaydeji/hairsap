@@ -3,18 +3,16 @@ import { sendMail } from './email'
 import { SendMailOptions } from 'nodemailer'
 import { logger } from '../utils'
 import db from '../config/db'
+import { ChatMessageType } from '../handlers/chat/socket'
 
-const mainQueue = new Queue('main', process.env.REDIS_URL as string)
-const emailQueue = new Queue<SendMailOptions>(
-  'email',
-  process.env.REDIS_URL as string,
-)
-const phoneQueue = new Queue('phone', process.env.REDIS_URL as string)
-const paymentQueue = new Queue('payment', process.env.REDIS_URL as string)
-const paymentThreshold = new Queue(
-  'payment_threshold',
-  process.env.REDIS_URL as string,
-)
+const redisUrl = process.env.REDIS_URL as string
+
+const mainQueue = new Queue('main', redisUrl)
+const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
+const phoneQueue = new Queue('phone', redisUrl)
+const paymentQueue = new Queue('payment', redisUrl)
+const chatQueue = new Queue<ChatMessageType>('chat', redisUrl)
+const paymentThreshold = new Queue('payment_threshold', redisUrl)
 
 mainQueue.process(async (job, done) => {
   logger.info(job.id, job.data)
@@ -38,6 +36,13 @@ phoneQueue.process(async (job, done) => {
   //  TODO: send test message
 })
 
+chatQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== 'production') return done()
+  await db.chat.create({
+    data: job.data,
+  })
+})
+
 paymentQueue.process(async (job, done) => {
   await db.paymentEvents.create(job.data)
   if (job.data?.event === 'paymentrequest.success') {
@@ -46,4 +51,11 @@ paymentQueue.process(async (job, done) => {
   done()
 })
 
-export { emailQueue, mainQueue, paymentThreshold, phoneQueue, paymentQueue }
+export {
+  emailQueue,
+  mainQueue,
+  paymentThreshold,
+  phoneQueue,
+  paymentQueue,
+  chatQueue,
+}

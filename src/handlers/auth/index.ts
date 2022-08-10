@@ -11,13 +11,6 @@ const makeAuthRouter = ({
   router: Router
   service: Service
 }) => {
-  router.get(
-    '/',
-    ah((_req, res) => {
-      res.send('Birds home page')
-    }),
-  )
-
   router.post(
     '/login',
     ah(async (req, res) => {

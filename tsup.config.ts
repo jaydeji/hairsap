@@ -1,7 +1,7 @@
-import { defineConfig } from 'tsup';
-import yamlPlugin_ from 'esbuild-plugin-yaml';
+import { defineConfig } from 'tsup'
+import yamlPlugin_ from 'esbuild-plugin-yaml'
 
-const { yamlPlugin } = yamlPlugin_;
+const { yamlPlugin } = yamlPlugin_
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -9,4 +9,4 @@ export default defineConfig({
   clean: true,
   minify: process.env.NODE_ENV === 'production',
   esbuildPlugins: [yamlPlugin({})],
-});
+})

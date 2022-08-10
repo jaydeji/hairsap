@@ -5,10 +5,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -25,14 +21,10 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 
 // src/index.ts
 var src_exports = {};
-__export(src_exports, {
-  io: () => io
-});
 module.exports = __toCommonJS(src_exports);
 var import_config = require("dotenv/config");
 var import_register = require("source-map-support/register");
 var import_http = __toESM(require("http"));
-var import_socket = require("socket.io");
 
 // src/app.ts
 var import_express = __toESM(require("express"));
@@ -176,13 +168,34 @@ var generateJwt = (data, admin, expiresIn) => {
 var decodeJwt = (token) => {
   return import_jsonwebtoken.default.decode(token);
 };
-var verifyJwt = (token, admin) => {
-  const secret = (admin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || "";
+var verifyJwt = (token, isAdmin) => {
+  const secret = (isAdmin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || "";
   return import_jsonwebtoken.default.verify(token, secret);
 };
 
 // src/middleware/auth.ts
 var import_express_async_handler = __toESM(require("express-async-handler"));
+
+// src/config/constants.ts
+var ROLES = {
+  USER: "user",
+  ADMIN: "admin",
+  PRO: "pro"
+};
+var MESSAGE_TYPE = {
+  TEXT: "text",
+  PHOTO: "photo"
+};
+var OTP_TYPE = {
+  EMAIL: "email",
+  PHONE: "phone"
+};
+var BUCKET = {
+  PHOTO: "photo",
+  VIDEO: "video"
+};
+
+// src/middleware/auth.ts
 var auth = () => (0, import_express_async_handler.default)((req, res, next) => {
   let token = req.headers.authorization;
   if (!token)
@@ -190,11 +203,10 @@ var auth = () => (0, import_express_async_handler.default)((req, res, next) => {
   token = token.replace(/Bearer /g, "");
   const decodedToken = decodeJwt(token);
   try {
-    verifyJwt(token, decodedToken == null ? void 0 : decodedToken.admin);
+    verifyJwt(token, (decodedToken == null ? void 0 : decodedToken.role) === ROLES.ADMIN);
   } catch (error) {
-    throw new ForbiddenError();
+    throw new UnauthorizedError();
   }
-  ;
   req.tokenData = decodedToken;
   next();
 });
@@ -205,21 +217,6 @@ var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
 
 // yaml:/app/docs/swagger.yml
 var swagger_default = { openapi: "3.0.0", components: { responses: { InternalError: { required: ["message"], properties: { message: { type: "string", default: "Internal Error" } } }, ValidationError: { required: ["message"], properties: { message: { type: "string", default: "Validation Error" }, validationError: { type: "array", minimum: 1, items: { type: "object", properties: { code: { type: "string", example: "too small" }, minimum: { type: "number", example: 2 }, type: { type: "string", example: "string" }, inclusive: { type: "boolean", example: true }, message: { type: "string", example: "Should be at least 2 characters" }, path: { type: "array", items: { type: "string", example: "example" } } } } } } }, ForbiddenError: { required: ["message"], properties: { message: { type: "string", default: "Forbidden" } } }, NotFoundError: { required: ["message"], properties: { message: { type: "string", default: "Not Found" } } }, UnauthorizedError: { required: ["message"], properties: { message: { type: "string", default: "Unauthorized" } } }, Success: { properties: { data: { type: { oneOf: [{ type: "array" }, { type: "object" }] }, default: "Ok" } } } }, schemas: { AuthLoginRequest: { type: "object", required: ["email", "password"], properties: { email: { type: "string", description: "unique user email", example: "john@hairsap.com" }, password: { type: "string", description: "card type, either virtual or physical", example: "john1234", minimum: 7, maximum: 32 } } }, AuthLoginResponse: { type: "object", required: ["token"], properties: { token: { type: "string", description: "a JWT token", example: "1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC" } } } }, securitySchemes: { BearerAuth: { type: "http", scheme: "bearer" } } }, info: { title: "Hairsap-api", description: "Hairsap API", version: "v1.0.0" }, servers: [{ url: "http://localhost:4000", description: "development" }], paths: { "/auth/login": { post: { operationId: "postAuthLogin", description: "allows a user to login", tags: ["Auth"], requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginRequest" } } } }, parameters: [], responses: { "201": { description: "Status 201 Response", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthLoginResponse" } } } }, "400": { description: "Status 400 Response", content: { "application/json": { schema: { $ref: "#/components/responses/ValidationError" } } } }, "500": { description: "Status 500 Response", content: { "application/json": { schema: { $ref: "#/components/responses/InternalError" } } } } } } } } };
-
-// src/config/constants.ts
-var ROLES = {
-  USER: "user",
-  ADMIN: "admin",
-  PRO: "pro"
-};
-var OTP_TYPE = {
-  EMAIL: "email",
-  PHONE: "phone"
-};
-var BUCKET = {
-  PHOTO: "photo",
-  VIDEO: "video"
-};
 
 // src/config/email/templates/signup.ts
 var signUpEmailTemplate = (name) => {
@@ -273,18 +270,18 @@ var hashPassword = (plainTextPassword) => {
   ).update(plainTextPassword).digest("hex");
 };
 
+// src/utils/validators.ts
+var isNumericString = (value) => !!value.match(/^\d+$/);
+var makeStringNumeric = (value) => isNumericString(value) ? +value : value;
+
 // src/config/queue.ts
-var mainQueue = new import_bull.default("main", process.env.REDIS_URL);
-var emailQueue = new import_bull.default(
-  "email",
-  process.env.REDIS_URL
-);
-var phoneQueue = new import_bull.default("phone", process.env.REDIS_URL);
-var paymentQueue = new import_bull.default("payment", process.env.REDIS_URL);
-var paymentThreshold = new import_bull.default(
-  "payment_threshold",
-  process.env.REDIS_URL
-);
+var redisUrl = process.env.REDIS_URL;
+var mainQueue = new import_bull.default("main", redisUrl);
+var emailQueue = new import_bull.default("email", redisUrl);
+var phoneQueue = new import_bull.default("phone", redisUrl);
+var paymentQueue = new import_bull.default("payment", redisUrl);
+var chatQueue = new import_bull.default("chat", redisUrl);
+var paymentThreshold = new import_bull.default("payment_threshold", redisUrl);
 mainQueue.process(async (job, done) => {
   logger_default.info(job.id, job.data);
   done();
@@ -302,6 +299,13 @@ emailQueue.process(async (job, done) => {
 phoneQueue.process(async (job, done) => {
   if (process.env.NODE_ENV !== "production")
     return done();
+});
+chatQueue.process(async (job, done) => {
+  if (process.env.NODE_ENV !== "production")
+    return done();
+  await db_default.chat.create({
+    data: job.data
+  });
 });
 paymentQueue.process(async (job, done) => {
   var _a;
@@ -527,16 +531,51 @@ var makeAuth = ({ repo }) => {
 };
 var Auth_default = makeAuth;
 
-// src/schemas/request/patchUser.ts
+// src/schemas/request/getChatById.ts
+var import_zod7 = require("zod");
+
+// src/schemas/models/Cursor.ts
 var import_zod6 = require("zod");
-var PatchUserRequestSchema = import_zod6.z.object({
-  userId: import_zod6.z.number(),
-  photoUrl: import_zod6.z.string().min(1)
+var CursorSchema = import_zod6.z.object({
+  cursor: import_zod6.z.number().optional(),
+  take: import_zod6.z.number().optional(),
+  desc: import_zod6.z.boolean().optional()
+}).strict();
+
+// src/schemas/request/getChatById.ts
+var GetChatByIdReqSchema = import_zod7.z.object({
+  userId: import_zod7.z.number().min(1),
+  otherUserId: import_zod7.z.number().min(1)
+}).strict().merge(CursorSchema);
+
+// src/services/Chat/index.ts
+var getChatList = ({ repo }) => async (userId) => {
+  const chats = await repo.chat.getChatList(userId);
+  return { chats };
+};
+var getChatById = ({ repo }) => async (data) => {
+  GetChatByIdReqSchema.parse(data);
+  const chats = await repo.chat.getChatById(data);
+  return { chats };
+};
+var makeChat = ({ repo }) => {
+  return {
+    getChatList: getChatList({ repo }),
+    getChatById: getChatById({ repo })
+  };
+};
+var Chat_default = makeChat;
+
+// src/schemas/request/patchUser.ts
+var import_zod8 = require("zod");
+var PatchUserRequestSchema = import_zod8.z.object({
+  userId: import_zod8.z.number(),
+  photoUrl: import_zod8.z.string().min(1)
 }).strict();
 var PatchUserUserRequestSchema = PatchUserRequestSchema.extend({});
 var PatchUserProRequestSchema = PatchUserRequestSchema.extend({
-  closingAt: import_zod6.z.date(),
-  resumptionAt: import_zod6.z.date()
+  closingAt: import_zod8.z.date(),
+  resumptionAt: import_zod8.z.date()
 });
 
 // src/services/User/index.ts
@@ -555,10 +594,54 @@ var User_default = makeUser;
 var makeServices = ({ repo }) => {
   return {
     auth: Auth_default({ repo }),
-    user: User_default({ repo })
+    user: User_default({ repo }),
+    chat: Chat_default({ repo })
   };
 };
 var services_default = makeServices;
+
+// src/repo/chat.ts
+var getChatList2 = ({ db }) => (userId) => db.$queryRaw`
+  SELECT userId,name,photoUrl FROM (SELECT DISTINCT 
+    CASE 
+    WHEN senderId = ${userId} THEN receiverId 
+    WHEN receiverId = ${userId} THEN senderId
+    END as id
+  FROM Chat) temp
+  INNER JOIN User ON userId = id 
+  WHERE id is not NULL`;
+var getChatById2 = ({ db }) => ({
+  userId,
+  otherUserId,
+  cursor,
+  take = 20,
+  desc = false
+}) => db.chat.findMany({
+  take: desc ? -take : take,
+  skip: 1,
+  cursor: cursor ? {
+    chatId: cursor
+  } : void 0,
+  where: {
+    OR: [
+      {
+        senderId: userId,
+        receiverId: otherUserId
+      },
+      {
+        senderId: otherUserId,
+        receiverId: userId
+      }
+    ]
+  }
+});
+var makeChatRepo = ({ db }) => {
+  return {
+    getChatList: getChatList2({ db }),
+    getChatById: getChatById2({ db })
+  };
+};
+var chat_default = makeChatRepo;
 
 // src/repo/user.ts
 var getUserById = ({ db }) => (userId) => {
@@ -628,7 +711,8 @@ var user_default = makeUserRepo;
 // src/repo/index.ts
 var makeRepo = ({ db }) => {
   return {
-    user: user_default({ db })
+    user: user_default({ db }),
+    chat: chat_default({ db })
   };
 };
 var repo_default = makeRepo;
@@ -639,12 +723,6 @@ var makeAuthRouter = ({
   router,
   service
 }) => {
-  router.get(
-    "/",
-    (0, import_express_async_handler2.default)((_req, res) => {
-      res.send("Birds home page");
-    })
-  );
   router.post(
     "/login",
     (0, import_express_async_handler2.default)(async (req, res) => {
@@ -735,8 +813,42 @@ var makeUserRouter = ({
 };
 var user_default2 = makeUserRouter;
 
-// src/handlers/index.ts
+// src/handlers/chat/index.ts
 var import_express_async_handler4 = __toESM(require("express-async-handler"));
+var makeChatRouter = ({
+  router,
+  service
+}) => {
+  router.get(
+    "/",
+    (0, import_express_async_handler4.default)(async (req, res) => {
+      var _a;
+      const data = await service.chat.getChatList(
+        (_a = req.tokenData) == null ? void 0 : _a.userId
+      );
+      res.send({ data });
+    })
+  );
+  router.get(
+    "/:userid",
+    (0, import_express_async_handler4.default)(async (req, res) => {
+      var _a;
+      const data = await service.chat.getChatById({
+        userId: (_a = req.tokenData) == null ? void 0 : _a.userId,
+        otherUserId: makeStringNumeric(req.params.userid),
+        cursor: isNumericString(req.query.cursor) ? makeStringNumeric(req.query.cursor) : void 0,
+        desc: req.query.desc === "true",
+        take: makeStringNumeric(req.query.take)
+      });
+      res.send({ data });
+    })
+  );
+  return router;
+};
+var chat_default2 = makeChatRouter;
+
+// src/handlers/index.ts
+var import_express_async_handler5 = __toESM(require("express-async-handler"));
 var import_crypto3 = __toESM(require("crypto"));
 var makeRouter = ({
   router,
@@ -744,13 +856,13 @@ var makeRouter = ({
 }) => {
   router.get(
     "/",
-    (0, import_express_async_handler4.default)((req, res) => {
+    (0, import_express_async_handler5.default)((req, res) => {
       res.send("welcome to hairsap");
     })
   );
   router.get(
     "/webhook/paystack",
-    (0, import_express_async_handler4.default)((req, res) => {
+    (0, import_express_async_handler5.default)((req, res) => {
       const secret = process.env.PAYMENT_SECRET;
       const hash = import_crypto3.default.createHmac("sha512", secret).update(JSON.stringify(req.body)).digest("hex");
       if (hash !== req.headers["x-paystack-signature"]) {
@@ -783,22 +895,92 @@ var createApp = () => {
   app2.use("/reference", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(swagger_default));
   app2.use("/auth", auth_default2({ router, service }));
   app2.use("/users", auth_default(), user_default2({ router, service }));
+  app2.use("/chats", auth_default(), chat_default2({ router, service }));
   app2.use("/", handlers_default({ router, service }));
   app2.use(handleError);
   return app2;
 };
 var app_default = createApp;
 
+// src/handlers/chat/socket.ts
+var import_zod9 = require("zod");
+var users = {};
+var MessageSchema = import_zod9.z.object({
+  createdAt: import_zod9.z.string().refine(
+    (str) => str.match(
+      new RegExp(
+        /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/
+      )
+    )
+  ),
+  text: import_zod9.z.string().optional(),
+  photo: import_zod9.z.string().optional(),
+  senderId: import_zod9.z.number(),
+  receiverId: import_zod9.z.number(),
+  messageType: import_zod9.z.nativeEnum(MESSAGE_TYPE)
+}).strict();
+var createChat = ({ io: io2 }) => {
+  io2.use(function(socket, next) {
+    var _a, _b, _c;
+    if (((_a = socket.handshake.query) == null ? void 0 : _a.token) && ((_b = socket.handshake.query) == null ? void 0 : _b.role)) {
+      try {
+        const tokenData = verifyJwt(
+          socket.handshake.query.token,
+          ((_c = socket.handshake.query) == null ? void 0 : _c.role) === ROLES.ADMIN
+        );
+        socket.decoded = tokenData;
+        next();
+      } catch (error) {
+        next(new UnauthorizedError());
+      }
+    } else {
+      next(new UnauthorizedError());
+    }
+  });
+  io2.on("connection", (socket) => {
+    logger_default.info("a user connected");
+    if (process.env.NODE_ENV === "development") {
+      socket.onAny((event, ...args) => {
+        logger_default.info({ event, args });
+      });
+    }
+    socket.on("disconnect", () => {
+      users[socket.decoded.userId] = void 0;
+      logger_default.info("user disconnected");
+    });
+    socket.on("setup", (userId) => {
+      users[userId] = {
+        socketId: socket.id
+      };
+    });
+    socket.on("new message", ({ message }) => {
+      var _a, _b;
+      const _message = MessageSchema.safeParse(message);
+      if (!_message.success)
+        return;
+      chatQueue.add(message);
+      const socketId = (_a = users[message.receiverId]) == null ? void 0 : _a.socketId;
+      if (socketId) {
+        socket.to((_b = users[message.receiverId]) == null ? void 0 : _b.socketId).emit("new message", message);
+      } else {
+      }
+    });
+  });
+};
+var socket_default = createChat;
+
 // src/index.ts
+var import_socket2 = require("socket.io");
 var app = app_default();
 var server = import_http.default.createServer(app);
-var io = new import_socket.Server(server);
+var io = new import_socket2.Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+socket_default({ io });
 var PORT = process.env.PORT || 4e3;
 server.listen(PORT, () => {
   logger_default.info("listening on port " + PORT);
-});
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  io
 });
 //# sourceMappingURL=index.js.map

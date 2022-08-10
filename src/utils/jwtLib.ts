@@ -1,3 +1,4 @@
+import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 import { ForbiddenError } from './Error'
 
@@ -13,12 +14,12 @@ const generateJwt = (
 }
 
 const decodeJwt = (token: string) => {
-  return jwt.decode(token) as Record<string, unknown>
+  return jwt.decode(token) as Request['tokenData']
 }
 
-const verifyJwt = (token: string, admin: boolean) => {
+const verifyJwt = (token: string, isAdmin: boolean) => {
   const secret =
-    (admin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || ''
+    (isAdmin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || ''
 
   return jwt.verify(token, secret)
 }

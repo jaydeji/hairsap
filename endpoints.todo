@@ -15,6 +15,7 @@ UNDONE
 /pro - this returns a list of nearest pros with pagination
 /pro?name&filterby=service
 /pro/verify - admin should be able to verify a pro account
+/pro/video - pro should be able to add a video
 /bookings - user should be able to book a pro
 /bookings/:id/add - add service to booking
 /bookings - get all bookings paginated
@@ -27,16 +28,14 @@ UNDONE
 /transactions - get all transactions paginated
 /reactivate - pro should be able to send a request to admin to reactivate
 /reactivate/accept - admin should be able to reactivate pro
+chat sockets 🚧
 
 PENDING
-/chats - pro or user should be able to get all chats with minimal info
-/chats/userid - pro or user should be able to get a specific chat history
 /setactivetimer
 /getinvoice?id=1
 /report/booking?returned=true&status=completed&period=weekly
 /report/tasktarget?period=monthly
 /confirmpayout
-chat sockets
 deactivation crons
 
 DONE
@@ -45,6 +44,8 @@ DONE
 /auth/validateotp ✅
 /users - update user ✅
 /users/faceid - upload live pro photo ✅
+/chats - pro or user should be able to get all chats with minimal info ✅
+/chats/:userid - pro or user should be able to get a specific chat history with pagination ✅
 
 LATER
 /verifydevice
@@ -54,3 +55,4 @@ Auto payment deduction
 otp
 push notification
 DOcean spaces
+backup mysql,redis to spaces
