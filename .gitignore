@@ -3,3 +3,4 @@ node_modules
 mysql_data
 redis_data
 .DS_Store
+dist

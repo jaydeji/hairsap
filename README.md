@@ -2,23 +2,14 @@
 
 ## Running for the first time
 
-### Docker
-
 create a .env file from the `.env.example` file and fill values without quotes
 
 ```
-docker-compose up
-npx prisma migrate dev --name init
-```
-
-### Local
-
-create a .env file from the `.env.example` file and fill values without quotes
-
-```
+docker-compose up -d
 npm install
 npm run prepare
 npx prisma migrate dev --name init
+npm run dev
 ```
 
 ## Database migration
@@ -57,7 +48,6 @@ We will make use of the **Docker.prod** and **docker-compose.prod.yml** files
 
 ## Notes
 
-- Append `docker exec -it <container_name> <command>` when using docker compose for prisma migrate
 - After installing a package in dev, run `docker compose up --build`
 - Generate uuid with uuidgen on linux shell
 - You must wrap your express handlers with `ah`_(express-async-handler)_ in order for errors to be handled properly
