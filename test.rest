@@ -59,3 +59,16 @@ Authorization: Bearer {{utoken}}
 GET {{base}}/chats/2?cursor=&take=2&desc=true HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}
+
+###
+POST {{base}}/pro/auto HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+{
+    "latitude":6.520238459241921,
+    "longitude":3.3680734868226345,
+    "subServiceId":1,
+    "proId":3,
+    "distance":1
+}

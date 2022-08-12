@@ -48,11 +48,13 @@ model SubService {
   subServiceId      Int                 @id @default(autoincrement())
   name              String
   photoUrl          String
-  serviceId         Int
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now()) @updatedAt
+  price             Int
   service           Service             @relation(fields: [serviceId], references: [serviceId])
+  serviceId         Int
   bookedSubServices BookingSubService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([serviceId], map: "SubService_serviceId_fkey")
 }
@@ -69,56 +71,72 @@ model BookingSubService {
   @@index([subServiceId], map: "BookingSubService_subServiceId_fkey")
 }
 
+model InvoiceFees {
+  feeId Int    @id @default(autoincrement())
+  name  String
+  price Int
+
+  Invoice   Invoice @relation(fields: [invoiceId], references: [invoiceId])
+  invoiceId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model Invoice {
-  invoiceId     Int      @id @default(autoincrement())
-  bookingId     Int      @unique
-  transportFee  Int
-  subServiceFee Int
-  distance      Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
-  booking       Booking  @relation(fields: [bookingId], references: [bookingId])
+  invoiceId    Int           @id @default(autoincrement())
+  transportFee Int
+  invoiceFees  InvoiceFees[]
+  distance     Int
+  booking      Booking       @relation(fields: [bookingId], references: [bookingId])
+  bookingId    Int           @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
 }
 
 model Booking {
-  bookingId                 Int                 @id @default(autoincrement())
-  userId                    Int
-  proId                     Int
-  cancelled                 Boolean             @default(false)
-  userCompleted             Boolean             @default(false)
-  proCompleted              Boolean             @default(false)
-  location                  String
-  locationPhotoUrl          String
-  status                    String
-  createdAt                 DateTime            @default(now())
-  updatedAt                 DateTime            @default(now()) @updatedAt
-  User_Booking_proIdToUser  User                @relation("pro", fields: [proId], references: [userId])
-  User_Booking_userIdToUser User                @relation("user", fields: [userId], references: [userId])
-  bookedSubServices         BookingSubService[]
-  invoiceId                 Invoice?
+  bookingId         Int                 @id @default(autoincrement())
+  cancelled         Boolean             @default(false)
+  userCompleted     Boolean             @default(false)
+  proCompleted      Boolean             @default(false)
+  address           String
+  samplePhotoUrl    String?
+  status            String
+  rating            Int?
+  pro               User                @relation("pro", fields: [proId], references: [userId])
+  proId             Int
+  user              User                @relation("user", fields: [userId], references: [userId])
+  userId            Int
+  invoice           Invoice?
+  invoiceId         Int?
+  bookedSubServices BookingSubService[]
 
-  @@index([proId], map: "Booking_proId_fkey")
-  @@index([userId], map: "Booking_userId_fkey")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([proId])
+  @@index([userId])
 }
 
 model Chat {
-  chatId      Int      @id @default(autoincrement())
-  senderId    Int
-  receiverId  Int
+  chatId Int @id @default(autoincrement())
+
   message     String
   messageType String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
   receiver    User     @relation("receiver", fields: [receiverId], references: [userId])
   sender      User     @relation("sender", fields: [senderId], references: [userId])
+  senderId    Int
+  receiverId  Int
 
   @@index([receiverId], map: "Chat_receiverId_fkey")
   @@index([senderId], map: "Chat_senderId_fkey")
 }
 
 model User {
-  userId            Int                   @id @default(autoincrement())
-  email             String?               @unique @db.VarChar(255)
+  userId            Int       @id @default(autoincrement())
+  email             String?   @unique @db.VarChar(255)
   address           String?
   name              String
   userName          String?
@@ -127,37 +145,40 @@ model User {
   phone             String
   photoUrl          String?
   livePhotoUrl      String?
-  approved          Boolean?              @default(false)
-  deactivated       Boolean?              @default(false)
+  approved          Boolean?  @default(false)
+  deactivated       Boolean?  @default(false)
   deactivatedReason Int?
   deactivationCount Int?
   reactivationCount Int?
-  terminated        Boolean?              @default(false)
-  verified          Boolean?              @default(false)
-  longitude         Unsupported("POINT")?
-  latitude          Unsupported("POINT")?
+  terminated        Boolean?  @default(false)
+  verified          Boolean?  @default(false)
+  longitude         Decimal?  @db.Decimal(10, 6)
+  latitude          Decimal?  @db.Decimal(10, 6)
   resumptionAt      DateTime?
   closingAt         DateTime?
   workVideoUrl      String?
   businessName      String?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @default(now()) @updatedAt
-  bonuses           Bonus[]
-  proBookings       Booking[]             @relation("pro")
-  userBookings      Booking[]             @relation("user")
-  receivedMessages  Chat[]                @relation("receiver")
-  sentMessages      Chat[]                @relation("sender")
-  devices           Device[]
-  notifications     Notification[]
-  otp               Otp?
-  PasswordReset     PasswordReset[]
-  paymentEvents     PaymentEvents[]
-  redeemPayments    RedeemPayment[]
-  subscribedTos     Subscription[]        @relation("pro")
-  subscribers       Subscription[]        @relation("user")
-  services          UserService[]
+
+  bonuses          Bonus[]
+  devices          Device[]
+  notifications    Notification[]
+  otp              Otp?
+  PasswordReset    PasswordReset[]
+  paymentEvents    PaymentEvents[]
+  redeemPayments   RedeemPayment[]
+  proBookings      Booking[]       @relation("pro")
+  userBookings     Booking[]       @relation("user")
+  receivedMessages Chat[]          @relation("receiver")
+  sentMessages     Chat[]          @relation("sender")
+  subscribedTos    Subscription[]  @relation("pro")
+  subscribers      Subscription[]  @relation("user")
+  services         UserService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([email])
+  @@index([latitude, longitude])
 }
 
 model PaymentEvents {

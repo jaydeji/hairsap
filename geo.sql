@@ -125,3 +125,15 @@ SELECT ST_Distance(@g1, @g2);
 --540.6606646428002
 
 SELECT ST_Distance_Sphere(@g1, @g2);
+
+where userId = 3;
+
+--keep
+
+UPDATE User
+SET
+    location = POINT(
+        3.3680734868226345,
+        6.520238459241921
+    )
+where userId = 3;

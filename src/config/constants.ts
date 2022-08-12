@@ -20,6 +20,7 @@ export const BOOKING_STATUS = {
   REJECTED: 'rejected',
   ACCEPTED: 'accepted',
   COMPLETED: 'completed',
+  PENDING: 'pending',
 } as const
 
 export const OTP_TYPE = {
@@ -30,6 +31,10 @@ export const OTP_TYPE = {
 export const BUCKET = {
   PHOTO: 'photo',
   VIDEO: 'video',
+} as const
+
+export const PRO_STATUS = {
+  AVAILABLE: 'available',
 } as const
 
 export const PLACEHOLDER =

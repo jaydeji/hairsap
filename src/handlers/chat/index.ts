@@ -1,9 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
 import type { Service } from '../../types'
-import { isNumericString, makeStringNumeric } from '../../utils'
-
-//TODO:
 
 const makeChatRouter = ({
   router,
@@ -21,17 +18,15 @@ const makeChatRouter = ({
       res.send({ data })
     }),
   )
-  router.get(
-    '/:userid',
+  router.post(
+    '/',
     ah(async (req, res) => {
       const data = await service.chat.getChatById({
-        userId: req.tokenData?.userId as number,
-        otherUserId: makeStringNumeric(req.params.userid) as number,
-        cursor: isNumericString(req.query.cursor)
-          ? (makeStringNumeric(req.query.cursor) as number)
-          : undefined,
-        desc: req.query.desc === 'true',
-        take: makeStringNumeric(req.query.take) as number,
+        userId: req.body.userId,
+        otherUserId: req.body.userId,
+        cursor: req.body.cursor,
+        desc: req.body.desc,
+        take: req.body.take,
       })
       res.send({ data })
     }),

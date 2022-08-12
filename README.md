@@ -52,3 +52,4 @@ We will make use of the **Docker.prod** and **docker-compose.prod.yml** files
 - Generate uuid with uuidgen on linux shell
 - You must wrap your express handlers with `ah`_(express-async-handler)_ in order for errors to be handled properly
 - All balances are held as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
+- Raw queries syntax hishlighting from prisma have wierd behaaviours for now

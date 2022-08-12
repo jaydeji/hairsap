@@ -15,6 +15,8 @@ import makeRepo from './repo'
 import makeAuthRouter from './handlers/auth'
 import makeUserRouter from './handlers/user'
 import makeChatRouter from './handlers/chat'
+import makeProRouter from './handlers/pro'
+import makeBookRouter from './handlers/book'
 import makeRouter from './handlers'
 
 const createApp = () => {
@@ -32,7 +34,9 @@ const createApp = () => {
   app.use('/reference', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
   app.use('/auth', makeAuthRouter({ router, service }))
   app.use('/users', auth(), makeUserRouter({ router, service }))
+  app.use('/pro', auth(), makeProRouter({ router, service }))
   app.use('/chats', auth(), makeChatRouter({ router, service }))
+  app.use('/book', auth(), makeBookRouter({ router, service }))
   app.use('/', makeRouter({ router, service }))
 
   app.use(handleError)

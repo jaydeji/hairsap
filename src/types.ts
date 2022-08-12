@@ -3,6 +3,7 @@ import {
   BUCKET,
   MESSAGE_TYPE,
   OTP_TYPE,
+  PRO_STATUS,
   ROLES,
 } from './config/constants'
 import makeRepo from './repo'
@@ -28,3 +29,4 @@ export type MessageType = typeof MESSAGE_TYPE[keyof typeof MESSAGE_TYPE]
 export type BookingStatus = typeof BOOKING_STATUS[keyof typeof BOOKING_STATUS]
 export type OtpType = typeof OTP_TYPE[keyof typeof OTP_TYPE]
 export type BucketType = typeof BUCKET[keyof typeof BUCKET]
+export type ProStatus = typeof PRO_STATUS[keyof typeof PRO_STATUS]

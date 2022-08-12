@@ -18,4 +18,5 @@ rules:
   linebreak-style:
     - error
     - unix
-
+  "@typescript-eslint/ban-ts-comment":
+    - off

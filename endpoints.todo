@@ -12,12 +12,9 @@ NIYI
 --------------------------------------------------------------------------------
 
 UNDONE
-/pro - this returns a list of nearest pros with pagination
 /pro?name&filterby=service
 /pro/verify - admin should be able to verify a pro account
 /pro/video - pro should be able to add a video
-/bookings - user should be able to book a pro
-/bookings/:id/add - add service to booking
 /bookings - get all bookings paginated
 /bookings/accept - accept booking by pro
 /bookings/reject - reject booking by pro
@@ -46,6 +43,9 @@ DONE
 /users/faceid - upload live pro photo ✅
 /chats - pro or user should be able to get all chats with minimal info ✅
 /chats/:userid - pro or user should be able to get a specific chat history with pagination ✅
+/bookings - user should be able to book a pro ✅
+/bookings/:id/add - add service to booking ✅
+/pro/auto - this returns the nearest pro ✅
 
 LATER
 /verifydevice
@@ -56,3 +56,6 @@ otp
 push notification
 DOcean spaces
 backup mysql,redis to spaces
+
+UNCONFIRMED
+/pro - this returns a list of nearest pros with pagination ❌

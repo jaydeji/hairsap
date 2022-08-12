@@ -215,6 +215,7 @@ const uploadFaceId =
   ({ repo }: { repo: Repo }) =>
   async (userId: number, path?: string) => {
     logger.info(path)
+    // TODO: create unique photo name
     if (!path) throw new InternalError()
     await repo.user.updateUser(userId, {
       livePhotoUrl: path,
