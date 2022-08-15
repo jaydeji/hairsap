@@ -4,8 +4,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 
 import db from './config/db'
-import authMiddleWare from './middleware/auth'
-import adminMiddleware from './middleware/admin'
+import { auth as authMiddleWare, allowOnly, denyOnly } from './middleware/auth'
 import { handleError } from './utils/Error'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../docs/swagger.yml'
@@ -20,6 +19,7 @@ import makeChatRouter from './handlers/chat'
 import makeProRouter from './handlers/pro'
 import makeBookRouter from './handlers/book'
 import makeAdminRouter from './handlers/admin'
+import { ROLES } from './config/constants'
 
 const createApp = () => {
   const repo = makeRepo({ db })
@@ -54,7 +54,7 @@ const createApp = () => {
   app.use(
     '/admin',
     authMiddleWare({ repo }),
-    adminMiddleware(),
+    allowOnly([ROLES.ADMIN]),
     makeAdminRouter({ router, service }),
   )
   app.use('/', makeRouter({ router, service }))

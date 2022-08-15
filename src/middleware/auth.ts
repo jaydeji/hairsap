@@ -3,7 +3,7 @@ import { ForbiddenError, UnauthorizedError } from '../utils/Error'
 import { decodeJwt, verifyJwt } from '../utils/jwtLib'
 import ah from 'express-async-handler'
 import { ROLES } from '../config/constants'
-import { Repo } from '../types'
+import { Repo, Role } from '../types'
 
 const auth = ({ repo }: { repo: Repo }) =>
   ah(async (req: Request, res: Response, next: NextFunction) => {
@@ -35,4 +35,16 @@ const auth = ({ repo }: { repo: Repo }) =>
     next()
   })
 
-export default auth
+const allowOnly = (roles: Role[]) =>
+  ah(async (req: Request, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.tokenData!.role)) throw new ForbiddenError()
+    next()
+  })
+
+const denyOnly = (roles: Role[]) =>
+  ah(async (req: Request, res: Response, next: NextFunction) => {
+    if (roles.includes(req.tokenData!.role)) throw new ForbiddenError()
+    next()
+  })
+
+export { auth, allowOnly, denyOnly }
