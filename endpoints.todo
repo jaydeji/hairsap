@@ -13,18 +13,19 @@ NIYI
 
 UNDONE
 /pro?name&filterby=service
-/pro/verify - admin should be able to verify a pro account
 /pro/video - pro should be able to add a video
 /bookings - get all bookings paginated
-/bookings/accept - accept booking by pro
-/bookings/reject - reject booking by pro
-/bookings/cancel - reject booking by pro and user
-/bookings/:id - mark booking as completed by user and pro
+/bookings/daily/:id - get daily booking amount
+/bookings/weekly/:id - get weekly booking amount
+/bookings/monthly/:id - get monthly booking amount
+/bookings/new
+/bookings/returned
 /user/photo - upload user profile picture except pro
-/reset/password - reset user password
 /transactions - get all transactions paginated
-/reactivate - pro should be able to send a request to admin to reactivate
-/reactivate/accept - admin should be able to reactivate pro
+/pro/applications
+/pro/redeems
+/
+
 chat sockets 🚧
 
 PENDING
@@ -45,7 +46,16 @@ DONE
 /chats/:userid - pro or user should be able to get a specific chat history with pagination ✅
 /bookings - user should be able to book a pro ✅
 /bookings/:id/add - add service to booking ✅
+/bookings/reject - reject booking by pro ✅
+/bookings/accept - accept booking by pro ✅
+/bookings/pending - accept booking by pro ✅
 /pro/auto - this returns the nearest pro ✅
+/pro/verify - admin should be able to verify a pro account ✅
+/bookings/cancel - reject booking by pro and user ✅
+/bookings/:id - mark booking as completed by user and pro ✅
+/reset/password - reset user password ✅
+/reactivate/request - pro should be able to send a request to admin to reactivate ✅
+/reactivate/accept - admin should be able to reactivate pro ✅
 
 LATER
 /verifydevice
@@ -56,6 +66,8 @@ otp
 push notification
 DOcean spaces
 backup mysql,redis to spaces
+imprive login with implementing caches
+cleanup responses
 
 UNCONFIRMED
 /pro - this returns a list of nearest pros with pagination ❌

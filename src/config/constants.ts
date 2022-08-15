@@ -39,3 +39,11 @@ export const PRO_STATUS = {
 
 export const PLACEHOLDER =
   'https://avatars.dicebear.com/api/adventurer/hairsap.svg'
+
+export const PERIODIC_CASH_AMOUNTS = {
+  DAILY: 50_000 * 100,
+  MONTHLY: 125_000 * 100,
+  WEEKLY_EARNING: 125_000 * 100, //affected by deductions and bonus
+  WEEKLY_BONUS: 25_000 * 100,
+  WEEKLY_BONUS_QUOTA: 375_000 * 100,
+}

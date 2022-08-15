@@ -1,6 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Service } from '../../types'
+import type { Role, Service } from '../../types'
 
 const makeProRouter = ({
   router,
@@ -22,6 +22,29 @@ const makeProRouter = ({
       res.status(200).send({ data })
     }),
   )
+
+  router.post(
+    '/verify:id',
+    ah(async (req, res) => {
+      await service.pro.verifyPro({
+        userId: +req.params.userId as number,
+        role: req.tokenData?.role as Role,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/reactivate/request',
+    ah(async (req, res) => {
+      await service.pro.requestReactivation({
+        userId: req.tokenData?.userId as number,
+        role: req.tokenData?.role as Role,
+      })
+      res.status(201).send()
+    }),
+  )
+
   return router
 }
 

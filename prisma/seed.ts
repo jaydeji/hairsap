@@ -337,7 +337,7 @@ const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
     photoUrl: '',
     serviceId: 4,
     subServiceId: 38,
-    price: 10000 * 100,
+    price: 15000 * 100,
   },
   {
     name: 'Beard shaving',

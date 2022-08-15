@@ -35,6 +35,22 @@ const makeAuthRouter = ({
     }),
   )
 
+  router.post(
+    '/resetpassword',
+    ah(async (req, res) => {
+      await service.auth.resetPassword(req.body)
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/confirmresetpassword',
+    ah(async (req, res) => {
+      await service.auth.confirmResetPassword(req.body)
+      res.status(201).send()
+    }),
+  )
+
   return router
 }
 

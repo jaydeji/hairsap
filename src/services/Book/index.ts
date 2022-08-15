@@ -1,9 +1,11 @@
-import { BOOKING_STATUS } from '../../config/constants'
+import { BOOKING_STATUS, ROLES } from '../../config/constants'
+import { GetPendingBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
+import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
-import type { Repo } from '../../types'
+import type { Repo, Role } from '../../types'
 import { getTransportPrice } from '../../utils'
-import { NotFoundError } from '../../utils/Error'
+import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const bookPro =
   ({ repo }: { repo: Repo }) =>
@@ -37,7 +39,7 @@ const bookPro =
       distance,
       subServiceFee: subService.price,
       subServiceName: subService.name,
-      transportFee: getTransportPrice(distance!),
+      transportFee: getTransportPrice(distance),
     })
 
     return booking
@@ -52,7 +54,11 @@ const addServiceToBooking =
 
     if (!booking || booking.userId !== data.userId)
       throw new NotFoundError('booking not found')
-    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+
+    if (
+      booking.status !== BOOKING_STATUS.ACCEPTED &&
+      booking.status !== BOOKING_STATUS.PENDING
+    )
       throw new NotFoundError('Service can no longer be added to booking')
 
     const subService = await repo.book.getSubService(data.subServiceId)
@@ -64,10 +70,165 @@ const addServiceToBooking =
     })
   }
 
+const acceptBooking =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    userId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    userId: number
+    role: Role
+  }) => {
+    PostAcceptBookingReqSchema.parse({ userId, bookingId })
+
+    if (role !== ROLES.PRO)
+      throw new ForbiddenError('Booking can only be accepted by pro')
+
+    const pendingBookings = await repo.book.getPendingProBookings(userId)
+
+    const booking = pendingBookings.find(
+      (booking) => booking.bookingId === bookingId,
+    )
+
+    if (!booking || booking.proId !== userId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.PENDING)
+      throw new NotFoundError('Booking cannot be accepted')
+
+    if (pendingBookings.length > 1)
+      throw new ForbiddenError('Too many pending bookings')
+
+    await repo.book.updateBooking(bookingId, {
+      acceptedAt: new Date(),
+      status: BOOKING_STATUS.ACCEPTED,
+    })
+  }
+
+const cancelBooking =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    userId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    userId: number
+    role: Role
+  }) => {
+    PostAcceptBookingReqSchema.parse({ userId, bookingId })
+
+    if (role !== ROLES.USER)
+      throw new ForbiddenError('Booking can only be accepted by pro')
+
+    const booking = await repo.book.getBookingById(bookingId)
+
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.PENDING)
+      throw new NotFoundError('Booking cannot be cancelled')
+
+    await repo.book.updateBooking(bookingId, {
+      cancelledAt: new Date(),
+      status: BOOKING_STATUS.CANCELLED,
+    })
+  }
+
+const rejectBooking =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    userId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    userId: number
+    role: Role
+  }) => {
+    PostAcceptBookingReqSchema.parse({ userId, bookingId })
+
+    if (role !== ROLES.PRO)
+      throw new ForbiddenError('Booking can only be rejected by pro')
+
+    const booking = await repo.book.getBookingById(bookingId)
+
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.PENDING)
+      throw new NotFoundError('Booking cannot be rejected')
+
+    await repo.book.updateBooking(bookingId, {
+      status: BOOKING_STATUS.REJECTED,
+      rejectedAt: new Date(),
+    })
+  }
+
+const markBookingAsCompleted =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    userId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    userId: number
+    role: Role
+  }) => {
+    PostAcceptBookingReqSchema.parse({ userId, bookingId })
+
+    if (!(ROLES.PRO, ROLES.USER).includes(role))
+      throw new ForbiddenError('Oly pro and user can mark booking as completed')
+
+    const booking = await repo.book.getBookingById(bookingId)
+
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+      throw new NotFoundError('Booking cannot be rejected')
+
+    if (role === ROLES.PRO && booking.proCompleted)
+      throw new ForbiddenError('booking already marked as completed')
+    else
+      await repo.book.updateBooking(bookingId, {
+        proCompleted: true,
+        status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+      })
+
+    if (role === ROLES.ADMIN && booking.userCompleted)
+      throw new ForbiddenError('booking already marked as completed')
+    else
+      await repo.book.updateBooking(bookingId, {
+        userCompleted: true,
+        status: booking.proCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+      })
+
+    //TODO: trigger payment
+  }
+
+const getPendingBookings =
+  ({ repo }: { repo: Repo }) =>
+  async ({ userId }: { userId: number }) => {
+    GetPendingBookingsReqSchema.parse({ userId })
+
+    const pendingBookings = await repo.book.getPendingProBookings(userId)
+
+    return pendingBookings
+  }
+
 const makeBook = ({ repo }: { repo: Repo }) => {
   return {
     bookPro: bookPro({ repo }),
     addServiceToBooking: addServiceToBooking({ repo }),
+    acceptBooking: acceptBooking({ repo }),
+    rejectBooking: rejectBooking({ repo }),
+    getPendingBookings: getPendingBookings({ repo }),
+    cancelBooking: cancelBooking({ repo }),
+    markBookingAsCompleted: markBookingAsCompleted({ repo }),
   }
 }
 

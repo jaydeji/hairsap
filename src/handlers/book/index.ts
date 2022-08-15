@@ -1,6 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Service } from '../../types'
+import type { Role, Service } from '../../types'
 
 const makeBookingRouter = ({
   router,
@@ -24,13 +24,71 @@ const makeBookingRouter = ({
     }),
   )
 
+  router.get(
+    '/pending',
+    ah(async (req, res) => {
+      const data = await service.book.getPendingBookings({
+        userId: req.tokenData?.userId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   router.patch(
     '/:id/add',
     ah(async (req, res) => {
-      const data = await service.book.addServiceToBooking({
+      await service.book.addServiceToBooking({
         subServiceId: req.body.subServiceId,
         bookingId: req.body.bookingId,
         userId: req.tokenData?.userId as number,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/:id/accept',
+    ah(async (req, res) => {
+      await service.book.acceptBooking({
+        bookingId: +req.params.id,
+        userId: req.tokenData?.userId as number,
+        role: req.tokenData?.role as Role,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/:id/cancel',
+    ah(async (req, res) => {
+      await service.book.cancelBooking({
+        bookingId: +req.params.id,
+        userId: req.tokenData?.userId as number,
+        role: req.tokenData?.role as Role,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/:id/reject',
+    ah(async (req, res) => {
+      const data = await service.book.rejectBooking({
+        bookingId: +req.params.id,
+        userId: req.tokenData?.userId as number,
+        role: req.tokenData?.role as Role,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/:id/completed',
+    ah(async (req, res) => {
+      const data = await service.book.markBookingAsCompleted({
+        bookingId: +req.params.id,
+        userId: req.tokenData?.userId as number,
+        role: req.tokenData?.role as Role,
       })
       res.status(200).send({ data })
     }),

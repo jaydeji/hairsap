@@ -74,6 +74,41 @@ const updateUser =
       },
     })
 
+const resetPassword =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number, expiredAt: Date, token: string) =>
+    db.passwordReset.create({
+      data: {
+        userId,
+        expiredAt,
+        token,
+      },
+    })
+
+const getResetPasswordToken =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number, token: string) =>
+    db.passwordReset.findUnique({
+      where: {
+        userId_token: {
+          token,
+          userId,
+        },
+      },
+    })
+
+const deleteResetPasswordToken =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number, token: string) =>
+    db.passwordReset.delete({
+      where: {
+        userId_token: {
+          token,
+          userId,
+        },
+      },
+    })
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -83,6 +118,9 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
       getUserByEmailandRole({ db, email, role }),
     createUser: (user: Prisma.UserCreateInput) => createUser({ user, db }),
     updateUser: updateUser({ db }),
+    resetPassword: resetPassword({ db }),
+    getResetPasswordToken: getResetPasswordToken({ db }),
+    deleteResetPasswordToken: deleteResetPasswordToken({ db }),
   }
 }
 

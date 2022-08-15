@@ -35,6 +35,9 @@ import {
 import { generateLoginOtp } from '../../utils/otp'
 import dayjs from '../../utils/dayjs'
 import { upload } from '../../config/multer-cloud'
+import { PostResetPasswordReqSchema } from '../../schemas/request/postResetPassword'
+import { resetPasswordTemplate } from '../../config/email/templates/resetPassword'
+import { PostConfirmResetPasswordReqSchema } from '../../schemas/request/postConfirmResetPassword'
 
 const login = async ({
   repo,
@@ -224,6 +227,44 @@ const uploadFaceId =
     return { path }
   }
 
+const resetPassword =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { email: string; userId: number; expiredAt: Date }) => {
+    PostResetPasswordReqSchema.parse(body)
+
+    const token = await generateLoginOtp()
+
+    await repo.user.resetPassword(
+      body.userId,
+      dayjs().add(1, 'hour').toDate(),
+      token,
+    )
+
+    emailQueue.add(resetPasswordTemplate({ email: body.email, token }))
+  }
+
+const confirmResetPassword =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number; token: string; password: string }) => {
+    PostConfirmResetPasswordReqSchema.parse(body)
+
+    const passwordTokenData = await repo.user.getResetPasswordToken(
+      body.userId,
+      body.token,
+    )
+
+    if (!passwordTokenData) throw new ForbiddenError('token expired')
+
+    if (dayjs(passwordTokenData.expiredAt).isBefore(dayjs()))
+      throw new ForbiddenError('token expired')
+
+    const hashedPassword = hashPassword(body.password)
+
+    await repo.user.updateUser(body.userId, {
+      password: hashedPassword,
+    })
+  }
+
 const makeAuth = ({ repo }: { repo: Repo }) => {
   return {
     login: (body: PostLoginRequest, role: Role) => login({ repo, body, role }),
@@ -231,6 +272,8 @@ const makeAuth = ({ repo }: { repo: Repo }) => {
       signup({ repo, body, role }),
     validateOtp: validateOtp({ repo }),
     uploadFaceId: uploadFaceId({ repo }),
+    confirmResetPassword: confirmResetPassword({ repo }),
+    resetPassword: resetPassword({ repo }),
   }
 }
 

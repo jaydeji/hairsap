@@ -58,12 +58,23 @@ CREATE TABLE `BookingSubService` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `InvoiceFees` (
+    `feeId` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `price` INTEGER NOT NULL,
+    `invoiceId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`feeId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Invoice` (
     `invoiceId` INTEGER NOT NULL AUTO_INCREMENT,
-    `bookingId` INTEGER NOT NULL,
     `transportFee` INTEGER NOT NULL,
-    `subServiceFee` INTEGER NOT NULL,
     `distance` INTEGER NOT NULL,
+    `bookingId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -74,32 +85,35 @@ CREATE TABLE `Invoice` (
 -- CreateTable
 CREATE TABLE `Booking` (
     `bookingId` INTEGER NOT NULL AUTO_INCREMENT,
-    `userId` INTEGER NOT NULL,
-    `proId` INTEGER NOT NULL,
     `cancelled` BOOLEAN NOT NULL DEFAULT false,
     `userCompleted` BOOLEAN NOT NULL DEFAULT false,
     `proCompleted` BOOLEAN NOT NULL DEFAULT false,
-    `location` VARCHAR(191) NOT NULL,
-    `locationPhotoUrl` VARCHAR(191) NOT NULL,
+    `address` VARCHAR(191) NOT NULL,
+    `samplePhotoUrl` VARCHAR(191) NULL,
     `status` VARCHAR(191) NOT NULL,
     `rating` INTEGER NULL,
+    `proId` INTEGER NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `invoiceId` INTEGER NULL,
+    `acceptedAt` DATETIME(3) NULL,
+    `rejectedAt` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    INDEX `Booking_proId_fkey`(`proId`),
-    INDEX `Booking_userId_fkey`(`userId`),
+    INDEX `Booking_proId_idx`(`proId`),
+    INDEX `Booking_userId_idx`(`userId`),
     PRIMARY KEY (`bookingId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Chat` (
     `chatId` INTEGER NOT NULL AUTO_INCREMENT,
-    `senderId` INTEGER NOT NULL,
-    `receiverId` INTEGER NOT NULL,
     `message` VARCHAR(191) NOT NULL,
     `messageType` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `senderId` INTEGER NOT NULL,
+    `receiverId` INTEGER NOT NULL,
 
     INDEX `Chat_receiverId_fkey`(`receiverId`),
     INDEX `Chat_senderId_fkey`(`senderId`),
@@ -125,7 +139,8 @@ CREATE TABLE `User` (
     `reactivationCount` INTEGER NULL,
     `terminated` BOOLEAN NULL DEFAULT false,
     `verified` BOOLEAN NULL DEFAULT false,
-    `location` POINT NULL,
+    `longitude` DECIMAL(10, 6) NULL,
+    `latitude` DECIMAL(10, 6) NULL,
     `resumptionAt` DATETIME(3) NULL,
     `closingAt` DATETIME(3) NULL,
     `workVideoUrl` VARCHAR(191) NULL,
@@ -135,6 +150,7 @@ CREATE TABLE `User` (
 
     UNIQUE INDEX `User_email_key`(`email`),
     INDEX `User_email_idx`(`email`),
+    INDEX `User_latitude_longitude_idx`(`latitude`, `longitude`),
     PRIMARY KEY (`userId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -244,6 +260,9 @@ ALTER TABLE `BookingSubService` ADD CONSTRAINT `BookingSubService_bookingId_fkey
 
 -- AddForeignKey
 ALTER TABLE `BookingSubService` ADD CONSTRAINT `BookingSubService_subServiceId_fkey` FOREIGN KEY (`subServiceId`) REFERENCES `SubService`(`subServiceId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `InvoiceFees` ADD CONSTRAINT `InvoiceFees_invoiceId_fkey` FOREIGN KEY (`invoiceId`) REFERENCES `Invoice`(`invoiceId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Invoice` ADD CONSTRAINT `Invoice_bookingId_fkey` FOREIGN KEY (`bookingId`) REFERENCES `Booking`(`bookingId`) ON DELETE RESTRICT ON UPDATE CASCADE;

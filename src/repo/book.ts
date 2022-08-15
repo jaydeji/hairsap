@@ -1,4 +1,4 @@
-import { PrismaClient, SubService } from '@prisma/client'
+import { Prisma, PrismaClient, SubService } from '@prisma/client'
 import { BOOKING_STATUS } from '../config/constants'
 
 const getBookingById =
@@ -7,6 +7,15 @@ const getBookingById =
     db.booking.findUnique({
       where: {
         bookingId,
+      },
+    })
+
+const getPendingProBookings =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) =>
+    db.booking.findMany({
+      where: {
+        proId,
       },
     })
 
@@ -100,12 +109,24 @@ const getSubService =
       },
     })
 
+const updateBooking =
+  ({ db }: { db: PrismaClient }) =>
+  (bookingId: number, data: Prisma.BookingUpdateInput) =>
+    db.booking.update({
+      data,
+      where: {
+        bookingId,
+      },
+    })
+
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
     getSubService: getSubService({ db }),
     addServiceToBooking: addServiceToBooking({ db }),
     getBookingById: getBookingById({ db }),
+    updateBooking: updateBooking({ db }),
+    getPendingProBookings: getPendingProBookings({ db }),
   }
 }
 

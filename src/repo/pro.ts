@@ -1,4 +1,6 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
+import { ROLES } from '../config/constants'
+import { PageReq } from '../schemas/request/Page'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -101,10 +103,41 @@ ORDER BY distance, userId ASC LIMIT 1;`
 // and ((`Month` >= 10 AND `Year` = 2012)
 // OR (`Month` <= 2 AND `Year` = 2013))
 
+const getPayoutRequests =
+  ({ db }: { db: PrismaClient }) =>
+  (page: PageReq & { skip: number }) =>
+    db.user.findMany({
+      take: page.perPage,
+      skip: page.skip,
+      where: {
+        role: ROLES.PRO,
+      },
+    })
+
+const getPayoutRequestsWP =
+  ({ db }: { db: PrismaClient }) =>
+  (page: PageReq & { skip: number }) =>
+    db.$transaction([
+      db.user.count({
+        where: {
+          role: ROLES.PRO,
+        },
+      }),
+      db.user.findMany({
+        take: page.perPage,
+        skip: page.skip,
+        where: {
+          role: ROLES.PRO,
+        },
+      }),
+    ])
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
     getDistBtwLoctions: getDistBtwLoctions({ db }),
+    getPayoutRequests: getPayoutRequests({ db }),
+    getPayoutRequestsWP: getPayoutRequestsWP({ db }),
   }
 }
 
