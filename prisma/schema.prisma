@@ -10,37 +10,39 @@ datasource db {
 }
 
 model Subscription {
-  userId    Int
-  proId     Int
+  pros   Pro  @relation(fields: [proId], references: [proId])
+  proId  Int
+  users  User @relation(fields: [userId], references: [userId])
+  userId Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  pros      User     @relation("pro", fields: [proId], references: [userId])
-  users     User     @relation("user", fields: [userId], references: [userId])
 
   @@id([userId, proId])
   @@unique([userId, proId])
 }
 
-model UserService {
-  userId    Int
-  serviceId Int
+model ProService {
   service   Service @relation(fields: [serviceId], references: [serviceId])
-  user      User    @relation(fields: [userId], references: [userId])
+  serviceId Int
+  pro       Pro     @relation(fields: [proId], references: [proId])
+  proId     Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@id([userId, serviceId])
+  @@id([proId, serviceId])
 }
 
 model Service {
-  serviceId   Int           @id @default(autoincrement())
+  serviceId   Int          @id @default(autoincrement())
   name        String
   photoUrl    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now()) @updatedAt
   subServices SubService[]
-  User        UserService[]
+  proServices ProService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model SubService {
@@ -95,13 +97,27 @@ model Invoice {
 model Review {
   reviewId Int    @id @default(autoincrement())
   value    String @db.Text
-  Pro      User   @relation("pro", fields: [proId], references: [userId])
+  pro      Pro    @relation(fields: [proId], references: [proId])
   proId    Int
-  User     User   @relation("user", fields: [userId], references: [userId])
+  user     User   @relation(fields: [userId], references: [userId])
   userId   Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Otp {
+  otpId   String @id @default(uuid())
+  value   String
+  user    User   @relation(fields: [userId], references: [userId])
+  userId  Int    @unique
+  admin   Admin  @relation(fields: [adminId], references: [adminId])
+  adminId Int    @unique
+  Pro     Pro    @relation(fields: [proId], references: [proId])
+  proId   Int    @unique
+
+  createdAt DateTime @default(now())
+  expiredAt DateTime @default(now())
 }
 
 model Booking {
@@ -113,16 +129,16 @@ model Booking {
   samplePhotoUrl    String?
   status            String
   rating            Int?
-  proId             Int
-  userId            Int
   invoiceId         Int?
   acceptedAt        DateTime?
   rejectedAt        DateTime?
   cancelledAt       DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @default(now()) @updatedAt
-  pro               User                @relation("pro", fields: [proId], references: [userId])
-  user              User                @relation("user", fields: [userId], references: [userId])
+  pro               Pro                 @relation(fields: [proId], references: [proId])
+  proId             Int
+  user              User                @relation(fields: [userId], references: [userId])
+  userId            Int
   bookedSubServices BookingSubService[]
   invoice           Invoice?
 
@@ -138,21 +154,35 @@ model Chat {
   updatedAt   DateTime @default(now()) @updatedAt
   senderId    Int
   receiverId  Int
-  receiver    User     @relation("receiver", fields: [receiverId], references: [userId])
-  sender      User     @relation("sender", fields: [senderId], references: [userId])
 
   @@index([receiverId])
   @@index([senderId])
 }
 
-model User {
-  userId                Int             @id @default(autoincrement())
-  email                 String?         @unique @db.VarChar(255)
-  address               String?
-  name                  String
-  userName              String?
-  password              String
-  role                  String
+model Admin {
+  adminId       Int             @id @default(autoincrement())
+  email         String?         @unique @db.VarChar(255)
+  address       String?
+  name          String
+  userName      String?
+  password      String
+  otp           Otp?
+  notifications Notification[]
+  PasswordReset PasswordReset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Pro {
+  proId    Int     @id @default(autoincrement())
+  email    String? @unique @db.VarChar(255)
+  address  String?
+  name     String
+  userName String?
+  password String
+  otp      Otp?
+
   phone                 String
   photoUrl              String?
   livePhotoUrl          String?
@@ -171,24 +201,45 @@ model User {
   closingAt             DateTime?
   workVideoUrl          String?
   businessName          String?
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @default(now()) @updatedAt
-  otp                   Otp?
   bonuses               Bonus[]
-  proBookings           Booking[]       @relation("pro")
-  userBookings          Booking[]       @relation("user")
-  receivedMessages      Chat[]          @relation("receiver")
-  sentMessages          Chat[]          @relation("sender")
+  bookings              Booking[]
   devices               Device[]
   notifications         Notification[]
   PasswordReset         PasswordReset[]
-  paymentEvents         PaymentEvents[]
   redeemPayments        RedeemPayment[]
-  subscribedTos         Subscription[]  @relation("pro")
-  subscribers           Subscription[]  @relation("user")
-  services              UserService[]
-  proReviews            Review[]        @relation("pro")
-  userReviews           Review[]        @relation("user")
+  subscribers           Subscription[]
+  proServices           ProService[]
+  reviews               Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([latitude, longitude])
+}
+
+model User {
+  userId   Int     @id @default(autoincrement())
+  email    String? @unique @db.VarChar(255)
+  address  String?
+  name     String
+  userName String?
+  password String
+  otp      Otp?
+
+  phone         String
+  photoUrl      String?
+  longitude     Decimal?        @db.Decimal(10, 6)
+  latitude      Decimal?        @db.Decimal(10, 6)
+  bookings      Booking[]
+  devices       Device[]
+  notifications Notification[]
+  PasswordReset PasswordReset[]
+  paymentEvents PaymentEvents[]
+  subscriptions Subscription[]
+  reviews       Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([email])
   @@index([latitude, longitude])
@@ -210,8 +261,10 @@ model PaymentEvents {
 model Device {
   deviceId Int    @id @default(autoincrement())
   value    String
-  User     User   @relation(fields: [userId], references: [userId])
+  user     User   @relation(fields: [userId], references: [userId])
   userId   Int
+  pro      Pro    @relation(fields: [proId], references: [proId])
+  proId    Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -222,56 +275,61 @@ model Device {
 model PasswordReset {
   resetId String @id @default(uuid())
   token   String
-  userId  Int
   user    User   @relation(fields: [userId], references: [userId])
+  userId  Int
+  pro     Pro    @relation(fields: [proId], references: [proId])
+  proId   Int
+  admin   Admin  @relation(fields: [adminId], references: [adminId])
+  adminId Int
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())
 
   @@unique([userId, token])
+  @@unique([proId, token])
+  @@unique([adminId, token])
   @@index([userId])
-}
-
-model Otp {
-  otpId  String @id @default(uuid())
-  value  String
-  user   User   @relation(fields: [userId], references: [userId])
-  userId Int    @unique
-
-  createdAt DateTime @default(now())
-  expiredAt DateTime @default(now())
+  @@index([proId])
+  @@index([adminId])
 }
 
 model Notification {
   notificationId Int      @id @default(autoincrement())
-  userId         Int
   message        String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
   user           User     @relation(fields: [userId], references: [userId])
+  userId         Int
+  pro            Pro      @relation(fields: [proId], references: [proId])
+  proId          Int
+  admin          Admin    @relation(fields: [adminId], references: [adminId])
+  adminId        Int
 
   @@index([userId])
+  @@index([proId])
+  @@index([adminId])
 }
 
 model RedeemPayment {
-  redeemId  Int      @id @default(autoincrement())
-  userId    Int
+  redeemId  Int     @id @default(autoincrement())
   confirmed Boolean
   amount    Int
+  pro       Pro     @relation(fields: [proId], references: [proId])
+  proId     Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  user      User     @relation(fields: [userId], references: [userId])
 
-  @@index([userId])
+  @@index([proId])
 }
 
 model Bonus {
   bonusId   Int      @id @default(autoincrement())
-  userId    Int
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  user      User     @relation(fields: [userId], references: [userId])
+  pro       Pro      @relation(fields: [proId], references: [proId])
+  proId     Int
 
-  @@index([userId])
+  @@index([proId])
 }
