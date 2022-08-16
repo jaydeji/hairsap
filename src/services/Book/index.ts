@@ -1,5 +1,5 @@
 import { BOOKING_STATUS, ROLES } from '../../config/constants'
-import { GetPendingBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
+import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
 import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
@@ -41,6 +41,8 @@ const bookPro =
       subServiceName: subService.name,
       transportFee: getTransportPrice(distance),
     })
+
+    //TODO: send fmq
 
     return booking
   }
@@ -86,7 +88,10 @@ const acceptBooking =
     if (role !== ROLES.PRO)
       throw new ForbiddenError('Booking can only be accepted by pro')
 
-    const pendingBookings = await repo.book.getPendingProBookings(userId)
+    const pendingBookings = await repo.book.getProBookingsByStatus(
+      userId,
+      BOOKING_STATUS.PENDING,
+    )
 
     const booking = pendingBookings.find(
       (booking) => booking.bookingId === bookingId,
@@ -210,14 +215,17 @@ const markBookingAsCompleted =
     //TODO: trigger payment
   }
 
-const getPendingBookings =
+const getAcceptedProBookings =
   ({ repo }: { repo: Repo }) =>
   async ({ userId }: { userId: number }) => {
-    GetPendingBookingsReqSchema.parse({ userId })
+    GetAcceptedBookingsReqSchema.parse({ userId })
 
-    const pendingBookings = await repo.book.getPendingProBookings(userId)
+    const acceptedBookings = await repo.book.getProBookingsByStatus(
+      userId,
+      BOOKING_STATUS.ACCEPTED,
+    )
 
-    return pendingBookings
+    return acceptedBookings
   }
 
 const makeBook = ({ repo }: { repo: Repo }) => {
@@ -226,7 +234,7 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     addServiceToBooking: addServiceToBooking({ repo }),
     acceptBooking: acceptBooking({ repo }),
     rejectBooking: rejectBooking({ repo }),
-    getPendingBookings: getPendingBookings({ repo }),
+    getAcceptedProBookings: getAcceptedProBookings({ repo }),
     cancelBooking: cancelBooking({ repo }),
     markBookingAsCompleted: markBookingAsCompleted({ repo }),
   }

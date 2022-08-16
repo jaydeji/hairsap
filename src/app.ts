@@ -3,14 +3,10 @@ import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 
-import db from './config/db'
-import { auth as authMiddleWare, allowOnly, denyOnly } from './middleware/auth'
+import { auth as authMiddleWare, allowOnly } from './middleware/auth'
 import { handleError } from './utils/Error'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../docs/swagger.yml'
-
-import makeServices from './services'
-import makeRepo from './repo'
 
 import makeRouter from './handlers'
 import makeAuthRouter from './handlers/auth'
@@ -19,12 +15,11 @@ import makeChatRouter from './handlers/chat'
 import makeProRouter from './handlers/pro'
 import makeBookRouter from './handlers/book'
 import makeAdminRouter from './handlers/admin'
+
 import { ROLES } from './config/constants'
+import { Repo, Service } from './types'
 
-const createApp = () => {
-  const repo = makeRepo({ db })
-  const service = makeServices({ repo })
-
+const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   const app = express()
   const router = Router()
 
@@ -57,7 +52,7 @@ const createApp = () => {
     allowOnly([ROLES.ADMIN]),
     makeAdminRouter({ router, service }),
   )
-  app.use('/', makeRouter({ router, service }))
+  app.use('/', makeRouter({ router, service, repo }))
 
   app.use(handleError)
 

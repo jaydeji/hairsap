@@ -3,6 +3,7 @@ import makeBookRepo from './book'
 import makeChatRepo from './chat'
 import makeProRepo from './pro'
 import makeUserRepo from './user'
+import makeOtherRepo from './other'
 
 const makeRepo = ({ db }: { db: PrismaClient }) => {
   return {
@@ -10,6 +11,7 @@ const makeRepo = ({ db }: { db: PrismaClient }) => {
     chat: makeChatRepo({ db }),
     pro: makeProRepo({ db }),
     book: makeBookRepo({ db }),
+    other: makeOtherRepo({ db }),
   }
 }
 

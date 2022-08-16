@@ -1,6 +1,8 @@
 import { ROLES } from '../../config/constants'
 import { GetPayoutRequestsReqSchema } from '../../schemas/request/getPayoutRequestSchema'
 import { PageReq, PageReqSchema } from '../../schemas/request/Page'
+import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
+import { PostAcceptOrRejectAppReq } from '../../schemas/request/postAcceptOrRejectApplication'
 import type { Repo, Role } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
@@ -46,10 +48,27 @@ const getPayoutRequests =
     return { meta, data }
   }
 
+const acceptOrRejectApplication =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostAcceptOrRejectAppReq) => {
+    PostAcceptBookingReqSchema.parse(body)
+    const { action, proId } = body
+    if (action === 'accept') {
+      await repo.user.updateUser(proId, {
+        verified: true,
+      })
+    } else {
+      await repo.user.updateUser(proId, {
+        rejected: true,
+      })
+    }
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
     getPayoutRequests: getPayoutRequests({ repo }),
+    acceptOrRejectApplication: acceptOrRejectApplication({ repo }),
   }
 }
 

@@ -28,6 +28,17 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.post(
+    '/proapplication/:proId/:action',
+    ah(async (req, res) => {
+      await service.admin.acceptOrRejectApplication({
+        action: req.params.action,
+        proId: +req.params.proId,
+      })
+      res.sendStatus(201)
+    }),
+  )
+
   return router
 }
 

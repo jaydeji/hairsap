@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
 import { BOOKING_STATUS } from '../config/constants'
+import { BookingStatus } from '../types'
 
 const getBookingById =
   ({ db }: { db: PrismaClient }) =>
@@ -10,12 +11,13 @@ const getBookingById =
       },
     })
 
-const getPendingProBookings =
+const getProBookingsByStatus =
   ({ db }: { db: PrismaClient }) =>
-  (proId: number) =>
+  (proId: number, status: BookingStatus) =>
     db.booking.findMany({
       where: {
         proId,
+        status,
       },
     })
 
@@ -126,7 +128,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     addServiceToBooking: addServiceToBooking({ db }),
     getBookingById: getBookingById({ db }),
     updateBooking: updateBooking({ db }),
-    getPendingProBookings: getPendingProBookings({ db }),
+    getProBookingsByStatus: getProBookingsByStatus({ db }),
   }
 }
 

@@ -1,11 +1,13 @@
 import { z } from 'zod'
 import { CursorSchema } from '../models/Cursor'
 
-export const GetPendingBookingsReqSchema = z
+export const GetAcceptedBookingsReqSchema = z
   .object({
     userId: z.number(),
   })
   .strict()
   .merge(CursorSchema)
 
-export type GetPendingBookingsReq = z.infer<typeof GetPendingBookingsReqSchema>
+export type GetAcceptedBookingsReq = z.infer<
+  typeof GetAcceptedBookingsReqSchema
+>

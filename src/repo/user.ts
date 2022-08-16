@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import { PostSubscribeReq } from '../schemas/request/postSubscribe'
 import { Role } from '../types'
 
 const getUserById =
@@ -109,6 +110,35 @@ const deleteResetPasswordToken =
       },
     })
 
+const subscribe =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, proId }: PostSubscribeReq) =>
+    db.subscription.create({
+      data: {
+        proId,
+        userId,
+      },
+    })
+
+// TODO: add review count and ratings
+const getUserSubscriptions =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) =>
+    db.subscription.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        pros: {
+          select: {
+            userId: true,
+            photoUrl: true,
+            name: true,
+          },
+        },
+      },
+    })
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -121,6 +151,8 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     resetPassword: resetPassword({ db }),
     getResetPasswordToken: getResetPasswordToken({ db }),
     deleteResetPasswordToken: deleteResetPasswordToken({ db }),
+    subscribe: subscribe({ db }),
+    getUserSubscriptions: getUserSubscriptions({ db }),
   }
 }
 

@@ -67,11 +67,17 @@ const requestReactivation =
     })
   }
 
+const getProSubscribers =
+  ({ repo }: { repo: Repo }) =>
+  ({ proId }: { proId: number }) =>
+    repo.pro.getProSubscribers(proId)
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
     verifyPro: verifyPro({ repo }),
     requestReactivation: requestReactivation({ repo }),
+    getProSubscribers: getProSubscribers({ repo }),
   }
 }
 

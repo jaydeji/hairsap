@@ -1,8 +1,9 @@
-import { z } from 'zod'
-import { MESSAGE_TYPE, ROLES } from '../../config/constants'
+import { ROLES } from '../../config/constants'
 import { chatQueue } from '../../config/queue'
 import { IO } from '../../index'
-import { Role } from '../../types'
+import { ChatMessageType, MessageSchema } from '../../schemas/models/Message'
+import { PostBookProReq } from '../../schemas/request/postBookPro'
+import { Role, Service } from '../../types'
 import { logger } from '../../utils'
 import { UnauthorizedError } from '../../utils/Error'
 import { verifyJwt } from '../../utils/jwtLib'
@@ -12,30 +13,12 @@ import { verifyJwt } from '../../utils/jwtLib'
 //   query: {token,role}
 // });
 
+//socket input Object<any>
+//socket output Object<{data,message,error}>
+
 const users: Record<string, { socketId: string } | undefined> = {}
 
-const MessageSchema = z
-  .object({
-    createdAt: z
-      .string()
-      .refine((str) =>
-        str.match(
-          new RegExp(
-            /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/,
-          ),
-        ),
-      ),
-    text: z.string().optional(),
-    photo: z.string().optional(),
-    senderId: z.number(),
-    receiverId: z.number(),
-    messageType: z.nativeEnum(MESSAGE_TYPE),
-  })
-  .strict()
-
-export type ChatMessageType = z.infer<typeof MessageSchema>
-
-const createChat = ({ io }: { io: IO }) => {
+const createChat = ({ io, service }: { io: IO; service: Service }) => {
   io.use(function (socket, next) {
     if (socket.handshake.query?.token && socket.handshake.query?.role) {
       try {
@@ -43,7 +26,7 @@ const createChat = ({ io }: { io: IO }) => {
           socket.handshake.query.token as string,
           (socket.handshake.query?.role as Role) === ROLES.ADMIN,
         )
-        ;(socket as any).decoded = tokenData
+        ;(socket as any).decodedToken = tokenData
         next()
       } catch (error) {
         next(new UnauthorizedError())
@@ -62,7 +45,7 @@ const createChat = ({ io }: { io: IO }) => {
     }
 
     socket.on('disconnect', () => {
-      users[(socket as any).decoded.userId] = undefined
+      users[(socket as any).decodedToken.userId] = undefined
       logger.info('user disconnected')
     })
 
@@ -72,7 +55,7 @@ const createChat = ({ io }: { io: IO }) => {
       }
     })
 
-    socket.on('new message', ({ message }: { message: ChatMessageType }) => {
+    socket.on('new message', (message: ChatMessageType) => {
       const _message = MessageSchema.safeParse(message)
       if (!_message.success) return
       chatQueue.add(message)
@@ -83,6 +66,19 @@ const createChat = ({ io }: { io: IO }) => {
           .emit('new message', message)
       } else {
         // TODO: send FCM
+      }
+    })
+
+    socket.on('bookpro', async (payload: PostBookProReq) => {
+      try {
+        //TODO: add auth middleware
+        const data = await service.book.bookPro({
+          ...payload,
+          userId: (socket as any).decodedToken.userId,
+        })
+        socket.emit('bookpro', { data })
+      } catch (error) {
+        socket.emit('bookpro', { error: (error as Error).message })
       }
     })
   })

@@ -10,12 +10,12 @@ datasource db {
 }
 
 model Subscription {
-  userId                         Int
-  proId                          Int
-  createdAt                      DateTime @default(now())
-  updatedAt                      DateTime @default(now()) @updatedAt
-  User_Subscription_proIdToUser  User     @relation("pro", fields: [proId], references: [userId])
-  User_Subscription_userIdToUser User     @relation("user", fields: [userId], references: [userId])
+  userId    Int
+  proId     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  pros      User     @relation("pro", fields: [proId], references: [userId])
+  users     User     @relation("user", fields: [userId], references: [userId])
 
   @@id([userId, proId])
   @@unique([userId, proId])
@@ -24,10 +24,11 @@ model Subscription {
 model UserService {
   userId    Int
   serviceId Int
+  service   Service @relation(fields: [serviceId], references: [serviceId])
+  user      User    @relation(fields: [userId], references: [userId])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  service   Service  @relation(fields: [serviceId], references: [serviceId])
-  user      User     @relation(fields: [userId], references: [userId])
 
   @@id([userId, serviceId])
 }
@@ -155,14 +156,15 @@ model User {
   phone                 String
   photoUrl              String?
   livePhotoUrl          String?
-  approved              Boolean?        @default(false)
   deactivated           Boolean?        @default(false)
   deactivatedReason     Int?
   deactivationCount     Int             @default(0)
   reactivationCount     Int             @default(0)
   reactivationRequested Boolean?        @default(false)
   terminated            Boolean?        @default(false)
-  verified              Boolean?        @default(false)
+  // approved              Boolean?        @default(false)
+  verified              Boolean?        @default(false) //verify new pro account
+  rejected              Boolean?        @default(false)
   longitude             Decimal?        @db.Decimal(10, 6)
   latitude              Decimal?        @db.Decimal(10, 6)
   resumptionAt          DateTime?
@@ -171,6 +173,7 @@ model User {
   businessName          String?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @default(now()) @updatedAt
+  otp                   Otp?
   bonuses               Bonus[]
   proBookings           Booking[]       @relation("pro")
   userBookings          Booking[]       @relation("user")
@@ -178,7 +181,6 @@ model User {
   sentMessages          Chat[]          @relation("sender")
   devices               Device[]
   notifications         Notification[]
-  otp                   Otp?
   PasswordReset         PasswordReset[]
   paymentEvents         PaymentEvents[]
   redeemPayments        RedeemPayment[]

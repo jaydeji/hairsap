@@ -132,12 +132,31 @@ const getPayoutRequestsWP =
       }),
     ])
 
+const getProSubscribers =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) =>
+    db.subscription.findMany({
+      where: {
+        proId,
+      },
+      include: {
+        users: {
+          select: {
+            userId: true,
+            photoUrl: true,
+            name: true,
+          },
+        },
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
     getDistBtwLoctions: getDistBtwLoctions({ db }),
     getPayoutRequests: getPayoutRequests({ db }),
     getPayoutRequestsWP: getPayoutRequestsWP({ db }),
+    getProSubscribers: getProSubscribers({ db }),
   }
 }
 

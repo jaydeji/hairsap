@@ -6,9 +6,17 @@ import createApp from './app'
 import { logger } from './utils'
 import createChat from './handlers/chat/socket'
 import { Server } from 'socket.io'
+import db from './config/db'
+import makeRepo from './repo'
+import makeServices from './services'
 
-const app = createApp()
+const repo = makeRepo({ db })
+const service = makeServices({ repo })
+
+const app = createApp({ repo, service })
+
 const server = http.createServer(app)
+
 const io = new Server(server, {
   // pingTimeout: 60000,
   cors: {
@@ -16,7 +24,7 @@ const io = new Server(server, {
   },
 })
 
-createChat({ io })
+createChat({ io, service })
 
 const PORT = process.env.PORT || 4000
 

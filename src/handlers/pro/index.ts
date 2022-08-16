@@ -1,5 +1,7 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
+import { ROLES } from '../../config/constants'
+import { allowOnly } from '../../middleware/auth'
 import type { Role, Service } from '../../types'
 
 const makeProRouter = ({
@@ -42,6 +44,17 @@ const makeProRouter = ({
         role: req.tokenData?.role as Role,
       })
       res.status(201).send()
+    }),
+  )
+
+  router.get(
+    '/subscribers',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.pro.getProSubscribers({
+        proId: req.tokenData?.userId as number,
+      })
+      res.status(200).send({ data })
     }),
   )
 
