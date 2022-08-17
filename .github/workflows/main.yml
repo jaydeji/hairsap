@@ -32,5 +32,6 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build
         run: |
-          docker-compose -f docker-compose.prod.yml up --build -d
+          docker-compose -f docker-compose.prod.yml up --build -d 
+          docker image prune 
 

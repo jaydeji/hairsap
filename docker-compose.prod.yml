@@ -42,11 +42,11 @@ services:
     image: 'mysql:8.0.29'
     env_file:
       - /root/hsapdev/.env
-    environment:
-      MYSQL_DATABASE: hairsap_dev
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_USER}
+    # environment:
+    #   MYSQL_DATABASE: hairsap_dev
+    #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    #   MYSQL_USER: ${MYSQL_USER}
+    #   MYSQL_PASSWORD: ${MYSQL_USER}
     restart: always
     container_name: mysql_hsap_db
     volumes:
@@ -57,8 +57,8 @@ services:
     restart: always
     env_file:
       - /root/hsapdev/.env
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # environment:
+    #   REDIS_PASSWORD: ${REDIS_PASSWORD}
     container_name: redis_hsap_db
     volumes:
       - './redis_data:/data'
