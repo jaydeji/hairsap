@@ -72,16 +72,6 @@ const bookPro =
         status: BOOKING_STATUS.PENDING,
         userId: data.userId,
         proId: data.proId,
-        pro: {
-          connect: {
-            userId: data.proId,
-          },
-        },
-        user: {
-          connect: {
-            userId: data.userId,
-          },
-        },
         bookedSubServices: {
           create: {
             subServiceId: data.subServiceId,

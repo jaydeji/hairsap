@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { Entity } from '../schemas/models/Entity'
 
 const getServices =
   ({ db }: { db: PrismaClient }) =>
@@ -11,7 +12,7 @@ const getServices =
 
 const getNotifications =
   ({ db }: { db: PrismaClient }) =>
-  (userId: number) =>
+  ({ userId, adminId, proId }: Entity) =>
     db.notification.findMany({
       take: 20,
       orderBy: {
@@ -19,6 +20,8 @@ const getNotifications =
       },
       where: {
         userId,
+        adminId,
+        proId,
       },
     })
 

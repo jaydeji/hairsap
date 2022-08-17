@@ -109,12 +109,12 @@ model Review {
 model Otp {
   otpId   String @id @default(uuid())
   value   String
-  user    User   @relation(fields: [userId], references: [userId])
-  userId  Int    @unique
-  admin   Admin  @relation(fields: [adminId], references: [adminId])
-  adminId Int    @unique
-  Pro     Pro    @relation(fields: [proId], references: [proId])
-  proId   Int    @unique
+  user    User?  @relation(fields: [userId], references: [userId])
+  userId  Int?   @unique
+  admin   Admin? @relation(fields: [adminId], references: [adminId])
+  adminId Int?   @unique
+  Pro     Pro?   @relation(fields: [proId], references: [proId])
+  proId   Int?   @unique
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())
@@ -147,21 +147,31 @@ model Booking {
 }
 
 model Chat {
-  chatId      Int      @id @default(autoincrement())
+  chatId      Int    @id @default(autoincrement())
   message     String
   messageType String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  senderId    Int
-  receiverId  Int
 
-  @@index([receiverId])
-  @@index([senderId])
+  sentUser       User? @relation("sentUser", fields: [sentUserId], references: [userId])
+  sentUserId     Int?
+  receivedUser   User? @relation("receivedUser", fields: [receivedUserId], references: [userId])
+  receivedUserId Int?
+  sentPro        Pro?  @relation("sentPro", fields: [sentProId], references: [proId])
+  sentProId      Int?
+  receivedPro    Pro?  @relation("receivedPro", fields: [receivedProId], references: [proId])
+  receivedProId  Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([sentUserId])
+  @@index([receivedUserId])
+  @@index([sentProId])
+  @@index([receivedProId])
 }
 
 model Admin {
   adminId       Int             @id @default(autoincrement())
-  email         String?         @unique @db.VarChar(255)
+  email         String          @unique @db.VarChar(255)
   address       String?
   name          String
   userName      String?
@@ -210,10 +220,13 @@ model Pro {
   subscribers           Subscription[]
   proServices           ProService[]
   reviews               Review[]
+  receivedChats         Chat[]          @relation("receivedPro")
+  sentChats             Chat[]          @relation("sentPro")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  @@index([email])
   @@index([latitude, longitude])
 }
 
@@ -227,6 +240,7 @@ model User {
   otp      Otp?
 
   phone         String
+  livePhotoUrl  String?
   photoUrl      String?
   longitude     Decimal?        @db.Decimal(10, 6)
   latitude      Decimal?        @db.Decimal(10, 6)
@@ -237,6 +251,8 @@ model User {
   paymentEvents PaymentEvents[]
   subscriptions Subscription[]
   reviews       Review[]
+  receivedChats Chat[]          @relation("receivedUser")
+  sentChats     Chat[]          @relation("sentUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -261,10 +277,10 @@ model PaymentEvents {
 model Device {
   deviceId Int    @id @default(autoincrement())
   value    String
-  user     User   @relation(fields: [userId], references: [userId])
-  userId   Int
-  pro      Pro    @relation(fields: [proId], references: [proId])
-  proId    Int
+  user     User?  @relation(fields: [userId], references: [userId])
+  userId   Int?
+  pro      Pro?   @relation(fields: [proId], references: [proId])
+  proId    Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -275,12 +291,12 @@ model Device {
 model PasswordReset {
   resetId String @id @default(uuid())
   token   String
-  user    User   @relation(fields: [userId], references: [userId])
-  userId  Int
-  pro     Pro    @relation(fields: [proId], references: [proId])
-  proId   Int
-  admin   Admin  @relation(fields: [adminId], references: [adminId])
-  adminId Int
+  user    User?  @relation(fields: [userId], references: [userId])
+  userId  Int?
+  pro     Pro?   @relation(fields: [proId], references: [proId])
+  proId   Int?
+  admin   Admin? @relation(fields: [adminId], references: [adminId])
+  adminId Int?
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())

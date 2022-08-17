@@ -1,5 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
+import { ROLES } from '../../config/constants'
 import type { Role, Service } from '../../types'
 
 const makeBookingRouter = ({
@@ -83,13 +84,22 @@ const makeBookingRouter = ({
   )
 
   router.post(
-    '/:id/completed',
+    '/:id/:role/completed',
     ah(async (req, res) => {
-      const data = await service.book.markBookingAsCompleted({
-        bookingId: +req.params.id,
-        userId: req.tokenData?.userId as number,
-        role: req.tokenData?.role as Role,
-      })
+      let data
+      if (req.params.role === ROLES.USER) {
+        data = await service.book.markBookingAsUserCompleted({
+          bookingId: +req.params.id,
+          userId: req.tokenData?.userId as number,
+          role: req.tokenData?.role as Role,
+        })
+      } else {
+        data = await service.book.markBookingAsProCompleted({
+          bookingId: +req.params.id,
+          proId: req.tokenData?.proId as number,
+          role: req.tokenData?.role as Role,
+        })
+      }
       res.status(200).send({ data })
     }),
   )

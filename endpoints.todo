@@ -72,10 +72,23 @@ UNCONFIRMED
 QUESTIONS
 No UI for timer
 How do they select if manual or card
-
+should customers have faceId
+we need a stage to pick if otp is phone or email
+when is a pro busy
+no ui for setting active timer
+the faceid is only for pro?
+right now the face id and profile picture are literally the same
+for now, the device change is otp not faceId and for pro and user?
 
 what is the distance pricing per mile?
 
 ADJUSTMENTS
 change haircut price
-should customers have faceId
+
+NOTES
+    "multer-s3": "^2.10.0",
+    RUNNER_ALLOW_RUNASROOT="1"
+
+
+
+

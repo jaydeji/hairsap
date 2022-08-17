@@ -1,6 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Role, Service } from '../../types'
+import type { Service } from '../../types'
 
 //TODO:
 
@@ -14,7 +14,7 @@ const makeAuthRouter = ({
   router.post(
     '/login',
     ah(async (req, res) => {
-      const data = await service.auth.login(req.body, req.query.role as Role)
+      const data = await service.auth.login(req.body)
       res.status(200).send({ data })
     }),
   )
@@ -22,7 +22,7 @@ const makeAuthRouter = ({
   router.post(
     '/signup',
     ah(async (req, res) => {
-      const data = await service.auth.signup(req.body, req.query.role as Role)
+      const data = await service.auth.signUp(req.body)
       res.status(200).send({ data })
     }),
   )

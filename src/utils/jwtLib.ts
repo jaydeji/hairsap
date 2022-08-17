@@ -1,6 +1,5 @@
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
-import { ForbiddenError } from './Error'
 
 const generateJwt = (
   data: Record<string, unknown>,

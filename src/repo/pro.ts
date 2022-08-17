@@ -1,6 +1,37 @@
-import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { ROLES } from '../config/constants'
+import { Prisma, PrismaClient, Pro, SubService } from '@prisma/client'
 import { PageReq } from '../schemas/request/Page'
+
+const getProById =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) => {
+    return db.pro.findUnique({
+      where: {
+        proId,
+      },
+      include: {
+        devices: true,
+        otp: true,
+      },
+    })
+  }
+
+const getProByEmail =
+  ({ db }: { db: PrismaClient }) =>
+  (email: string) => {
+    return db.pro.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        devices: true,
+      },
+    })
+  }
+
+const createPro =
+  ({ db }: { db: PrismaClient }) =>
+  (user: Prisma.UserCreateInput) =>
+    db.user.create({ data: user })
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -36,18 +67,18 @@ const getNearestPro =
     longitude,
     subServiceId,
     distance,
-    userId,
+    proId,
   }: {
     longitude: number
     latitude: number
     subServiceId: number
     distance?: number
-    userId?: number
+    proId?: number
   }) => {
     // TODO: convert latlng to POINT and add SPATIAL INDEX
     const r = await db.$queryRaw`
     SELECT * FROM (SELECT
-    u.userId,
+    u.proId,
     u.businessName,
     u.name proName,
     ss.name serviceName,
@@ -62,30 +93,29 @@ const getNearestPro =
             POINT(${longitude}, ${latitude})
         )
     ) AS distance
-FROM User as u
-    INNER JOIN UserService us ON u.userId = us.userId
+FROM Pro as u
+    INNER JOIN ProService us ON u.proId = us.proId
     INNER JOIN subService ss ON us.serviceId = ss.serviceId) as sub
 WHERE
     subServiceId = ${subServiceId}
-    AND role = 'pro'
     ${
       distance
         ? Prisma.sql`AND distance >= ${distance}
     AND ( distance > ${distance} 
-      ${userId ? Prisma.sql`OR userId > ${userId}` : Prisma.empty}
+      ${proId ? Prisma.sql`OR proId > ${proId}` : Prisma.empty}
      )`
         : Prisma.empty
     }
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
-ORDER BY distance, userId ASC LIMIT 1;`
+ORDER BY distance, proId ASC LIMIT 1;`
 
     return (
       r as {
-        userId: User['userId']
-        businessName: User['businessName']
-        proName: User['name']
-        address: User['address']
+        proId: Pro['proId']
+        businessName: Pro['businessName']
+        proName: Pro['name']
+        address: Pro['address']
         serviceName: SubService['name']
         price?: SubService['price']
         distance?: number
@@ -106,29 +136,19 @@ ORDER BY distance, userId ASC LIMIT 1;`
 const getPayoutRequests =
   ({ db }: { db: PrismaClient }) =>
   (page: PageReq & { skip: number }) =>
-    db.user.findMany({
+    db.pro.findMany({
       take: page.perPage,
       skip: page.skip,
-      where: {
-        role: ROLES.PRO,
-      },
     })
 
 const getPayoutRequestsWP =
   ({ db }: { db: PrismaClient }) =>
   (page: PageReq & { skip: number }) =>
     db.$transaction([
-      db.user.count({
-        where: {
-          role: ROLES.PRO,
-        },
-      }),
-      db.user.findMany({
+      db.pro.count({}),
+      db.pro.findMany({
         take: page.perPage,
         skip: page.skip,
-        where: {
-          role: ROLES.PRO,
-        },
       }),
     ])
 
@@ -150,13 +170,27 @@ const getProSubscribers =
       },
     })
 
+const updatePro =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number, pro: Prisma.ProUpdateInput) =>
+    db.pro.update({
+      data: pro,
+      where: {
+        proId,
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
+    getProById: getProById({ db }),
+    getProByEmail: getProByEmail({ db }),
     getNearestPro: getNearestPro({ db }),
     getDistBtwLoctions: getDistBtwLoctions({ db }),
     getPayoutRequests: getPayoutRequests({ db }),
     getPayoutRequestsWP: getPayoutRequestsWP({ db }),
     getProSubscribers: getProSubscribers({ db }),
+    updatePro: updatePro({ db }),
+    createPro: createPro({ db }),
   }
 }
 

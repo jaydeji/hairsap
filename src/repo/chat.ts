@@ -24,13 +24,13 @@ const getChatById =
   ({ db }: { db: PrismaClient }) =>
   ({
     userId,
-    otherUserId,
+    proId,
     cursor,
     take = 20,
     desc = false,
   }: {
-    userId: number
-    otherUserId: number
+    userId?: number
+    proId?: number
   } & Cursor) =>
     db.chat.findMany({
       take: desc ? -take : take,
@@ -43,18 +43,18 @@ const getChatById =
       where: {
         OR: [
           {
-            senderId: userId,
-            receiverId: otherUserId,
+            sentProId: proId,
+            sentUserId: userId,
           },
           {
-            senderId: otherUserId,
-            receiverId: userId,
+            receivedProId: proId,
+            receivedUserId: userId,
           },
         ],
       },
-      // orderBy: {
-      //   createdAt: 'desc',
-      // },
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
 
 const makeChatRepo = ({ db }: { db: PrismaClient }) => {

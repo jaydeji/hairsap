@@ -5,7 +5,9 @@ declare global {
     interface Request {
       tokenData?: {
         email: string
-        userId: number
+        proId?: number
+        adminId?: number
+        userId?: number
         role: Role
       }
     }

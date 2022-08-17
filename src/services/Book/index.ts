@@ -3,6 +3,10 @@ import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBo
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
 import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
+import {
+  PostMarkBookingAsProCompletedReqSchema,
+  PostMarkBookingAsUserCompletedReqSchema,
+} from '../../schemas/request/postMarkBookingAsCompleted'
 import type { Repo, Role } from '../../types'
 import { getTransportPrice } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
@@ -172,7 +176,7 @@ const rejectBooking =
     })
   }
 
-const markBookingAsCompleted =
+const markBookingAsUserCompleted =
   ({ repo }: { repo: Repo }) =>
   async ({
     userId,
@@ -183,10 +187,7 @@ const markBookingAsCompleted =
     userId: number
     role: Role
   }) => {
-    PostAcceptBookingReqSchema.parse({ userId, bookingId })
-
-    if (!(ROLES.PRO, ROLES.USER).includes(role))
-      throw new ForbiddenError('Oly pro and user can mark booking as completed')
+    PostMarkBookingAsUserCompletedReqSchema.parse({ userId, bookingId, role })
 
     const booking = await repo.book.getBookingById(bookingId)
 
@@ -196,15 +197,7 @@ const markBookingAsCompleted =
     if (booking.status !== BOOKING_STATUS.ACCEPTED)
       throw new NotFoundError('Booking cannot be rejected')
 
-    if (role === ROLES.PRO && booking.proCompleted)
-      throw new ForbiddenError('booking already marked as completed')
-    else
-      await repo.book.updateBooking(bookingId, {
-        proCompleted: true,
-        status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
-      })
-
-    if (role === ROLES.ADMIN && booking.userCompleted)
+    if (booking.userCompleted)
       throw new ForbiddenError('booking already marked as completed')
     else
       await repo.book.updateBooking(bookingId, {
@@ -212,6 +205,37 @@ const markBookingAsCompleted =
         status: booking.proCompleted ? BOOKING_STATUS.COMPLETED : undefined,
       })
 
+    //TODO: trigger payment
+  }
+
+const markBookingAsProCompleted =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    proId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    proId: number
+    role: Role
+  }) => {
+    PostMarkBookingAsProCompletedReqSchema.parse({ proId, bookingId, role })
+
+    const booking = await repo.book.getBookingById(bookingId)
+
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+      throw new NotFoundError('Booking cannot be rejected')
+
+    if (booking.proCompleted)
+      throw new ForbiddenError('booking already marked as completed')
+    else
+      await repo.book.updateBooking(bookingId, {
+        proCompleted: true,
+        status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+      })
     //TODO: trigger payment
   }
 
@@ -236,7 +260,8 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     rejectBooking: rejectBooking({ repo }),
     getAcceptedProBookings: getAcceptedProBookings({ repo }),
     cancelBooking: cancelBooking({ repo }),
-    markBookingAsCompleted: markBookingAsCompleted({ repo }),
+    markBookingAsUserCompleted: markBookingAsUserCompleted({ repo }),
+    markBookingAsProCompleted: markBookingAsProCompleted({ repo }),
   }
 }
 

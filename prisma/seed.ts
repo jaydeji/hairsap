@@ -5,13 +5,26 @@ const prisma = new PrismaClient({
   log: ['query', 'error'],
 })
 
+const proData: Prisma.ProCreateManyInput[] = [
+  {
+    address: null,
+    email: 'jamesadedejifirst@gmail.com',
+    name: 'James Adedeji',
+    photoUrl: null,
+    proId: 1,
+    password:
+      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+    phone: '+2348118161237',
+    longitude: 3.372669140201567,
+    latitude: 6.518572387441918,
+  },
+]
 const userData: Prisma.UserCreateManyInput[] = [
   {
     address: null,
     email: 'jideadedejifirst@gmail.com',
     name: 'Jide Adedeji',
     photoUrl: null,
-    role: 'user',
     userId: 1,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
@@ -22,24 +35,10 @@ const userData: Prisma.UserCreateManyInput[] = [
     email: 'topeadedejifirst@gmail.com',
     name: 'Tope Adedeji',
     photoUrl: null,
-    role: 'user',
     userId: 2,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
     phone: '+2348118161237',
-  },
-  {
-    address: null,
-    email: 'jamesadedejifirst@gmail.com',
-    name: 'James Adedeji',
-    photoUrl: null,
-    role: 'pro',
-    userId: 3,
-    password:
-      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
-    phone: '+2348118161237',
-    longitude: 3.372669140201567,
-    latitude: 6.518572387441918,
   },
 ]
 
@@ -393,10 +392,10 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
   },
 ]
 
-const userServiceData: Prisma.UserServiceCreateManyInput[] = [
+const userServiceData: Prisma.ProServiceCreateManyInput[] = [
   {
     serviceId: 1,
-    userId: 3,
+    proId: 1,
   },
 ]
 
@@ -404,44 +403,44 @@ const chatData: Prisma.ChatCreateManyInput[] = [
   {
     message: 'Hi1',
     messageType: 'text',
-    receiverId: 2,
-    senderId: 1,
+    receivedUserId: 2,
+    sentProId: 1,
   },
   {
     message: 'Hi2',
     messageType: 'text',
-    receiverId: 1,
-    senderId: 2,
+    receivedUserId: 1,
+    sentProId: 1,
   },
   {
     message: 'Hello1',
     messageType: 'text',
-    receiverId: 2,
-    senderId: 1,
+    receivedUserId: 2,
+    sentProId: 1,
   },
   {
     message: 'Hello2',
     messageType: 'text',
-    receiverId: 1,
-    senderId: 2,
+    receivedUserId: 1,
+    sentProId: 1,
   },
   {
     message: 'Hey3',
     messageType: 'text',
-    receiverId: 1,
-    senderId: 3,
+    receivedUserId: 1,
+    sentProId: 1,
   },
   {
     message: 'Hey3',
     messageType: 'text',
-    receiverId: 2,
-    senderId: 3,
+    receivedUserId: 2,
+    sentProId: 1,
   },
   {
     message: 'Hey3',
     messageType: 'text',
-    receiverId: 3,
-    senderId: 2,
+    receivedProId: 1,
+    sentUserId: 2,
   },
 ]
 
@@ -451,6 +450,9 @@ async function main() {
   await prisma.$transaction([
     prisma.user.createMany({
       data: userData,
+    }),
+    prisma.pro.createMany({
+      data: proData,
     }),
     prisma.service.createMany({
       data: serviceData,
@@ -466,7 +468,7 @@ async function main() {
     prisma.chat.createMany({
       data: chatData,
     }),
-    prisma.userService.createMany({
+    prisma.proService.createMany({
       data: userServiceData,
     }),
     prisma.device.createMany({

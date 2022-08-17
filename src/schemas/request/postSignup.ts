@@ -6,25 +6,20 @@ export const PostSignupRequestSchema = z
     email: z.string().email(),
     name: z.string(),
     password: z.string().min(6).max(32),
-    role: z
-      .nativeEnum(ROLES)
-      .refine((role) => role === ROLES.PRO || role === ROLES.USER, {
-        message: 'type must be user or admin',
-      }),
+    phone: z.string().min(8),
+    deviceInfo: z.string().min(1),
   })
   .strict()
 
 export const PostSignupUserRequestSchema = PostSignupRequestSchema.extend({
-  deviceInfo: z.string().min(1),
-  phone: z.string().min(8),
+  role: z.literal(ROLES.USER),
 }).strict()
 
 export type PostSignupUserRequest = z.infer<typeof PostSignupUserRequestSchema>
 
 export const PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: z.string(),
-  deviceInfo: z.string().min(1),
-  phone: z.string().min(8),
+  role: z.literal(ROLES.PRO),
 }).strict()
 
 export type PostSignupProRequest = z.infer<typeof PostSignupProRequestSchema>

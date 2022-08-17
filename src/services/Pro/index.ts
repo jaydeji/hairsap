@@ -35,26 +35,26 @@ const getNearestPro =
 
 const verifyPro =
   ({ repo }: { repo: Repo }) =>
-  async ({ userId, role }: { userId: number; role: Role }) => {
+  async ({ proId, role }: { proId: number; role: Role }) => {
     if (role !== ROLES.ADMIN) throw new ForbiddenError()
 
-    const pro = await repo.user.getUserById(userId)
+    const pro = await repo.pro.getProById(proId)
 
     if (!pro) throw new NotFoundError('pro not found')
 
     if (pro.verified) throw new ForbiddenError('pro is already verified')
 
-    await repo.user.updateUser(userId, {
+    await repo.pro.updatePro(proId, {
       verified: true,
     })
   }
 
 const requestReactivation =
   ({ repo }: { repo: Repo }) =>
-  async ({ userId, role }: { userId: number; role: Role }) => {
+  async ({ proId, role }: { proId: number; role: Role }) => {
     if (role !== ROLES.PRO) throw new ForbiddenError()
 
-    const pro = await repo.user.getUserById(userId)
+    const pro = await repo.pro.getProById(proId)
 
     if (!pro) throw new NotFoundError('pro not found')
 
@@ -62,7 +62,7 @@ const requestReactivation =
       throw new ForbiddenError('reactivation already requested')
 
     //TODO: notification
-    await repo.user.updateUser(userId, {
+    await repo.pro.updatePro(proId, {
       reactivationRequested: true,
     })
   }
