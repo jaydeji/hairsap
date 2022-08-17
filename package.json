@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "NODE_ENV=production tsup src/index.ts",
+    "build": "NODE_ENV=production npm run generate && tsup src/index.ts",
     "dev": "DEBUG_COLORS=no tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
