@@ -50,7 +50,7 @@ services:
     restart: always
     container_name: mysql_hsap_db
     volumes:
-      - /root/hairsapdev/mysql_data:/var/lib/mysql
+      - /root/hsapdev/mysql_data:/var/lib/mysql
 
   redis:
     image: 'redis:7.0.4-alpine3.16'
@@ -62,4 +62,4 @@ services:
     #   REDIS_PASSWORD: ${REDIS_PASSWORD}
     container_name: redis_hsap_db
     volumes:
-      - '/root/hairsapdev/redis_data:/data'
+      - '/root/hsapdev/redis_data:/data'
