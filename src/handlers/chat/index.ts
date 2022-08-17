@@ -22,8 +22,8 @@ const makeChatRouter = ({
     '/',
     ah(async (req, res) => {
       const data = await service.chat.getChatById({
-        userId: req.body.userId,
-        otherUserId: req.body.userId,
+        userId: req.tokenData?.userId,
+        proId: req.tokenData?.proId,
         cursor: req.body.cursor,
         desc: req.body.desc,
         take: req.body.take,

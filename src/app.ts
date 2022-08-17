@@ -21,7 +21,6 @@ import { Repo, Service } from './types'
 
 const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   const app = express()
-  const router = Router()
 
   app.use(compression())
   app.use(helmet())
@@ -29,30 +28,34 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   //TODO: tighten cors
   app.use(cors())
   app.use('/reference', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-  app.use('/auth', makeAuthRouter({ router, service }))
+  app.use('/auth', makeAuthRouter({ router: Router(), service }))
   app.use(
     '/users',
     authMiddleWare({ repo }),
-    makeUserRouter({ router, service }),
+    makeUserRouter({ router: Router(), service }),
   )
-  app.use('/pro', authMiddleWare({ repo }), makeProRouter({ router, service }))
+  app.use(
+    '/pro',
+    authMiddleWare({ repo }),
+    makeProRouter({ router: Router(), service }),
+  )
   app.use(
     '/chats',
     authMiddleWare({ repo }),
-    makeChatRouter({ router, service }),
+    makeChatRouter({ router: Router(), service }),
   )
   app.use(
     '/book',
     authMiddleWare({ repo }),
-    makeBookRouter({ router, service }),
+    makeBookRouter({ router: Router(), service }),
   )
   app.use(
     '/admin',
     authMiddleWare({ repo }),
     allowOnly([ROLES.ADMIN]),
-    makeAdminRouter({ router, service }),
+    makeAdminRouter({ router: Router(), service }),
   )
-  app.use('/', makeRouter({ router, service, repo }))
+  app.use('/', makeRouter({ router: Router(), service, repo }))
 
   app.use(handleError)
 
