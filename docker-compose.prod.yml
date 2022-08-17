@@ -12,7 +12,7 @@ services:
     restart: always
     command: sh -c "npx prisma db seed ./prisma/seed.prod.ts  && node dist/index.js"
     env_file:
-      - .env
+      - /root/hsapdev/.env
     # environment:
     #   NODE_ENV: production
     #   PORT: 3000
