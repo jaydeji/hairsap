@@ -10,7 +10,7 @@ services:
       - db
       - redis
     restart: always
-    command: sh -c "npx prisma db seed ./prisma/seed.prod.ts  && node dist/index.js"
+    command: sh -c "node dist/index.js"
     env_file:
       - /root/hsapdev/.env
     # environment:
@@ -40,6 +40,8 @@ services:
 
   db:
     image: 'mysql:8.0.29'
+    env_file:
+      - /root/hsapdev/.env
     environment:
       MYSQL_DATABASE: hairsap_dev
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -53,6 +55,8 @@ services:
   redis:
     image: 'redis:7.0.4-alpine3.16'
     restart: always
+    env_file:
+      - /root/hsapdev/.env
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     container_name: redis_hsap_db
