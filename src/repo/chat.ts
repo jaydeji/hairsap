@@ -24,13 +24,13 @@ const getChatById =
   ({ db }: { db: PrismaClient }) =>
   ({
     userId,
-    proId,
+    otherUserId,
     cursor,
     take = 20,
     desc = false,
   }: {
-    userId?: number
-    proId?: number
+    userId: number
+    otherUserId: number
   } & Cursor) =>
     db.chat.findMany({
       take: desc ? -take : take,
@@ -43,12 +43,12 @@ const getChatById =
       where: {
         OR: [
           {
-            sentProId: proId,
-            sentUserId: userId,
+            senderId: userId,
+            receiverId: otherUserId,
           },
           {
-            receivedProId: proId,
-            receivedUserId: userId,
+            senderId: otherUserId,
+            receiverId: userId,
           },
         ],
       },

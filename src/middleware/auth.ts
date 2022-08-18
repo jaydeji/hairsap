@@ -19,25 +19,16 @@ const auth = ({ repo }: { repo: Repo }) =>
       throw new UnauthorizedError()
     }
 
-    if (decodedToken?.role === ROLES.ADMIN) {
-      const admin = await repo.admin.getAdminById(
-        decodedToken?.adminId as number,
-      )
-      if (!admin) throw new UnauthorizedError()
-    }
+    const user = await repo.user.getUserById(decodedToken?.userId as number)
+    if (!user) throw new UnauthorizedError()
 
+    if ([ROLES.PRO, ROLES.USER].includes(decodedToken?.role as any)) {
+      if (!user.verified) throw new ForbiddenError('user not verified')
+    }
     if (decodedToken?.role === ROLES.PRO) {
-      const pro = await repo.pro.getProById(decodedToken?.proId as number)
-      if (!pro) throw new UnauthorizedError()
-      if (!pro.verified) throw new ForbiddenError('pro not verified')
-      if (pro.terminated) throw new ForbiddenError('pro terminated')
-      if (pro.deactivated && req.baseUrl + req.path !== '/reactivate/request')
-        throw new ForbiddenError('user deactivated')
-    }
-
-    if (decodedToken?.role === ROLES.USER) {
-      const user = await repo.user.getUserById(decodedToken?.userId as number)
-      if (!user) throw new UnauthorizedError()
+      if (!user.terminated) throw new ForbiddenError('pro terminated')
+      if (user.deactivated && req.baseUrl + req.path !== '/reactivate/request')
+        throw new ForbiddenError('pro deactivated')
     }
 
     req.tokenData = decodedToken

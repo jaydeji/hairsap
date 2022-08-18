@@ -1,15 +1,17 @@
 import { GetPayoutRequestsReqSchema } from '../../schemas/request/getPayoutRequestSchema'
 import { PageReq } from '../../schemas/request/Page'
-import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
-import { PostAcceptOrRejectAppReq } from '../../schemas/request/postAcceptOrRejectApplication'
+import {
+  PostAcceptOrRejectAppReq,
+  PostAcceptOrRejectAppReqSchema,
+} from '../../schemas/request/postAcceptOrRejectApplication'
 import type { Repo, Role } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const acceptReactivation =
   ({ repo }: { repo: Repo }) =>
-  async ({ proId }: { proId: number; role: Role }) => {
-    const pro = await repo.pro.getProById(proId)
+  async ({ userId }: { userId: number; role: Role }) => {
+    const pro = await repo.user.getUserById(userId)
 
     if (!pro) throw new NotFoundError('pro not found')
 
@@ -20,7 +22,7 @@ const acceptReactivation =
 
     //TODO: notification
 
-    await repo.pro.updatePro(proId, {
+    await repo.user.updateUser(userId, {
       reactivationRequested: false,
       deactivated: false,
       reactivationCount: {
@@ -48,16 +50,14 @@ const getPayoutRequests =
 const acceptOrRejectApplication =
   ({ repo }: { repo: Repo }) =>
   async (body: PostAcceptOrRejectAppReq) => {
-    PostAcceptBookingReqSchema.parse(body)
-    const { action, proId } = body
+    PostAcceptOrRejectAppReqSchema.parse(body)
+    const { action, userId } = body
     if (action === 'accept') {
-      await repo.pro.updatePro(proId, {
+      await repo.user.updateUser(userId, {
         verified: true,
       })
     } else {
-      await repo.pro.updatePro(proId, {
-        rejected: true,
-      })
+      await repo.user.deleteUser(userId)
     }
   }
 

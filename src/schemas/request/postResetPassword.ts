@@ -5,9 +5,7 @@ export const PostResetPasswordReqSchema = z
   .object({
     email: z.string().email(),
     role: z.nativeEnum(ROLES),
-    adminId: z.number().optional(),
-    userId: z.number().optional(),
-    proId: z.number().optional(),
+    userId: z.number(),
     expiredAt: z.date(),
   })
   .strict()

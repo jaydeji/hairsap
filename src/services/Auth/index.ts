@@ -5,6 +5,7 @@ import { validateOtp } from './validateOtp'
 import { resetPassword } from './resetPassword'
 import { confirmResetPassword } from './confirmResetPassword'
 import { uploadFaceId } from './uploadFaceId'
+import { generateOtp } from './generateOtp'
 
 const makeAuth = ({ repo }: { repo: Repo }) => {
   return {
@@ -14,6 +15,7 @@ const makeAuth = ({ repo }: { repo: Repo }) => {
     uploadFaceId: uploadFaceId({ repo }),
     confirmResetPassword: confirmResetPassword({ repo }),
     resetPassword: resetPassword({ repo }),
+    generateOtp: generateOtp({ repo }),
   }
 }
 

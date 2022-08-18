@@ -6,8 +6,8 @@
   "scripts": {
     "build": "NODE_ENV=production npm run prisma:generate && tsup src/index.ts",
     "dev": "DEBUG_COLORS=no tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
-    "lint": "tsc --skipLibCheck --noEmit && eslint src",
-    "lint:fix": "tsc --skipLibCheck --noEmit && eslint src --fix",
+    "lint": "tsc --noEmit && eslint src",
+    "lint:fix": "tsc --noEmit && eslint src --fix",
     "prisma:generate": "prisma generate",
     "prisma:deploy": "prisma migrate deploy",
     "prepare": "husky install",

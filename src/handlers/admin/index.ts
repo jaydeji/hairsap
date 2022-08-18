@@ -10,10 +10,10 @@ const makeAdminRouter = ({
   service: Service
 }) => {
   router.post(
-    '/reactivate/accept/:proId',
+    '/reactivate/accept/:userId',
     ah(async (req, res) => {
       await service.admin.acceptReactivation({
-        proId: +req.params.proId as number,
+        userId: +req.params.userId as number,
         role: req.tokenData?.role as Role,
       })
       res.status(201).send()
@@ -29,11 +29,11 @@ const makeAdminRouter = ({
   )
 
   router.post(
-    '/proapplication/:proId/:action',
+    '/proapplication/:userId/:action',
     ah(async (req, res) => {
       await service.admin.acceptOrRejectApplication({
         action: req.params.action,
-        proId: +req.params.proId,
+        userId: +req.params.userId,
       })
       res.sendStatus(201)
     }),

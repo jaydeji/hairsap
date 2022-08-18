@@ -11,7 +11,7 @@ const getChatList =
 
 const getChatById =
   ({ repo }: { repo: Repo }) =>
-  async (data: { userId?: number; proId?: number } & Cursor) => {
+  async (data: { userId: number; otherUserId: number } & Cursor) => {
     GetChatByIdReqSchema.parse(data)
     const chats = await repo.chat.getChatById(data)
     return { chats }

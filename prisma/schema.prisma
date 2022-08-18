@@ -128,9 +128,9 @@ model Booking {
   cancelledAt    DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @default(now()) @updatedAt
-  pro            User      @relation("pro", fields: [proId], references: [userId])
+  pro            User?     @relation("pro", fields: [proId], references: [userId])
   proId          Int
-  user           User      @relation("user", fields: [userId], references: [userId])
+  user           User?     @relation("user", fields: [userId], references: [userId])
   userId         Int
 
   invoice           Invoice?
@@ -160,36 +160,33 @@ model Chat {
 }
 
 model User {
-  userId                       Int       @id @default(autoincrement())
-  email                        String?   @unique @db.VarChar(255)
-  address                      String?
+  userId                       Int      @id @default(autoincrement())
+  email                        String   @db.VarChar(255)
+  address                      String
   name                         String
-  userName                     String?
   password                     String
   phone                        String
+  role                         String
   faceIdPhotoPath              String?
   faceIdPhotoOriginalFileName  String?
   profilePhotoUrl              String?
   profilePhotoPath             String?
   profilePhotoOriginalFileName String?
-  longitude                    Decimal?  @db.Decimal(10, 6)
-  latitude                     Decimal?  @db.Decimal(10, 6)
-  deactivated                  Boolean?  @default(false)
+  longitude                    Decimal? @db.Decimal(10, 6)
+  latitude                     Decimal? @db.Decimal(10, 6)
+  deactivated                  Boolean? @default(false)
   deactivatedReason            Int?
-  deactivationCount            Int       @default(0)
-  reactivationCount            Int       @default(0)
-  reactivationRequested        Boolean?  @default(false)
-  terminated                   Boolean?  @default(false)
+  deactivationCount            Int      @default(0)
+  reactivationCount            Int      @default(0)
+  reactivationRequested        Boolean? @default(false)
+  terminated                   Boolean? @default(false)
   // approved              Boolean?        @default(false)
-  verified                     Boolean?  @default(false) //verify new pro account
-  rejected                     Boolean?  @default(false)
-  resumptionAt                 DateTime?
-  closingAt                    DateTime?
+  verified                     Boolean? @default(false) //verify new pro account
+  available                    Boolean? @default(true)
   workVideoUrl                 String?
   businessName                 String?
 
   otp            Otp?
-  devices        Device[]
   notifications  Notification[]
   PasswordReset  PasswordReset[]
   paymentEvents  PaymentEvents[]
@@ -208,6 +205,9 @@ model User {
   proBookings  Booking[]      @relation("pro")
   userBookings Booking[]      @relation("user")
 
+  @@unique([email, phone, role])
+  @@unique([email, role])
+  @@unique([phone, role])
   @@index([email])
   @@index([latitude, longitude])
 }
@@ -219,18 +219,6 @@ model PaymentEvents {
   reason  String
   User    User?  @relation(fields: [userId], references: [userId])
   userId  Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@index([userId])
-}
-
-model Device {
-  deviceId Int    @id @default(autoincrement())
-  value    String
-  User     User   @relation(fields: [userId], references: [userId])
-  userId   Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

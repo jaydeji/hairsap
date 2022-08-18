@@ -1,15 +1,19 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Service } from '../../types'
+import { ROLES } from '../../config/constants'
+import { allowOnly, auth } from '../../middleware/auth'
+import type { Repo, Service } from '../../types'
 
 //TODO:
 
 const makeAuthRouter = ({
   router,
   service,
+  repo,
 }: {
   router: Router
   service: Service
+  repo: Repo
 }) => {
   router.post(
     '/login',
@@ -28,7 +32,19 @@ const makeAuthRouter = ({
   )
 
   router.post(
+    '/generateotp',
+    auth({ repo }),
+    allowOnly([ROLES.USER, ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.auth.generateOtp(req.body)
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
     '/validateotp',
+    auth({ repo }),
+    allowOnly([ROLES.USER, ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.auth.validateOtp(req.body)
       res.status(200).send({ data })

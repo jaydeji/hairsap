@@ -1,4 +1,4 @@
-import { ROLES } from '../../config/constants'
+import { OTP_TYPE, ROLES } from '../../config/constants'
 import { z } from 'zod'
 
 export const PostSignupRequestSchema = z
@@ -7,7 +7,8 @@ export const PostSignupRequestSchema = z
     name: z.string(),
     password: z.string().min(6).max(32),
     phone: z.string().min(8),
-    deviceInfo: z.string().min(1),
+    address: z.string().min(2),
+    otpType: z.nativeEnum(OTP_TYPE).optional(),
   })
   .strict()
 

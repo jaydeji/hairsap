@@ -28,7 +28,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   //TODO: tighten cors
   app.use(cors({ origin: '*' }))
   app.use('/reference', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-  app.use('/auth', makeAuthRouter({ router: Router(), service }))
+  app.use('/auth', makeAuthRouter({ router: Router(), service, repo }))
   app.use(
     '/users',
     authMiddleWare({ repo }),

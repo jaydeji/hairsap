@@ -12,7 +12,7 @@ const getServices =
 
 const getNotifications =
   ({ db }: { db: PrismaClient }) =>
-  ({ userId, adminId, proId }: Entity) =>
+  (userId: number) =>
     db.notification.findMany({
       take: 20,
       orderBy: {
@@ -20,8 +20,6 @@ const getNotifications =
       },
       where: {
         userId,
-        adminId,
-        proId,
       },
     })
 

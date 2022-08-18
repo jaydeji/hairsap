@@ -7,7 +7,7 @@ const ACTION = {
 
 export const PostAcceptOrRejectAppReqSchema = z
   .object({
-    proId: z.number(),
+    userId: z.number(),
     action: z.nativeEnum(ACTION),
   })
   .strict()

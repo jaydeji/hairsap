@@ -1,6 +1,4 @@
-import { OTP_TYPE, ROLES } from '../../config/constants'
-import { otpEmailTemplate } from '../../config/email/templates/signup'
-import { emailQueue, phoneQueue } from '../../config/queue'
+import { ROLES } from '../../config/constants'
 import { hashPassword } from '../../utils'
 import {
   PostLoginAdminRequest,
@@ -13,9 +11,10 @@ import {
 import type { Repo } from '../../types'
 import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
-import { generateLoginOtp } from '../../utils/otp'
+import { generateJwt } from '../../utils/jwtLib'
 import dayjs from '../../utils/dayjs'
-import { RoleSchema } from '../../schemas/models/Role'
+
+const error = 'email or phone number or password incorrect'
 
 const loginAdmin = async ({
   repo,
@@ -26,33 +25,26 @@ const loginAdmin = async ({
 }) => {
   PostLoginAdminRequestSchema.parse(body)
 
-  const admin = await repo.admin.getAdminByEmail(body.email)
+  let admin
+  if (body.email) admin = await repo.user.getUserByEmailAndRole(body.email)
+  if (body.phone) admin = await repo.user.getUserByEmailAndRole(body.phone)
 
-  if (!admin) throw new ForbiddenError('email or password incorrect')
+  if (!admin) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
 
   if (admin.password !== hashedPassword) {
-    throw new ForbiddenError('email or password incorrect')
+    throw new ForbiddenError(error)
   }
 
-  const otp = await generateLoginOtp()
-
-  await repo.admin.updateAdmin(admin.adminId, {
-    otp: {
-      create: {
-        value: otp,
-        expiredAt: dayjs().add(10, 'm').toDate(),
-      },
+  const token = generateJwt(
+    { email: admin.email, role: admin.role, userId: admin.userId },
+    true,
+    {
+      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
     },
-  })
-
-  emailQueue.add(
-    otpEmailTemplate({ name: admin.name, email: admin.email, otp }),
   )
-  return {
-    admin: PostLoginResponseSchema.parse(admin),
-    otp,
-  }
+
+  return { admin: PostLoginResponseSchema.parse(admin), token }
 }
 
 const loginUser = async ({
@@ -64,44 +56,32 @@ const loginUser = async ({
 }) => {
   PostLoginUserRequestSchema.parse(body)
 
-  const user = await repo.user.getUserByEmail(body.email)
+  let user
+  if (body.email)
+    user = await repo.user.getUserByEmailAndRole(body.email, body.role)
+  if (body.phone)
+    user = await repo.user.getUserByPhoneAndRole(body.phone, body.role)
 
-  if (!user) throw new ForbiddenError('email or password incorrect')
+  if (!user) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
 
   if (user.password !== hashedPassword) {
-    throw new ForbiddenError('email or password incorrect')
+    throw new ForbiddenError(error)
   }
 
-  //TODO: remove device verification
-  const device = user.devices.find((device) => device.value === body.deviceInfo)
-  if (!device) throw new ForbiddenError('device not recognised')
+  if (!user.verified) {
+    throw new ForbiddenError('account not verified')
+  }
 
-  const otp = await generateLoginOtp()
-
-  await repo.user.updateUser(user.userId, {
-    otp: {
-      create: {
-        value: otp,
-        expiredAt: dayjs().add(10, 'm').toDate(),
-      },
+  const token = generateJwt(
+    { email: user.email, role: user.role, userId: user.userId },
+    false,
+    {
+      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
     },
-  })
-  if (body.otpType === OTP_TYPE.PHONE) {
-    phoneQueue.add({
-      phone: user.phone,
-      otp,
-    })
-  } else if (user.email && body.otpType === OTP_TYPE.EMAIL) {
-    emailQueue.add(
-      otpEmailTemplate({ name: user.name, email: user.email, otp }),
-    )
-  }
+  )
 
-  return {
-    user: PostLoginResponseSchema.parse(user),
-    otp,
-  }
+  return { user: PostLoginResponseSchema.parse(user), token }
 }
 
 const loginPro = async ({
@@ -113,49 +93,30 @@ const loginPro = async ({
 }) => {
   PostLoginProRequestSchema.parse(body)
 
-  const pro = await repo.pro.getProByEmail(body.email)
+  let pro
+  if (body.email) pro = await repo.user.getUserByEmail(body.email)
+  if (body.phone) pro = await repo.user.getUserByPhone(body.phone)
 
-  if (!pro) throw new ForbiddenError('email or password incorrect')
+  if (!pro) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
 
   if (pro.password !== hashedPassword) {
-    throw new ForbiddenError('email or password incorrect')
-  }
-  if (pro.deactivated || pro.terminated) {
-    throw new ForbiddenError('account inactive, contact support')
+    throw new ForbiddenError(error)
   }
 
   if (!pro.verified) {
     throw new ForbiddenError('account not verified')
   }
 
-  //TODO: remove device verification
-  const device = pro.devices.find((device) => device.value === body.deviceInfo)
-  if (!device) throw new ForbiddenError('device not recognised')
-
-  const otp = await generateLoginOtp()
-
-  await repo.pro.updatePro(pro.proId, {
-    otp: {
-      create: {
-        value: otp,
-        expiredAt: dayjs().add(10, 'm').toDate(),
-      },
+  const token = generateJwt(
+    { email: pro.email, role: pro.role, userId: pro.userId },
+    false,
+    {
+      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
     },
-  })
-  if (body.otpType === OTP_TYPE.PHONE) {
-    phoneQueue.add({
-      phone: pro.phone,
-      otp,
-    })
-  } else if (pro.email && body.otpType === OTP_TYPE.EMAIL) {
-    emailQueue.add(otpEmailTemplate({ name: pro.name, email: pro.email, otp }))
-  }
+  )
 
-  return {
-    pro: PostLoginResponseSchema.parse(pro),
-    otp,
-  }
+  return { pro: PostLoginResponseSchema.parse(pro), token }
 }
 
 export const login =
@@ -163,8 +124,6 @@ export const login =
   (
     body: PostLoginProRequest | PostLoginUserRequest | PostLoginAdminRequest,
   ) => {
-    RoleSchema.parse(body.role)
-
     const isAdmin = body.role === ROLES.ADMIN
     const isUser = body.role === ROLES.USER
     const isPro = body.role === ROLES.PRO
@@ -185,4 +144,6 @@ export const login =
         repo,
         body: body as PostLoginUserRequest,
       })
+
+    throw new ForbiddenError()
   }

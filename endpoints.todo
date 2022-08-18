@@ -88,7 +88,48 @@ change haircut price
 NOTES
     "multer-s3": "^2.10.0",
     RUNNER_ALLOW_RUNASROOT="1"
+    adjust finding yourself or texting yourself
 
 
 
+USER
+delete rejected pro
+disallow unavailable user from bookings
+user should be able to upload picture for style optional
+if pro cancels request, then he is busy
+pro can accept two at a go
+add arrival time- user cant cancel order
+customer has multiple bookings for different services
+arrrival time is based on distance
+show list of services of a pro and subservices
+profile photo different for user and pro its same as faceId
+otp is just to confirm account
+no change of device thing
+they select the channel
+no otp for admin
+beauty pro can only select one service
+delete beauty pros account when they are rejected
+pro can cancel or arrive at any time
+uncompleted bookings can be on activity screen
+a pro is busy when you reject
+they pick email or phone number when they register to confirm account
+you can switch off the timer for requests not to come in-X
+available and busy status for active timer
+weekly bonus list
+deactivated 12 am on sunday
+cant do any other thing except ask for reactivation
+switch to login as a user or pro
 
+QUESTIONS
+How do they select if cash or card
+deactivated
+earnings
+need services photo url
+
+
+token length
+
+
+Admin filter pro by most recent and by service 
+Admin search user by name or id
+Admin list of user bookings

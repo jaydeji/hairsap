@@ -1,4 +1,3 @@
-import { Entity } from '../../schemas/models/Entity'
 import type { Repo } from '../../types'
 
 const getServices =
@@ -8,8 +7,8 @@ const getServices =
 
 const getNotifications =
   ({ repo }: { repo: Repo }) =>
-  (body: Entity) =>
-    repo.other.getNotifications(body)
+  (userId: number) =>
+    repo.other.getNotifications(userId)
 
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {

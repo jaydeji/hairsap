@@ -4,22 +4,16 @@ const resetPassword =
   ({ db }: { db: PrismaClient }) =>
   ({
     userId,
-    adminId,
-    proId,
     expiredAt,
     token,
   }: {
     expiredAt: Date
     token: string
-    userId?: number
-    adminId?: number
-    proId?: number
+    userId: number
   }) =>
     db.passwordReset.create({
       data: {
         userId,
-        adminId,
-        proId,
         expiredAt,
         token,
       },
@@ -27,44 +21,15 @@ const resetPassword =
 
 const getResetPasswordToken =
   ({ db }: { db: PrismaClient }) =>
-  ({
-    userId,
-    adminId,
-    proId,
-    token,
-  }: {
-    userId?: number
-    adminId?: number
-    proId?: number
-    token: string
-  }) => {
-    if (userId)
-      return db.passwordReset.findUnique({
-        where: {
-          userId_token: {
-            token,
-            userId,
-          },
+  ({ userId, token }: { userId: number; token: string }) => {
+    return db.passwordReset.findUnique({
+      where: {
+        userId_token: {
+          token,
+          userId,
         },
-      })
-    if (adminId)
-      return db.passwordReset.findUnique({
-        where: {
-          adminId_token: {
-            token,
-            adminId,
-          },
-        },
-      })
-    if (proId)
-      return db.passwordReset.findUnique({
-        where: {
-          proId_token: {
-            token,
-            proId,
-          },
-        },
-      })
+      },
+    })
   }
 
 const deleteResetPasswordToken =

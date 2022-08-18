@@ -1,30 +1,58 @@
 import { z } from 'zod'
-import { OTP_TYPE, ROLES } from '../../config/constants'
+import { ROLES } from '../../config/constants'
 
 export const PostLoginRequestSchema = z
   .object({
-    email: z.string().email(),
+    email: z.string().email().optional(),
+    phone: z.string().min(0).optional(),
     password: z.string().min(6).max(32),
-    otpType: z.nativeEnum(OTP_TYPE),
   })
   .strict()
 
 export type PostLoginRequest = z.infer<typeof PostLoginRequestSchema>
 
 export const PostLoginAdminRequestSchema = PostLoginRequestSchema.extend({
-  deviceInfo: z.string(),
   role: z.literal(ROLES.ADMIN),
-}).strict()
+})
+  .strict()
+  .superRefine(({ email, phone }, ctx) => {
+    if (!email && !phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email', 'phone'],
+        message: 'email or phone must be provided',
+      })
+    }
+  })
 export type PostLoginAdminRequest = z.infer<typeof PostLoginAdminRequestSchema>
 
 export const PostLoginUserRequestSchema = PostLoginRequestSchema.extend({
-  deviceInfo: z.string(),
   role: z.literal(ROLES.USER),
-}).strict()
+})
+  .strict()
+  .superRefine(({ email, phone }, ctx) => {
+    if (!email && !phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email', 'phone'],
+        message: 'email or phone must be provided',
+      })
+    }
+  })
 export type PostLoginUserRequest = z.infer<typeof PostLoginUserRequestSchema>
 
 export const PostLoginProRequestSchema = PostLoginRequestSchema.extend({
-  deviceInfo: z.string(),
   role: z.literal(ROLES.PRO),
-}).strict()
+})
+  .strict()
+  .superRefine(({ email, phone }, ctx) => {
+    if (!email && !phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email', 'phone'],
+        message: 'email or phone must be provided',
+      })
+    }
+  })
+
 export type PostLoginProRequest = z.infer<typeof PostLoginProRequestSchema>

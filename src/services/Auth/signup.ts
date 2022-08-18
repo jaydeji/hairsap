@@ -1,6 +1,9 @@
-import { ROLES } from '../../config/constants'
-import { signUpEmailTemplate } from '../../config/email/templates/signup'
-import { emailQueue } from '../../config/queue'
+import { OTP_TYPE, ROLES } from '../../config/constants'
+import {
+  otpEmailTemplate,
+  signUpEmailTemplate,
+} from '../../config/email/templates/signup'
+import { emailQueue, phoneQueue } from '../../config/queue'
 import {
   PostSignupProRequest,
   PostSignupProRequestSchema,
@@ -15,35 +18,35 @@ import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 
 import { generateLoginOtp } from '../../utils/otp'
 import dayjs from '../../utils/dayjs'
-import { RoleSchema } from '../../schemas/models/Role'
+import { generateJwt } from '../../utils/jwtLib'
 
 const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
-  //TODO: verify faceId
   PostSignupUserRequestSchema.parse(body)
 
-  const _user = await repo.user.getUserByEmail(body.email)
-  if (_user) throw new ValidationError('User with this email already exists')
+  const userWithEmail = await repo.user.getUserByEmail(body.email)
+  const userWithPhone = await repo.user.getUserByPhone(body.phone)
+
+  if (userWithEmail && userWithEmail.role === ROLES.USER)
+    throw new ValidationError('user with this email already exists')
+  if (userWithPhone && userWithPhone.role === ROLES.USER)
+    throw new ValidationError('user with this phone number already exists')
 
   const hashedPassword = hashPassword(body.password)
 
-  const { deviceInfo, ...newBody } = body //eslint-disable-line
-
-  const otp = await generateLoginOtp()
+  let otp
+  if (body.otpType) otp = await generateLoginOtp()
 
   const user = await repo.user.createUser({
-    ...newBody,
+    ...body,
     password: hashedPassword,
-    devices: {
-      create: {
-        value: body.deviceInfo,
-      },
-    },
-    otp: {
-      create: {
-        value: otp,
-        expiredAt: dayjs().add(10, 'm').toDate(),
-      },
-    },
+    otp: otp
+      ? {
+          create: {
+            value: otp,
+            expiredAt: dayjs().add(10, 'm').toDate(),
+          },
+        }
+      : undefined,
   })
 
   emailQueue.add(signUpEmailTemplate(user.name))
@@ -64,52 +67,95 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
   //   },
   // )
 
-  return { user: PostLoginResponseSchema.parse(user), otp }
+  const token = generateJwt(
+    { email: user.email, role: user.role, userId: user.userId },
+    false,
+    {
+      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+    },
+  )
+
+  if (otp) {
+    if (body.otpType === OTP_TYPE.PHONE) {
+      phoneQueue.add({
+        phone: user.phone,
+        otp,
+      })
+    }
+    if (body.otpType === OTP_TYPE.EMAIL) {
+      emailQueue.add(
+        otpEmailTemplate({ name: user.name, email: user.email, otp }),
+      )
+    }
+  }
+
+  return { user: PostLoginResponseSchema.parse(user), otp, token }
 }
 
 const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
-  //TODO: verify faceId
-
   PostSignupProRequestSchema.parse(body)
 
-  const _pro = await repo.user.getUserByEmail(body.email)
-  if (_pro) throw new ValidationError('User with this email already exists')
+  const proWithEmail = await repo.user.getUserByEmail(body.email)
+  const proWithPhone = await repo.user.getUserByPhone(body.phone)
+
+  if (proWithEmail && proWithEmail.role === ROLES.PRO)
+    throw new ValidationError('pro with this email already exists')
+  if (proWithPhone && proWithPhone.role === ROLES.PRO)
+    throw new ValidationError('pro with this phone number already exists')
 
   const hashedPassword = hashPassword(body.password)
 
-  const { deviceInfo, ...newBody } = body //eslint-disable-line
+  let otp
+  if (body.otpType) otp = await generateLoginOtp()
 
-  const otp = await generateLoginOtp()
-
-  const pro = await repo.pro.createPro({
-    ...newBody,
+  const pro = await repo.user.createUser({
+    ...body,
     password: hashedPassword,
-    devices: {
-      create: {
-        value: body.deviceInfo,
-      },
-    },
-    otp: {
-      create: {
-        value: otp,
-        expiredAt: dayjs().add(10, 'm').toDate(),
-      },
-    },
+    otp: otp
+      ? {
+          create: {
+            value: otp,
+            expiredAt: dayjs().add(10, 'm').toDate(),
+          },
+        }
+      : undefined,
   })
 
   emailQueue.add(signUpEmailTemplate(pro.name))
 
-  return { pro: PostLoginResponseSchema.parse(pro), otp }
+  const token = generateJwt(
+    { email: pro.email, role: pro.role, userId: pro.userId },
+    false,
+    {
+      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+    },
+  )
+
+  if (otp) {
+    if (body.otpType === OTP_TYPE.PHONE) {
+      phoneQueue.add({
+        phone: pro.phone,
+        otp,
+      })
+    }
+    if (body.otpType === OTP_TYPE.EMAIL) {
+      emailQueue.add(
+        otpEmailTemplate({ name: pro.name, email: pro.email, otp }),
+      )
+    }
+  }
+
+  return { pro: PostLoginResponseSchema.parse(pro), otp, token }
 }
 
 export const signUp =
   ({ repo }: { repo: Repo }) =>
   (body: PostSignupProRequest | PostSignupUserRequest) => {
-    RoleSchema.parse(body.role)
     if (body.role === ROLES.USER) {
       return signupUser(repo, body)
     }
     if (body.role === ROLES.PRO) {
       return signupPro(repo, body)
     }
+    throw new ForbiddenError()
   }

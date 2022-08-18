@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { PostSubscribeReq } from '../schemas/request/postSubscribe'
+import { Role } from '../types'
 
 const getUserById =
   ({ db }: { db: PrismaClient }) =>
@@ -9,7 +10,6 @@ const getUserById =
         userId,
       },
       include: {
-        devices: true,
         otp: true,
       },
     })
@@ -31,12 +31,39 @@ const getUserByIdAndOtp =
 const getUserByEmail =
   ({ db }: { db: PrismaClient }) =>
   (email: string) => {
-    return db.user.findUnique({
+    return db.user.findFirst({
       where: {
         email,
       },
-      include: {
-        devices: true,
+    })
+  }
+
+const getUserByPhone =
+  ({ db }: { db: PrismaClient }) =>
+  (phone: string) => {
+    return db.user.findFirst({
+      where: {
+        phone,
+      },
+    })
+  }
+
+const getUserByEmailAndRole =
+  ({ db }: { db: PrismaClient }) =>
+  (email: string, role: Role) => {
+    return db.user.findUnique({
+      where: {
+        email_role: { email, role },
+      },
+    })
+  }
+
+const getUserByPhoneAndRole =
+  ({ db }: { db: PrismaClient }) =>
+  (phone: string, role: Role) => {
+    return db.user.findUnique({
+      where: {
+        phone_role: { phone, role },
       },
     })
   }
@@ -48,6 +75,11 @@ const createUser = ({
   db: PrismaClient
   user: Prisma.UserCreateInput
 }) => db.user.create({ data: user })
+
+const deleteUser =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) =>
+    db.user.delete({ where: { userId } })
 
 const updateUser =
   ({ db }: { db: PrismaClient }) =>
@@ -80,7 +112,7 @@ const getUserSubscriptions =
       include: {
         pros: {
           select: {
-            proId: true,
+            userId: true,
             profilePhotoUrl: true,
             name: true,
           },
@@ -93,8 +125,12 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     getUserById: getUserById({ db }),
     getUserByIdAndOtp: getUserByIdAndOtp({ db }),
     getUserByEmail: getUserByEmail({ db }),
+    getUserByPhone: getUserByPhone({ db }),
+    getUserByEmailAndRole: getUserByEmailAndRole({ db }),
+    getUserByPhoneAndRole: getUserByPhoneAndRole({ db }),
     createUser: (user: Prisma.UserCreateInput) => createUser({ user, db }),
     updateUser: updateUser({ db }),
+    deleteUser: deleteUser({ db }),
     subscribe: subscribe({ db }),
     getUserSubscriptions: getUserSubscriptions({ db }),
   }

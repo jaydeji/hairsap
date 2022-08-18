@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE `Chat` ADD COLUMN `photo` VARCHAR(191) NULL,
-    ADD COLUMN `text` VARCHAR(191) NULL,
-    MODIFY `messageType` VARCHAR(191) NULL;
