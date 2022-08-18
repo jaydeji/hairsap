@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const PatchUserRequestSchema = z
   .object({
     userId: z.number(),
-    photoUrl: z.string().min(1),
+    profilePhotoUrl: z.string().min(1),
   })
   .strict()
 

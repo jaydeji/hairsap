@@ -81,7 +81,7 @@ const getUserSubscriptions =
         pros: {
           select: {
             proId: true,
-            photoUrl: true,
+            profilePhotoUrl: true,
             name: true,
           },
         },

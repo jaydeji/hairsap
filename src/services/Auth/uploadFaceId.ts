@@ -1,40 +1,50 @@
-import { logger } from '../../utils'
 import type { Repo, Role } from '../../types'
-import { ROLES } from '../../config/constants'
-import { ForbiddenError, InternalError } from '../../utils/Error'
+import { nanoid } from 'nanoid'
 
 const uploadFaceIdUser = async ({
   repo,
-  body: { path, userId },
+  body: { userId, upload },
 }: {
   repo: Repo
-  body: { userId?: number; path?: string }
+  body: {
+    userId: number
+    role: Role
+    upload: (getKey: (fileName: string) => string) => Promise<unknown>
+  }
 }) => {
-  // TODO: create unique photo name
-  if (!path) throw new InternalError()
-  logger.info(path)
-  await repo.user.updateUser(userId!, {
-    livePhotoUrl: path,
+  let path, fileName
+  await upload((_fileName: string) => {
+    path = `faceid/user/${userId}/${nanoid()}/${_fileName}`
+    fileName = _fileName
+    return path
   })
-
-  return { path }
+  await repo.user.updateUser(userId, {
+    faceIdPhotoPath: path,
+    faceIdPhotoOriginalFileName: fileName,
+  })
 }
 
 const uploadFaceIdPro = async ({
   repo,
-  body: { path, proId },
+  body: { proId, upload },
 }: {
   repo: Repo
-  body: { proId?: number; path?: string }
+  body: {
+    proId: number
+    upload: (getKey: (fileName: string) => string) => Promise<unknown>
+    role: Role
+  }
 }) => {
-  // TODO: create unique photo name
-  if (!path) throw new InternalError()
-  logger.info(path)
-  await repo.pro.updatePro(proId!, {
-    livePhotoUrl: path,
+  let path, fileName
+  await upload((_fileName: string) => {
+    path = `faceid/user/${proId}/${nanoid()}/${_fileName}`
+    fileName = _fileName
+    return path
   })
-
-  return { path }
+  await repo.user.updateUser(proId, {
+    faceIdPhotoPath: path,
+    faceIdPhotoOriginalFileName: fileName,
+  })
 }
 
 export const uploadFaceId =
@@ -42,17 +52,15 @@ export const uploadFaceId =
   async ({
     userId,
     proId,
-    path,
     role,
+    upload,
   }: {
     userId?: number
     proId?: number
-    path?: string
+    upload: (getKey: (fileName: string) => string) => Promise<unknown>
     role: Role
   }) => {
-    if (role === ROLES.PRO)
-      return uploadFaceIdPro({ repo, body: { proId, path } })
-    if (role === ROLES.USER)
-      return uploadFaceIdUser({ repo, body: { userId, path } })
-    throw new ForbiddenError()
+    if (proId) return uploadFaceIdPro({ repo, body: { proId, upload, role } })
+    if (userId)
+      return uploadFaceIdUser({ repo, body: { userId, upload, role } })
   }

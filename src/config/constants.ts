@@ -39,6 +39,9 @@ export const PRO_STATUS = {
 
 export const PLACEHOLDER =
   'https://avatars.dicebear.com/api/adventurer/hairsap.svg'
+export const STORAGE_ENDPOINT = 'https://' + process.env.STORAGE_ENDPOINT
+export const STORAGE_ENDPOINT_CDN =
+  'https://' + process.env.STORAGE_ENDPOINT_CDN
 
 export const PERIODIC_CASH_AMOUNTS = {
   DAILY: 50_000 * 100,

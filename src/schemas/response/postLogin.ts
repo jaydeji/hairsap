@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { ROLES } from '../../config/constants'
 
 const PostLoginResponseSchema = z
   .object({
@@ -7,7 +6,6 @@ const PostLoginResponseSchema = z
     email: z.string().email(),
     name: z.string(),
     photoUrl: z.string().optional().nullable(),
-    role: z.nativeEnum(ROLES),
     userId: z.number(),
   })
   .passthrough()

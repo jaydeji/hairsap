@@ -17,6 +17,7 @@ import { verifyJwt } from '../../utils/jwtLib'
 //socket output Object<{data,message,error}>
 
 const users: Record<string, { socketId: string } | undefined> = {}
+const pros: Record<string, { socketId: string } | undefined> = {}
 
 const createChat = ({ io, service }: { io: IO; service: Service }) => {
   io.use(function (socket, next) {
@@ -49,11 +50,19 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
       logger.info('user disconnected')
     })
 
-    socket.on('setup', (userId: number) => {
-      users[userId] = {
-        socketId: socket.id,
-      }
-    })
+    socket.on(
+      'setup',
+      ({ userId, proId }: { userId?: number; proId?: number }) => {
+        if (userId)
+          users[userId] = {
+            socketId: socket.id,
+          }
+        if (proId)
+          pros[proId] = {
+            socketId: socket.id,
+          }
+      },
+    )
 
     socket.on('new message', (message: ChatMessageType) => {
       const _message = MessageSchema.safeParse(message)

@@ -21,14 +21,15 @@ Content-Type: application/json
 
 ###
 # @name loginUser
-POST {{base}}/auth/login?role=user HTTP/1.1
+POST {{base}}/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
     "email":"jideadedejifirst@gmail.com",
     "password":"jide1234",
     "deviceInfo":"jide_phone",
-    "otpType":"phone"
+    "otpType":"phone",
+    "role":"user"
 }
 
 ###
@@ -38,7 +39,8 @@ Content-Type: application/json
 
 {
     "userId": {{userid}},
-    "otp": {{otp}}
+    "otp": {{otp}},
+    "role":"user"
 }
 
 ###

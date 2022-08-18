@@ -1,6 +1,5 @@
 import multer from 'multer'
 import multerS3 from 'multer-s3'
-import { BucketType } from '../types'
 import {
   PutObjectCommand,
   GetObjectCommand,
@@ -8,9 +7,13 @@ import {
 } from '@aws-sdk/client-s3'
 
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { Request, Response } from 'express'
+import { STORAGE_ENDPOINT } from './constants'
+import path from 'path'
+import { ValidationError } from '../utils/Error'
 
 const s3 = new S3Client({
-  endpoint: 'https://' + process.env.STORAGE_ENDPOINT,
+  endpoint: STORAGE_ENDPOINT,
   credentials: {
     accessKeyId: process.env.STORAGE_KEY as string,
     secretAccessKey: process.env.STORAGE_SECRET as string,
@@ -41,32 +44,58 @@ const getSignedUrlforPut = () => {
 
 const oneMB = 1024 * 1024
 
-const _upload = (bucket: BucketType) =>
+const _upload = ({
+  getKey,
+  type,
+}: {
+  getKey: (file: Express.Multer.File) => string
+  type: 'image'
+}) =>
   multer({
     storage: multerS3({
       s3,
-      bucket: bucket,
-      metadata: function (req, file, cb) {
-        cb(null, { fieldName: file.fieldname })
-      },
-      acl: 'public-read',
-      key: function (req, file, cb) {
-        cb(null, `${req.tokenData?.userId}/${file.originalname}`)
-        //userId/filename
+      bucket: 'hairsap',
+      // metadata: function (req, file, cb) {
+      //   cb(null, { fieldName: file.fieldname })
+      // },
+      acl: 'private',
+      key: (_req, file, cb) => {
+        cb(null, getKey(file))
       },
     }),
     limits: {
       fileSize: 10 * oneMB,
     },
+    fileFilter: (_req, file, cb) => {
+      if (type === 'image') {
+        const filetypes = /jpeg|jpg|png|gif/
+        if (!filetypes.test(path.extname(file.originalname).toLowerCase()))
+          return cb(new ValidationError('file must be an image'))
+        if (!filetypes.test(file.mimetype))
+          return cb(new ValidationError('file must be an image'))
+      }
+
+      cb(null, true)
+    },
   })
 
-export const upload = ({
-  fileName,
-  bucket,
+export const uploadFaceId = ({
+  fieldName,
+  getKey,
+  req,
+  res,
 }: {
-  fileName: string
-  bucket: BucketType
-}) => _upload(bucket).single(fileName)
+  fieldName: string
+  getKey: (file: Express.Multer.File) => string
+  req: Request
+  res: Response
+}) =>
+  new Promise((resolve, reject) => {
+    _upload({ getKey, type: 'image' }).single(fieldName)(req, res, (err) => {
+      if (err) return reject(err)
+      resolve(undefined)
+    })
+  })
 
 // const params = {
 //   Bucket: "example-space/example-folder/", // The path to the directory you want to upload the object to, starting with your Space name.

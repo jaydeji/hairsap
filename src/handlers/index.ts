@@ -55,9 +55,11 @@ const makeRouter = ({
     '/notifications',
     auth({ repo }),
     ah(async (req, res) => {
-      const data = await service.other.getNotifications(
-        req.tokenData?.userId as number,
-      )
+      const data = await service.other.getNotifications({
+        userId: req.tokenData?.userId as number,
+        proId: req.tokenData?.proId as number,
+        adminId: req.tokenData?.adminId as number,
+      })
       res.status(200).send({ data })
     }),
   )

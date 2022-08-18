@@ -26,7 +26,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(helmet())
   app.use(express.json())
   //TODO: tighten cors
-  app.use(cors())
+  app.use(cors({ origin: '*' }))
   app.use('/reference', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
   app.use('/auth', makeAuthRouter({ router: Router(), service }))
   app.use(
@@ -35,7 +35,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
     makeUserRouter({ router: Router(), service }),
   )
   app.use(
-    '/pro',
+    '/pros',
     authMiddleWare({ repo }),
     makeProRouter({ router: Router(), service }),
   )
@@ -45,7 +45,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
     makeChatRouter({ router: Router(), service }),
   )
   app.use(
-    '/book',
+    '/books',
     authMiddleWare({ repo }),
     makeBookRouter({ router: Router(), service }),
   )

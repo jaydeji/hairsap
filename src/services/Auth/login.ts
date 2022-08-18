@@ -15,17 +15,16 @@ import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 import { generateLoginOtp } from '../../utils/otp'
 import dayjs from '../../utils/dayjs'
+import { RoleSchema } from '../../schemas/models/Role'
 
 const loginAdmin = async ({
   repo,
   body,
-  role,
 }: {
   repo: Repo
   body: PostLoginAdminRequest
-  role: 'admin'
 }) => {
-  PostLoginAdminRequestSchema.parse({ ...body, role })
+  PostLoginAdminRequestSchema.parse(body)
 
   const admin = await repo.admin.getAdminByEmail(body.email)
 
@@ -59,13 +58,11 @@ const loginAdmin = async ({
 const loginUser = async ({
   repo,
   body,
-  role,
 }: {
   repo: Repo
   body: PostLoginUserRequest
-  role: 'user'
 }) => {
-  PostLoginUserRequestSchema.parse({ ...body, role })
+  PostLoginUserRequestSchema.parse(body)
 
   const user = await repo.user.getUserByEmail(body.email)
 
@@ -110,13 +107,11 @@ const loginUser = async ({
 const loginPro = async ({
   repo,
   body,
-  role,
 }: {
   repo: Repo
   body: PostLoginProRequest
-  role: 'pro'
 }) => {
-  PostLoginProRequestSchema.parse({ ...body, role })
+  PostLoginProRequestSchema.parse(body)
 
   const pro = await repo.pro.getProByEmail(body.email)
 
@@ -168,6 +163,8 @@ export const login =
   (
     body: PostLoginProRequest | PostLoginUserRequest | PostLoginAdminRequest,
   ) => {
+    RoleSchema.parse(body.role)
+
     const isAdmin = body.role === ROLES.ADMIN
     const isUser = body.role === ROLES.USER
     const isPro = body.role === ROLES.PRO
@@ -176,19 +173,16 @@ export const login =
       return loginAdmin({
         repo,
         body: body as PostLoginAdminRequest,
-        role: ROLES.ADMIN,
       })
-    } else if (isPro)
+    }
+    if (isPro)
       return loginPro({
         repo,
         body: body as PostLoginProRequest,
-        role: ROLES.PRO,
       })
-    else if (isUser)
+    if (isUser)
       return loginUser({
         repo,
         body: body as PostLoginUserRequest,
-        role: ROLES.USER,
       })
-    else throw new ForbiddenError()
   }

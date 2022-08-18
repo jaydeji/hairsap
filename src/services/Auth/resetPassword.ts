@@ -10,6 +10,7 @@ import { emailQueue } from '../../config/queue'
 import { resetPasswordTemplate } from '../../config/email/templates/resetPassword'
 import { ROLES } from '../../config/constants'
 import { ForbiddenError } from '../../utils/Error'
+import { RoleSchema } from '../../schemas/models/Role'
 
 const resetPasswordAdmin = async ({
   repo,
@@ -80,6 +81,8 @@ const resetPasswordPro = async ({
 export const resetPassword =
   ({ repo }: { repo: Repo }) =>
   (body: PostResetPasswordReq) => {
+    RoleSchema.parse(body.role)
+
     const isAdmin = body.role === ROLES.ADMIN
     const isUser = body.role === ROLES.USER
     const isPro = body.role === ROLES.PRO
@@ -89,15 +92,15 @@ export const resetPassword =
         repo,
         body,
       })
-    } else if (isPro)
+    }
+    if (isPro)
       return resetPasswordPro({
         repo,
         body,
       })
-    else if (isUser)
+    if (isUser)
       return resetPasswordUser({
         repo,
         body,
       })
-    else throw new ForbiddenError()
   }

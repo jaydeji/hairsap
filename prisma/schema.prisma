@@ -147,9 +147,11 @@ model Booking {
 }
 
 model Chat {
-  chatId      Int    @id @default(autoincrement())
-  message     String
+  chatId      Int     @id @default(autoincrement())
   messageType String
+  message     String?
+  text        String?
+  photo       String?
 
   sentUser       User? @relation("sentUser", fields: [sentUserId], references: [userId])
   sentUserId     Int?
@@ -193,35 +195,38 @@ model Pro {
   password String
   otp      Otp?
 
-  phone                 String
-  photoUrl              String?
-  livePhotoUrl          String?
-  deactivated           Boolean?        @default(false)
-  deactivatedReason     Int?
-  deactivationCount     Int             @default(0)
-  reactivationCount     Int             @default(0)
-  reactivationRequested Boolean?        @default(false)
-  terminated            Boolean?        @default(false)
+  phone                        String
+  faceIdPhotoPath              String?
+  faceIdPhotoOriginalFileName  String?
+  profilePhotoUrl              String?
+  profilePhotoPath             String?
+  profilePhotoOriginalFileName String?
+  deactivated                  Boolean?        @default(false)
+  deactivatedReason            Int?
+  deactivationCount            Int             @default(0)
+  reactivationCount            Int             @default(0)
+  reactivationRequested        Boolean?        @default(false)
+  terminated                   Boolean?        @default(false)
   // approved              Boolean?        @default(false)
-  verified              Boolean?        @default(false) //verify new pro account
-  rejected              Boolean?        @default(false)
-  longitude             Decimal?        @db.Decimal(10, 6)
-  latitude              Decimal?        @db.Decimal(10, 6)
-  resumptionAt          DateTime?
-  closingAt             DateTime?
-  workVideoUrl          String?
-  businessName          String?
-  bonuses               Bonus[]
-  bookings              Booking[]
-  devices               Device[]
-  notifications         Notification[]
-  PasswordReset         PasswordReset[]
-  redeemPayments        RedeemPayment[]
-  subscribers           Subscription[]
-  proServices           ProService[]
-  reviews               Review[]
-  receivedChats         Chat[]          @relation("receivedPro")
-  sentChats             Chat[]          @relation("sentPro")
+  verified                     Boolean?        @default(false) //verify new pro account
+  rejected                     Boolean?        @default(false)
+  longitude                    Decimal?        @db.Decimal(10, 6)
+  latitude                     Decimal?        @db.Decimal(10, 6)
+  resumptionAt                 DateTime?
+  closingAt                    DateTime?
+  workVideoUrl                 String?
+  businessName                 String?
+  bonuses                      Bonus[]
+  bookings                     Booking[]
+  devices                      Device[]
+  notifications                Notification[]
+  PasswordReset                PasswordReset[]
+  redeemPayments               RedeemPayment[]
+  subscribers                  Subscription[]
+  proServices                  ProService[]
+  reviews                      Review[]
+  receivedChats                Chat[]          @relation("receivedPro")
+  sentChats                    Chat[]          @relation("sentPro")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -239,20 +244,23 @@ model User {
   password String
   otp      Otp?
 
-  phone         String
-  livePhotoUrl  String?
-  photoUrl      String?
-  longitude     Decimal?        @db.Decimal(10, 6)
-  latitude      Decimal?        @db.Decimal(10, 6)
-  bookings      Booking[]
-  devices       Device[]
-  notifications Notification[]
-  PasswordReset PasswordReset[]
-  paymentEvents PaymentEvents[]
-  subscriptions Subscription[]
-  reviews       Review[]
-  receivedChats Chat[]          @relation("receivedUser")
-  sentChats     Chat[]          @relation("sentUser")
+  phone                        String
+  faceIdPhotoPath              String?
+  faceIdPhotoOriginalFileName  String?
+  profilePhotoUrl              String?
+  profilePhotoPath             String?
+  profilePhotoOriginalFileName String?
+  longitude                    Decimal?        @db.Decimal(10, 6)
+  latitude                     Decimal?        @db.Decimal(10, 6)
+  bookings                     Booking[]
+  devices                      Device[]
+  notifications                Notification[]
+  PasswordReset                PasswordReset[]
+  paymentEvents                PaymentEvents[]
+  subscriptions                Subscription[]
+  reviews                      Review[]
+  receivedChats                Chat[]          @relation("receivedUser")
+  sentChats                    Chat[]          @relation("sentUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

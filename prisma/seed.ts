@@ -10,7 +10,6 @@ const proData: Prisma.ProCreateManyInput[] = [
     address: null,
     email: 'jamesadedejifirst@gmail.com',
     name: 'James Adedeji',
-    photoUrl: null,
     proId: 1,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
@@ -24,7 +23,6 @@ const userData: Prisma.UserCreateManyInput[] = [
     address: null,
     email: 'jideadedejifirst@gmail.com',
     name: 'Jide Adedeji',
-    photoUrl: null,
     userId: 1,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
@@ -34,7 +32,6 @@ const userData: Prisma.UserCreateManyInput[] = [
     address: null,
     email: 'topeadedejifirst@gmail.com',
     name: 'Tope Adedeji',
-    photoUrl: null,
     userId: 2,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',

@@ -1,8 +1,8 @@
-import { Repo } from '../../types'
+import { Repo, Role } from '../../types'
 import dayjs from '../../utils/dayjs'
-import { ROLES } from '../../config/constants'
 import { ForbiddenError } from '../../utils/Error'
 import {
+  PostConfirmResetPasswordAdminReqSchema,
   PostConfirmResetPasswordReq,
   PostConfirmResetPasswordReqSchema,
 } from '../../schemas/request/postConfirmResetPassword'
@@ -15,13 +15,14 @@ const confirmResetPasswordAdmin = async ({
   repo: Repo
   body: {
     email: string
-    adminId?: number
+    adminId: number
     expiredAt: Date
     token: string
     password: string
+    role: Role
   }
 }) => {
-  PostConfirmResetPasswordReqSchema.parse(body)
+  PostConfirmResetPasswordAdminReqSchema.parse(body)
 
   const passwordTokenData = await repo.auth.getResetPasswordToken({
     userId: body.adminId,
@@ -51,6 +52,7 @@ const confirmResetPasswordUser = async ({
     expiredAt: Date
     token: string
     password: string
+    role: Role
   }
 }) => {
   PostConfirmResetPasswordReqSchema.parse(body)
@@ -83,6 +85,7 @@ const confirmResetPasswordPro = async ({
     expiredAt: Date
     token: string
     password: string
+    role: Role
   }
 }) => {
   PostConfirmResetPasswordReqSchema.parse(body)
@@ -106,25 +109,21 @@ const confirmResetPasswordPro = async ({
 
 export const confirmResetPassword =
   ({ repo }: { repo: Repo }) =>
-  (body: PostConfirmResetPasswordReq) => {
-    const isAdmin = body.role === ROLES.ADMIN
-    const isUser = body.role === ROLES.USER
-    const isPro = body.role === ROLES.PRO
-
-    if (isAdmin) {
+  ({ userId, adminId, proId, ...body }: PostConfirmResetPasswordReq) => {
+    if (adminId) {
       return confirmResetPasswordAdmin({
         repo,
-        body,
+        body: { ...body, adminId },
       })
-    } else if (isPro)
+    }
+    if (proId)
       return confirmResetPasswordPro({
         repo,
-        body,
+        body: { ...body, proId },
       })
-    else if (isUser)
+    if (userId)
       return confirmResetPasswordUser({
         repo,
-        body,
+        body: { ...body, userId },
       })
-    else throw new ForbiddenError()
   }

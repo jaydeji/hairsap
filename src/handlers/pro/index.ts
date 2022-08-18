@@ -29,7 +29,7 @@ const makeProRouter = ({
     '/verify:id',
     ah(async (req, res) => {
       await service.pro.verifyPro({
-        userId: +req.params.userId as number,
+        proId: +req.params.proId as number,
         role: req.tokenData?.role as Role,
       })
       res.status(201).send()
@@ -40,7 +40,7 @@ const makeProRouter = ({
     '/reactivate/request',
     ah(async (req, res) => {
       await service.pro.requestReactivation({
-        userId: req.tokenData?.userId as number,
+        proId: req.tokenData?.proId as number,
         role: req.tokenData?.role as Role,
       })
       res.status(201).send()

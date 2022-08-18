@@ -5,12 +5,14 @@ import {
   PostValidateOtpProReq,
   PostValidateOtpProReqSchema,
   PostValidateOtpUserReq,
+  PostValidateOtpUserReqSchema,
 } from '../../schemas/request/postValidateOtp'
 import type { Repo } from '../../types'
 import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 import dayjs from '../../utils/dayjs'
 import { generateJwt } from '../../utils/jwtLib'
+import { RoleSchema } from '../../schemas/models/Role'
 
 const validateAdmin = async ({
   repo,
@@ -51,7 +53,7 @@ const validateUser = async ({
   repo: Repo
   body: PostValidateOtpUserReq
 }) => {
-  PostValidateOtpProReqSchema.parse(body)
+  PostValidateOtpUserReqSchema.parse(body)
   const user = await repo.user.getUserById(body.userId)
 
   if (!user) throw new ForbiddenError()
@@ -118,6 +120,8 @@ export const validateOtp =
       | PostValidateOtpProReq
       | PostValidateOtpUserReq,
   ) => {
+    RoleSchema.parse(body.role)
+
     const isAdmin = body.role === ROLES.ADMIN
     const isUser = body.role === ROLES.USER
     const isPro = body.role === ROLES.PRO
@@ -127,15 +131,15 @@ export const validateOtp =
         repo,
         body: body as PostValidateOtpAdminReq,
       })
-    } else if (isPro)
+    }
+    if (isPro)
       return validatePro({
         repo,
         body: body as PostValidateOtpProReq,
       })
-    else if (isUser)
+    if (isUser)
       return validateUser({
         repo,
         body: body as PostValidateOtpUserReq,
       })
-    else throw new ForbiddenError()
   }

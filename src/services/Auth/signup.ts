@@ -15,6 +15,7 @@ import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 
 import { generateLoginOtp } from '../../utils/otp'
 import dayjs from '../../utils/dayjs'
+import { RoleSchema } from '../../schemas/models/Role'
 
 const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
   //TODO: verify faceId
@@ -104,9 +105,11 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
 export const signUp =
   ({ repo }: { repo: Repo }) =>
   (body: PostSignupProRequest | PostSignupUserRequest) => {
+    RoleSchema.parse(body.role)
     if (body.role === ROLES.USER) {
       return signupUser(repo, body)
-    } else if (body.role === ROLES.PRO) {
+    }
+    if (body.role === ROLES.PRO) {
       return signupPro(repo, body)
-    } else throw new ForbiddenError()
+    }
   }

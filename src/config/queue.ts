@@ -3,7 +3,7 @@ import { sendMail } from './email'
 import { SendMailOptions } from 'nodemailer'
 import { logger } from '../utils'
 import db from '../config/db'
-import { ChatMessageType } from '../handlers/chat/socket'
+import { ChatMessageType } from '../schemas/models/Message'
 
 const redisUrl = process.env.REDIS_URL as string
 

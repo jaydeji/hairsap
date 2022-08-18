@@ -8,7 +8,7 @@ const getChatList =
       {
         name: User['name']
         userId: User['userId']
-        photoUrl: User['photoUrl']
+        photoUrl: User['profilePhotoUrl']
       }[]
     >`
   SELECT userId,name,photoUrl FROM (SELECT DISTINCT 
