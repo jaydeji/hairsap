@@ -26,8 +26,10 @@ const loginAdmin = async ({
   PostLoginAdminRequestSchema.parse(body)
 
   let admin
-  if (body.email) admin = await repo.user.getUserByEmailAndRole(body.email)
-  if (body.phone) admin = await repo.user.getUserByEmailAndRole(body.phone)
+  if (body.email)
+    admin = await repo.user.getUserByEmailAndRole(body.email, body.role)
+  if (body.phone)
+    admin = await repo.user.getUserByEmailAndRole(body.phone, body.role)
 
   if (!admin) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
@@ -94,8 +96,10 @@ const loginPro = async ({
   PostLoginProRequestSchema.parse(body)
 
   let pro
-  if (body.email) pro = await repo.user.getUserByEmail(body.email)
-  if (body.phone) pro = await repo.user.getUserByPhone(body.phone)
+  if (body.email)
+    pro = await repo.user.getUserByEmailAndRole(body.email, body.role)
+  if (body.phone)
+    pro = await repo.user.getUserByEmailAndRole(body.phone, body.role)
 
   if (!pro) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
