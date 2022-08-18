@@ -10,9 +10,9 @@ datasource db {
 }
 
 model Subscription {
-  pros   Pro  @relation(fields: [proId], references: [proId])
+  pros   User @relation("pro", fields: [proId], references: [userId])
   proId  Int
-  users  User @relation(fields: [userId], references: [userId])
+  users  User @relation("user", fields: [userId], references: [userId])
   userId Int
 
   createdAt DateTime @default(now())
@@ -25,7 +25,7 @@ model Subscription {
 model ProService {
   service   Service @relation(fields: [serviceId], references: [serviceId])
   serviceId Int
-  pro       Pro     @relation(fields: [proId], references: [proId])
+  pro       User    @relation(fields: [proId], references: [userId])
   proId     Int
 
   createdAt DateTime @default(now())
@@ -97,50 +97,44 @@ model Invoice {
 model Review {
   reviewId Int    @id @default(autoincrement())
   value    String @db.Text
-  pro      Pro    @relation(fields: [proId], references: [proId])
+  pro      User   @relation("pro", fields: [proId], references: [userId])
   proId    Int
-  user     User   @relation(fields: [userId], references: [userId])
+  user     User   @relation("user", fields: [userId], references: [userId])
   userId   Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Otp {
-  otpId   String @id @default(uuid())
-  value   String
-  user    User?  @relation(fields: [userId], references: [userId])
-  userId  Int?   @unique
-  admin   Admin? @relation(fields: [adminId], references: [adminId])
-  adminId Int?   @unique
-  Pro     Pro?   @relation(fields: [proId], references: [proId])
-  proId   Int?   @unique
+  otpId  String @id @default(uuid())
+  value  String
+  user   User   @relation(fields: [userId], references: [userId])
+  userId Int    @unique
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())
 }
 
 model Booking {
-  bookingId         Int                 @id @default(autoincrement())
-  userCompleted     Boolean             @default(false)
-  proCompleted      Boolean             @default(false)
-  paid              Boolean             @default(false)
-  address           String
-  samplePhotoUrl    String?
-  status            String
-  rating            Int?
-  invoiceId         Int?
-  acceptedAt        DateTime?
-  rejectedAt        DateTime?
-  cancelledAt       DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now()) @updatedAt
-  pro               Pro                 @relation(fields: [proId], references: [proId])
-  proId             Int
-  user              User                @relation(fields: [userId], references: [userId])
-  userId            Int
-  bookedSubServices BookingSubService[]
+  bookingId      Int       @id @default(autoincrement())
+  userCompleted  Boolean   @default(false)
+  proCompleted   Boolean   @default(false)
+  paid           Boolean   @default(false)
+  address        String
+  samplePhotoUrl String?
+  status         String
+  rating         Int?
+  invoiceId      Int?
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  pro            User      @relation("pro", fields: [proId], references: [userId])
+  proId          Int
+  user           User      @relation("user", fields: [userId], references: [userId])
+  userId         Int
+
   invoice           Invoice?
+  bookedSubServices BookingSubService[]
 
   @@index([proId])
   @@index([userId])
@@ -153,131 +147,81 @@ model Chat {
   text        String?
   photo       String?
 
-  sentUser       User? @relation("sentUser", fields: [sentUserId], references: [userId])
-  sentUserId     Int?
-  receivedUser   User? @relation("receivedUser", fields: [receivedUserId], references: [userId])
-  receivedUserId Int?
-  sentPro        Pro?  @relation("sentPro", fields: [sentProId], references: [proId])
-  sentProId      Int?
-  receivedPro    Pro?  @relation("receivedPro", fields: [receivedProId], references: [proId])
-  receivedProId  Int?
+  senderId   Int
+  receiverId Int
+  receiver   User @relation("receiver", fields: [receiverId], references: [userId])
+  sender     User @relation("sender", fields: [senderId], references: [userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@index([sentUserId])
-  @@index([receivedUserId])
-  @@index([sentProId])
-  @@index([receivedProId])
+  @@index([senderId])
+  @@index([receiverId])
 }
 
-model Admin {
-  adminId       Int             @id @default(autoincrement())
-  email         String          @unique @db.VarChar(255)
-  address       String?
-  name          String
-  userName      String?
-  password      String
-  otp           Otp?
-  notifications Notification[]
-  PasswordReset PasswordReset[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-}
-
-model Pro {
-  proId    Int     @id @default(autoincrement())
-  email    String? @unique @db.VarChar(255)
-  address  String?
-  name     String
-  userName String?
-  password String
-  otp      Otp?
-
+model User {
+  userId                       Int       @id @default(autoincrement())
+  email                        String?   @unique @db.VarChar(255)
+  address                      String?
+  name                         String
+  userName                     String?
+  password                     String
   phone                        String
   faceIdPhotoPath              String?
   faceIdPhotoOriginalFileName  String?
   profilePhotoUrl              String?
   profilePhotoPath             String?
   profilePhotoOriginalFileName String?
-  deactivated                  Boolean?        @default(false)
+  longitude                    Decimal?  @db.Decimal(10, 6)
+  latitude                     Decimal?  @db.Decimal(10, 6)
+  deactivated                  Boolean?  @default(false)
   deactivatedReason            Int?
-  deactivationCount            Int             @default(0)
-  reactivationCount            Int             @default(0)
-  reactivationRequested        Boolean?        @default(false)
-  terminated                   Boolean?        @default(false)
+  deactivationCount            Int       @default(0)
+  reactivationCount            Int       @default(0)
+  reactivationRequested        Boolean?  @default(false)
+  terminated                   Boolean?  @default(false)
   // approved              Boolean?        @default(false)
-  verified                     Boolean?        @default(false) //verify new pro account
-  rejected                     Boolean?        @default(false)
-  longitude                    Decimal?        @db.Decimal(10, 6)
-  latitude                     Decimal?        @db.Decimal(10, 6)
+  verified                     Boolean?  @default(false) //verify new pro account
+  rejected                     Boolean?  @default(false)
   resumptionAt                 DateTime?
   closingAt                    DateTime?
   workVideoUrl                 String?
   businessName                 String?
-  bonuses                      Bonus[]
-  bookings                     Booking[]
-  devices                      Device[]
-  notifications                Notification[]
-  PasswordReset                PasswordReset[]
-  redeemPayments               RedeemPayment[]
-  subscribers                  Subscription[]
-  proServices                  ProService[]
-  reviews                      Review[]
-  receivedChats                Chat[]          @relation("receivedPro")
-  sentChats                    Chat[]          @relation("sentPro")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  otp            Otp?
+  devices        Device[]
+  notifications  Notification[]
+  PasswordReset  PasswordReset[]
+  paymentEvents  PaymentEvents[]
+  proReviews     Review[]        @relation("pro")
+  userReviews    Review[]        @relation("user")
+  receivedChats  Chat[]          @relation("receiver")
+  sentChats      Chat[]          @relation("sender")
+  bonuses        Bonus[]
+  redeemPayments RedeemPayment[]
+  subscribers    Subscription[]  @relation("pro")
+  proServices    ProService[]
 
-  @@index([email])
-  @@index([latitude, longitude])
-}
-
-model User {
-  userId   Int     @id @default(autoincrement())
-  email    String? @unique @db.VarChar(255)
-  address  String?
-  name     String
-  userName String?
-  password String
-  otp      Otp?
-
-  phone                        String
-  faceIdPhotoPath              String?
-  faceIdPhotoOriginalFileName  String?
-  profilePhotoUrl              String?
-  profilePhotoPath             String?
-  profilePhotoOriginalFileName String?
-  longitude                    Decimal?        @db.Decimal(10, 6)
-  latitude                     Decimal?        @db.Decimal(10, 6)
-  bookings                     Booking[]
-  devices                      Device[]
-  notifications                Notification[]
-  PasswordReset                PasswordReset[]
-  paymentEvents                PaymentEvents[]
-  subscriptions                Subscription[]
-  reviews                      Review[]
-  receivedChats                Chat[]          @relation("receivedUser")
-  sentChats                    Chat[]          @relation("sentUser")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  Subscription Subscription[] @relation("user")
+  proBookings  Booking[]      @relation("pro")
+  userBookings Booking[]      @relation("user")
 
   @@index([email])
   @@index([latitude, longitude])
 }
 
 model PaymentEvents {
-  eventId   Int      @id @default(autoincrement())
-  event     String
-  data      Json
-  reason    String
-  userId    Int?
+  eventId Int    @id @default(autoincrement())
+  event   String
+  data    Json
+  reason  String
+  User    User?  @relation(fields: [userId], references: [userId])
+  userId  Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  User      User?    @relation(fields: [userId], references: [userId])
 
   @@index([userId])
 }
@@ -285,10 +229,8 @@ model PaymentEvents {
 model Device {
   deviceId Int    @id @default(autoincrement())
   value    String
-  user     User?  @relation(fields: [userId], references: [userId])
-  userId   Int?
-  pro      Pro?   @relation(fields: [proId], references: [proId])
-  proId    Int?
+  User     User   @relation(fields: [userId], references: [userId])
+  userId   Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -299,52 +241,39 @@ model Device {
 model PasswordReset {
   resetId String @id @default(uuid())
   token   String
-  user    User?  @relation(fields: [userId], references: [userId])
-  userId  Int?
-  pro     Pro?   @relation(fields: [proId], references: [proId])
-  proId   Int?
-  admin   Admin? @relation(fields: [adminId], references: [adminId])
-  adminId Int?
+  userId  Int
+  user    User   @relation(fields: [userId], references: [userId])
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())
 
   @@unique([userId, token])
-  @@unique([proId, token])
-  @@unique([adminId, token])
   @@index([userId])
-  @@index([proId])
-  @@index([adminId])
 }
 
 model Notification {
-  notificationId Int      @id @default(autoincrement())
+  notificationId Int    @id @default(autoincrement())
   message        String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
-  user           User     @relation(fields: [userId], references: [userId])
+  user           User   @relation(fields: [userId], references: [userId])
   userId         Int
-  pro            Pro      @relation(fields: [proId], references: [proId])
-  proId          Int
-  admin          Admin    @relation(fields: [adminId], references: [adminId])
-  adminId        Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId])
-  @@index([proId])
-  @@index([adminId])
 }
 
 model RedeemPayment {
   redeemId  Int     @id @default(autoincrement())
   confirmed Boolean
   amount    Int
-  pro       Pro     @relation(fields: [proId], references: [proId])
-  proId     Int
+  user      User    @relation(fields: [userId], references: [userId])
+  userId    Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@index([proId])
+  @@index([userId])
 }
 
 model Bonus {
@@ -352,8 +281,8 @@ model Bonus {
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  pro       Pro      @relation(fields: [proId], references: [proId])
-  proId     Int
+  user      User     @relation(fields: [userId], references: [userId])
+  userId    Int
 
-  @@index([proId])
+  @@index([userId])
 }
