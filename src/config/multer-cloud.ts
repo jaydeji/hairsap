@@ -1,13 +1,8 @@
 import multer from 'multer'
 import multerS3 from 'multer-s3'
-import {
-  PutObjectCommand,
-  GetObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3'
-
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { Request, Response } from 'express'
+import { S3Client, CopyObjectCommand } from '@aws-sdk/client-s3'
+// import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { Request } from 'express'
 import { STORAGE_ENDPOINT } from './constants'
 import path from 'path'
 import { ValidationError } from '../utils/Error'
@@ -20,36 +15,32 @@ const s3 = new S3Client({
   },
 })
 
-const getSignedUrlforGet = () => {
-  getSignedUrl(
-    s3,
-    new GetObjectCommand({
-      Bucket: 'faceId',
-      Key: '',
+export const copyObject = ({
+  source,
+  key,
+}: {
+  source: string
+  key: string
+}) => {
+  s3.send(
+    new CopyObjectCommand({
+      Bucket: 'hairsap',
+      CopySource: source,
+      Key: key,
+      ACL: 'public-read',
     }),
-    { expiresIn: 3600 },
   )
 }
-const getSignedUrlforPut = () => {
-  getSignedUrl(
-    s3,
-    new PutObjectCommand({
-      Bucket: 'faceId',
-      Key: '',
-    }),
-    { expiresIn: 3600 },
-  )
-}
-//Copy faceId Object to photourl when
 
 const oneMB = 1024 * 1024
-
-const _upload = ({
+export const _upload = ({
   getKey,
   type,
+  acl = 'private',
 }: {
-  getKey: (file: Express.Multer.File) => string
-  type: 'image'
+  getKey: (file: Express.Multer.File, req: Express.Request) => string
+  type: 'image' | 'video'
+  acl?: 'private' | 'public-read'
 }) =>
   multer({
     storage: multerS3({
@@ -58,13 +49,13 @@ const _upload = ({
       // metadata: function (req, file, cb) {
       //   cb(null, { fieldName: file.fieldname })
       // },
-      acl: 'private',
+      acl,
       key: (_req, file, cb) => {
-        cb(null, getKey(file))
+        cb(null, getKey(file, _req))
       },
     }),
     limits: {
-      fileSize: 10 * oneMB,
+      fileSize: type === 'image' ? 10 * oneMB : 30 * oneMB,
     },
     fileFilter: (_req, file, cb) => {
       if (type === 'image') {
@@ -79,23 +70,64 @@ const _upload = ({
     },
   })
 
-export const uploadFaceId = ({
-  fieldName,
-  getKey,
-  req,
-  res,
-}: {
-  fieldName: string
-  getKey: (file: Express.Multer.File) => string
-  req: Request
-  res: Response
-}) =>
-  new Promise((resolve, reject) => {
-    _upload({ getKey, type: 'image' }).single(fieldName)(req, res, (err) => {
-      if (err) return reject(err)
-      resolve(undefined)
-    })
-  })
+// const getSignedUrlforGet = () => {
+//   getSignedUrl(
+//     s3,
+//     new GetObjectCommand({
+//       Bucket: 'hairsap',
+//       Key: '',
+//     }),
+//     { expiresIn: 3600 },
+//   )
+// }
+// const getSignedUrlforPut = () => {
+//   getSignedUrl(
+//     s3,
+//     new PutObjectCommand({
+//       Bucket: 'hairsap',
+//       Key: '',
+//     }),
+//     { expiresIn: 3600 },
+//   )
+// }
+
+// export const uploadFaceId = ({
+//   fieldName,
+//   getKey,
+//   req,
+//   res,
+// }: {
+//   fieldName: string
+//   getKey: (file: Express.Multer.File) => string
+//   req: Request
+//   res: Response
+// }) =>
+//   new Promise((resolve, reject) => {
+//     _upload({ getKey, type: 'image' }).single(fieldName)(req, res, (err) => {
+//       if (err) return reject(err)
+//       resolve(undefined)
+//     })
+//   })
+
+// export const uploadSamplePhoto = ({
+//   fieldName,
+//   getKey,
+//   req,
+//   res,
+// }: {
+//   fieldName: string
+//   getKey: (file: Express.Multer.File) => string
+//   req: Request
+//   res: Response
+// }) =>
+//   new Promise((resolve, reject) => {
+//     _upload({ getKey, type: 'image' }).fields([
+//       { name: fieldName, maxCount: 1 },
+//     ])(req, res, (err) => {
+//       if (err) return reject(err)
+//       resolve(undefined)
+//     })
+//   })
 
 // const params = {
 //   Bucket: "example-space/example-folder/", // The path to the directory you want to upload the object to, starting with your Space name.

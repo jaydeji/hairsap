@@ -26,7 +26,7 @@ const auth = ({ repo }: { repo: Repo }) =>
       if (!user.verified) throw new ForbiddenError('user not verified')
     }
     if (decodedToken?.role === ROLES.PRO) {
-      if (!user.terminated) throw new ForbiddenError('pro terminated')
+      if (user.terminated) throw new ForbiddenError('pro terminated')
       if (user.deactivated && req.baseUrl + req.path !== '/reactivate/request')
         throw new ForbiddenError('pro deactivated')
     }

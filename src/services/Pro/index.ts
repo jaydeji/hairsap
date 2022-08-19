@@ -1,4 +1,5 @@
-import { PRO_STATUS, ROLES } from '../../config/constants'
+import { z } from 'zod'
+import { ROLES } from '../../config/constants'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
 import type { Repo, Role } from '../../types'
 import { getTransportPrice } from '../../utils'
@@ -28,7 +29,6 @@ const getNearestPro =
     return {
       pro,
       transportation,
-      status: PRO_STATUS.AVAILABLE,
       total: price + transportation,
     }
   }
@@ -69,8 +69,17 @@ const requestReactivation =
 
 const getProSubscribers =
   ({ repo }: { repo: Repo }) =>
-  ({ proId }: { proId: number }) =>
-    repo.pro.getProSubscribers(proId)
+  async ({ proId }: { proId: number }) => {
+    z.number().parse(proId)
+    return await repo.pro.getProSubscribers(proId)
+  }
+
+const getProServices =
+  ({ repo }: { repo: Repo }) =>
+  async ({ proId }: { proId: number }) => {
+    z.number().parse(proId)
+    return await repo.pro.getProServices(proId)
+  }
 
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
@@ -78,6 +87,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     verifyPro: verifyPro({ repo }),
     requestReactivation: requestReactivation({ repo }),
     getProSubscribers: getProSubscribers({ repo }),
+    getProServices: getProServices({ repo }),
   }
 }
 

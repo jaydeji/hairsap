@@ -86,7 +86,7 @@ model InvoiceFees {
 model Invoice {
   invoiceId    Int           @id @default(autoincrement())
   transportFee Int
-  distance     Int
+  distance     Float
   bookingId    Int           @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now()) @updatedAt
@@ -114,24 +114,27 @@ model Otp {
 }
 
 model Booking {
-  bookingId      Int       @id @default(autoincrement())
-  userCompleted  Boolean   @default(false)
-  proCompleted   Boolean   @default(false)
-  paid           Boolean   @default(false)
-  address        String
-  samplePhotoUrl String?
-  status         String
-  rating         Int?
-  invoiceId      Int?
-  acceptedAt     DateTime?
-  rejectedAt     DateTime?
-  cancelledAt    DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-  pro            User?     @relation("pro", fields: [proId], references: [userId])
-  proId          Int
-  user           User?     @relation("user", fields: [userId], references: [userId])
-  userId         Int
+  bookingId                   Int       @id @default(autoincrement())
+  userCompleted               Boolean   @default(false)
+  proCompleted                Boolean   @default(false)
+  paid                        Boolean   @default(false)
+  arrived                     Boolean   @default(false)
+  address                     String
+  samplePhotoUrl              String?
+  samplePhotoKey              String?
+  samplePhotoOriginalFileName String?
+  status                      String
+  rating                      Int?
+  acceptedAt                  DateTime?
+  rejectedAt                  DateTime?
+  arrivalAt                   DateTime?
+  cancelledAt                 DateTime?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @default(now()) @updatedAt
+  pro                         User?     @relation("pro", fields: [proId], references: [userId])
+  proId                       Int
+  user                        User?     @relation("user", fields: [userId], references: [userId])
+  userId                      Int
 
   invoice           Invoice?
   bookedSubServices BookingSubService[]
@@ -167,10 +170,10 @@ model User {
   password                     String
   phone                        String
   role                         String
-  faceIdPhotoPath              String?
+  faceIdPhotoKey               String?
   faceIdPhotoOriginalFileName  String?
   profilePhotoUrl              String?
-  profilePhotoPath             String?
+  profilePhotoKey              String?
   profilePhotoOriginalFileName String?
   longitude                    Decimal? @db.Decimal(10, 6)
   latitude                     Decimal? @db.Decimal(10, 6)

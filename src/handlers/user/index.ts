@@ -1,7 +1,8 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { ROLES } from '../../config/constants'
-import { uploadFaceId } from '../../config/multer-cloud'
+import { nanoid } from 'nanoid'
+import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
+import { _upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
 import type { Service } from '../../types'
 import { patchUser } from './patchUser'
@@ -16,18 +17,19 @@ const makeUserRouter = ({
   router.patch('/', ah(patchUser({ service })))
   router.post(
     '/faceid',
+    _upload({
+      getKey: (file, req) =>
+        `faceid/pro/${req.tokenData?.userId}/${nanoid()}/${file.originalname}`,
+      type: 'image',
+    }).single('faceid'),
     ah(async (req, res) => {
       const data = await service.auth.uploadFaceId({
         userId: req.tokenData?.userId,
         role: req.tokenData!.role,
         proId: req.tokenData?.userId,
-        upload: (getKey) =>
-          uploadFaceId({
-            fieldName: 'faceid',
-            getKey: (file: Express.Multer.File) => getKey(file.originalname),
-            res,
-            req,
-          }),
+        faceIdPhotoKey: (req.file as any).key,
+        faceIdPhotoOriginalFileName:
+          STORAGE_ENDPOINT_CDN + (req.file as any).key,
       })
       res.status(200).send({ data })
     }),

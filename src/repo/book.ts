@@ -21,6 +21,53 @@ const getProBookingsByStatus =
       },
     })
 
+const getProBookingsByProIdAndUserId =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number, userId: number, status?: BookingStatus) =>
+    db.booking.findMany({
+      where: {
+        proId,
+        status,
+      },
+    })
+
+const getUserBookingsBySubService =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    userId,
+    status,
+    subServiceId,
+  }: {
+    userId: number
+    subServiceId: number
+    status?: BookingStatus
+  }) =>
+    db.booking.findMany({
+      where: {
+        AND: [
+          {
+            userId,
+            status,
+          },
+          {
+            bookedSubServices: {
+              some: {
+                subService: {
+                  service: {
+                    subServices: {
+                      some: {
+                        subServiceId,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
 const addServiceToBooking =
   ({ db }: { db: PrismaClient }) =>
   async ({
@@ -65,6 +112,10 @@ const bookPro =
     address: string
     distance: number
     transportFee: number
+    arrivalAt: Date
+    samplePhotoUrl?: string
+    samplePhotoKey?: string
+    samplePhotoOriginalFileName?: string
   }) =>
     db.booking.create({
       data: {
@@ -72,6 +123,10 @@ const bookPro =
         status: BOOKING_STATUS.PENDING,
         userId: data.userId,
         proId: data.proId,
+        arrivalAt: data.arrivalAt,
+        samplePhotoUrl: data.samplePhotoUrl,
+        samplePhotoKey: data.samplePhotoKey,
+        samplePhotoOriginalFileName: data.samplePhotoOriginalFileName,
         bookedSubServices: {
           create: {
             subServiceId: data.subServiceId,
@@ -87,6 +142,13 @@ const bookPro =
                 price: data.subServiceFee,
               },
             },
+          },
+        },
+      },
+      include: {
+        invoice: {
+          select: {
+            invoiceId: true,
           },
         },
       },
@@ -119,6 +181,10 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getBookingById: getBookingById({ db }),
     updateBooking: updateBooking({ db }),
     getProBookingsByStatus: getProBookingsByStatus({ db }),
+    getProBookingsByProIdAndUserId: getProBookingsByProIdAndUserId({ db }),
+    getUserBookingsBySubService: getUserBookingsBySubService({
+      db,
+    }),
   }
 }
 

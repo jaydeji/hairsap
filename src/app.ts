@@ -45,7 +45,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
     makeChatRouter({ router: Router(), service }),
   )
   app.use(
-    '/books',
+    '/bookings',
     authMiddleWare({ repo }),
     makeBookRouter({ router: Router(), service }),
   )

@@ -58,6 +58,16 @@ const makeProRouter = ({
     }),
   )
 
+  router.get(
+    '/services/:proId',
+    ah(async (req, res) => {
+      const data = await service.pro.getProServices({
+        proId: +req.params.proId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

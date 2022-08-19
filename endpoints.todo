@@ -1,6 +1,7 @@
 TASKS
 
 UNDONE
+/manual search
 /pro?name&filterby=service
 /pro/video - pro should be able to add a video
 /bookings - get all bookings paginated
@@ -69,17 +70,6 @@ UNCONFIRMED
 /pro?userid - get beauty pro by userid
 /me/:id - get user/pro details
 
-QUESTIONS
-No UI for timer
-How do they select if cash or card
-should customers have faceId
-we need a stage to pick if otp is phone or email
-when is a pro busy
-no ui for setting active timer
-the faceid is only for pro?
-right now the face id and profile picture are literally the same
-for now, the device change is otp not faceId and for pro and user?
-
 what is the distance pricing per mile?
 
 ADJUSTMENTS
@@ -93,14 +83,6 @@ NOTES
 
 
 USER
-delete rejected pro
-disallow unavailable user from bookings
-user should be able to upload picture for style optional
-if pro cancels request, then he is busy
-pro can accept two at a go
-add arrival time- user cant cancel order
-customer has multiple bookings for different services
-arrrival time is based on distance
 show list of services of a pro and subservices
 profile photo different for user and pro its same as faceId
 otp is just to confirm account
@@ -117,8 +99,8 @@ you can switch off the timer for requests not to come in-X
 available and busy status for active timer
 weekly bonus list
 deactivated 12 am on sunday
-cant do any other thing except ask for reactivation
-switch to login as a user or pro
+cant do any other thing except ask for reactivation-
+switch to login as a user or pro-
 email/phonenumber to login-
 
 QUESTIONS

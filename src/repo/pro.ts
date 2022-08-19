@@ -1,10 +1,7 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
+import { BOOKING_STATUS } from '../config/constants'
 import { PageReq } from '../schemas/request/Page'
-
-const createPro =
-  ({ db }: { db: PrismaClient }) =>
-  (user: Prisma.UserCreateInput) =>
-    db.user.create({ data: user })
+import { BookingStatus } from '../types'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -19,14 +16,13 @@ const getDistBtwLoctions =
   }) => {
     // TODO: convert latlng to POINT and add SPATIAL INDEX
     const r = await db.$queryRaw`
-  SELECT ST_distance_sphere(
-            POINT(longitude, latitude),
-            POINT(${longitude}, ${latitude})
-        ) AS distance 
-  FROM Users
-  WHERE userId = ${proId}
-  `
-
+    SELECT ST_distance_sphere(
+              POINT(longitude, latitude),
+              POINT(${longitude}, ${latitude})
+          ) AS distance
+    FROM User
+    WHERE userId = ${proId}
+    `
     return (
       r as {
         distance: number
@@ -81,6 +77,7 @@ WHERE
     }
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
+    AND available = 1
 ORDER BY distance, userId ASC LIMIT 1;`
 
     return (
@@ -143,6 +140,22 @@ const getProSubscribers =
       },
     })
 
+const getProServices =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) =>
+    db.service.findFirst({
+      where: {
+        proServices: {
+          some: {
+            proId,
+          },
+        },
+      },
+      include: {
+        subServices: true,
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -150,6 +163,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getPayoutRequests: getPayoutRequests({ db }),
     getPayoutRequestsWP: getPayoutRequestsWP({ db }),
     getProSubscribers: getProSubscribers({ db }),
+    getProServices: getProServices({ db }),
   }
 }
 

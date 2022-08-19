@@ -1,49 +1,45 @@
-import type { Repo, Role } from '../../types'
 import { nanoid } from 'nanoid'
+import { copyObject } from '../../config/multer-cloud'
+import type { Repo, Role } from '../../types'
 
 const uploadFaceIdUser = async ({
   repo,
-  body: { userId, upload },
+  body: { userId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
 }: {
   repo: Repo
   body: {
     userId: number
+    faceIdPhotoKey: string
+    faceIdPhotoOriginalFileName: string
     role: Role
-    upload: (getKey: (fileName: string) => string) => Promise<unknown>
   }
 }) => {
-  let path, fileName
-  await upload((_fileName: string) => {
-    path = `faceid/user/${userId}/${nanoid()}/${_fileName}`
-    fileName = _fileName
-    return path
-  })
   await repo.user.updateUser(userId, {
-    faceIdPhotoPath: path,
-    faceIdPhotoOriginalFileName: fileName,
+    faceIdPhotoKey,
+    faceIdPhotoOriginalFileName,
   })
 }
 
 const uploadFaceIdPro = async ({
   repo,
-  body: { proId, upload },
+  body: { proId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
 }: {
   repo: Repo
   body: {
     proId: number
-    upload: (getKey: (fileName: string) => string) => Promise<unknown>
+    faceIdPhotoKey: string
+    faceIdPhotoOriginalFileName: string
     role: Role
   }
 }) => {
-  let path, fileName
-  await upload((_fileName: string) => {
-    path = `faceid/user/${proId}/${nanoid()}/${_fileName}`
-    fileName = _fileName
-    return path
+  await copyObject({
+    source: '/hairsap/' + faceIdPhotoKey,
+    key: `profilephoto/pro/${proId}/${nanoid()}/${faceIdPhotoOriginalFileName}`,
   })
+
   await repo.user.updateUser(proId, {
-    faceIdPhotoPath: path,
-    faceIdPhotoOriginalFileName: fileName,
+    faceIdPhotoKey,
+    faceIdPhotoOriginalFileName,
   })
 }
 
@@ -53,14 +49,23 @@ export const uploadFaceId =
     userId,
     proId,
     role,
-    upload,
+    faceIdPhotoKey,
+    faceIdPhotoOriginalFileName,
   }: {
     userId?: number
     proId?: number
-    upload: (getKey: (fileName: string) => string) => Promise<unknown>
     role: Role
+    faceIdPhotoKey: string
+    faceIdPhotoOriginalFileName: string
   }) => {
-    if (proId) return uploadFaceIdPro({ repo, body: { proId, upload, role } })
+    if (proId)
+      return uploadFaceIdPro({
+        repo,
+        body: { proId, role, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+      })
     if (userId)
-      return uploadFaceIdUser({ repo, body: { userId, upload, role } })
+      return uploadFaceIdUser({
+        repo,
+        body: { userId, role, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+      })
   }

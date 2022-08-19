@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 
 const userData: Prisma.UserCreateManyInput[] = [
   {
-    address: '',
+    address: 'no 1',
     email: 'jideadedejifirst@gmail.com',
     name: 'Jide Adedeji',
     profilePhotoUrl: null,
@@ -16,9 +16,10 @@ const userData: Prisma.UserCreateManyInput[] = [
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
     phone: '+2348118161237',
+    verified: true,
   },
   {
-    address: '',
+    address: 'no 2',
     email: 'topeadedejifirst@gmail.com',
     name: 'Tope Adedeji',
     profilePhotoUrl: null,
@@ -26,10 +27,11 @@ const userData: Prisma.UserCreateManyInput[] = [
     userId: 2,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
-    phone: '+2348118161237',
+    phone: '+2348118161236',
+    verified: true,
   },
   {
-    address: '',
+    address: 'no 3',
     email: 'jamesadedejifirst@gmail.com',
     name: 'James Adedeji',
     profilePhotoUrl: null,
@@ -40,6 +42,7 @@ const userData: Prisma.UserCreateManyInput[] = [
     phone: '+2348118161237',
     longitude: 3.372669140201567,
     latitude: 6.518572387441918,
+    verified: true,
   },
 ]
 
@@ -393,10 +396,10 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
   },
 ]
 
-const userServiceData: Prisma.ProServiceCreateManyInput[] = [
+const proServiceData: Prisma.ProServiceCreateManyInput[] = [
   {
     serviceId: 1,
-    proId: 1,
+    proId: 3,
   },
 ]
 
@@ -467,7 +470,7 @@ async function main() {
       data: chatData,
     }),
     prisma.proService.createMany({
-      data: userServiceData,
+      data: proServiceData,
     }),
   ])
 

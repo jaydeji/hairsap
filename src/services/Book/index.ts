@@ -3,19 +3,21 @@ import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBo
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
 import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
+import { PostMarkBookingAsArrivedReqSchema } from '../../schemas/request/postMarkBookingAsArrived'
 import {
   PostMarkBookingAsProCompletedReqSchema,
   PostMarkBookingAsUserCompletedReqSchema,
 } from '../../schemas/request/postMarkBookingAsCompleted'
 import type { Repo, Role } from '../../types'
-import { getTransportPrice } from '../../utils'
+import { getArrivalTime, getTransportPrice } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const bookPro =
   ({ repo }: { repo: Repo }) =>
   async ({
-    longitude,
-    latitude,
+    samplePhotoOriginalFileName,
+    samplePhotoKey,
+    samplePhotoUrl,
     ...data
   }: {
     longitude: number
@@ -24,8 +26,34 @@ const bookPro =
     userId: number
     proId: number
     address: string
+    samplePhotoOriginalFileName?: string
+    samplePhotoKey?: string
+    samplePhotoUrl?: string
   }) => {
+    const { longitude, latitude } = data
+
     PostBookProReqSchema.parse(data)
+
+    const pro = await repo.user.getUserById(data.proId)
+
+    if (!pro?.available) throw new ForbiddenError('Pro is not available')
+
+    const bookings = await repo.book.getProBookingsByStatus(
+      data.proId,
+      BOOKING_STATUS.ACCEPTED,
+    )
+
+    if (bookings.length > 1) throw new ForbiddenError('pro currently busy')
+
+    const userBookingsBySubService =
+      await repo.book.getUserBookingsBySubService({
+        subServiceId: data.subServiceId,
+        userId: data.userId,
+        status: BOOKING_STATUS.ACCEPTED,
+      })
+
+    if (userBookingsBySubService.length)
+      throw new ForbiddenError('user has existing booking with service')
 
     const [distance, subService] = await Promise.all([
       repo.pro.getDistBtwLoctions({
@@ -38,12 +66,18 @@ const bookPro =
 
     if (!subService) throw new NotFoundError('subService does not exist')
 
+    const arrivalAt = getArrivalTime(distance)
+
     const booking = await repo.book.bookPro({
       ...data,
       distance,
       subServiceFee: subService.price,
       subServiceName: subService.name,
       transportFee: getTransportPrice(distance),
+      arrivalAt,
+      samplePhotoOriginalFileName,
+      samplePhotoKey,
+      samplePhotoUrl,
     })
 
     //TODO: send fmq
@@ -92,23 +126,19 @@ const acceptBooking =
     if (role !== ROLES.PRO)
       throw new ForbiddenError('Booking can only be accepted by pro')
 
-    const pendingBookings = await repo.book.getProBookingsByStatus(
-      userId,
-      BOOKING_STATUS.PENDING,
-    )
+    const [pendingBookings, acceptedBookings] = await Promise.all([
+      repo.book.getProBookingsByStatus(userId, BOOKING_STATUS.PENDING),
+      repo.book.getProBookingsByStatus(userId, BOOKING_STATUS.ACCEPTED),
+    ])
+
+    if (acceptedBookings.length > 1)
+      throw new ForbiddenError('too many accepted bookings')
 
     const booking = pendingBookings.find(
       (booking) => booking.bookingId === bookingId,
     )
 
-    if (!booking || booking.proId !== userId)
-      throw new NotFoundError('booking not found')
-
-    if (booking.status !== BOOKING_STATUS.PENDING)
-      throw new NotFoundError('Booking cannot be accepted')
-
-    if (pendingBookings.length > 1)
-      throw new ForbiddenError('Too many pending bookings')
+    if (!booking) throw new NotFoundError('booking not found')
 
     await repo.book.updateBooking(bookingId, {
       acceptedAt: new Date(),
@@ -237,6 +267,35 @@ const markBookingAsProCompleted =
         status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
       })
     //TODO: trigger payment
+  }
+
+const markBookingAsArrived =
+  ({ repo }: { repo: Repo }) =>
+  async ({
+    proId,
+    bookingId,
+    role,
+  }: {
+    bookingId: number
+    proId: number
+    role: Role
+  }) => {
+    PostMarkBookingAsArrivedReqSchema.parse({ proId, bookingId, role })
+
+    const booking = await repo.book.getBookingById(bookingId)
+
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+      throw new NotFoundError('Booking has not been accepted')
+
+    if (booking.arrived)
+      throw new ForbiddenError('booking already marked as arrived')
+    else
+      await repo.book.updateBooking(bookingId, {
+        arrived: true,
+      })
   }
 
 const getAcceptedProBookings =
