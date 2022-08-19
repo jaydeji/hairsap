@@ -1,4 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import { ROLES } from '../config/constants'
+import { PageReq } from '../schemas/request/Page'
 import { PostSubscribeReq } from '../schemas/request/postSubscribe'
 import { Role } from '../types'
 
@@ -120,6 +122,29 @@ const getUserSubscriptions =
       },
     })
 
+const getAllUsers =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    userId,
+    name,
+  }: PageReq & { skip: number } & { userId?: number; name?: string }) => {
+    const where = {
+      role: ROLES.USER,
+      userId,
+      name: {
+        contains: name,
+      },
+    }
+    return db.$transaction([
+      db.user.count({
+        where,
+      }),
+      db.user.findMany({
+        where,
+      }),
+    ])
+  }
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -133,6 +158,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     deleteUser: deleteUser({ db }),
     subscribe: subscribe({ db }),
     getUserSubscriptions: getUserSubscriptions({ db }),
+    getAllUsers: getAllUsers({ db }),
   }
 }
 

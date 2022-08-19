@@ -1,3 +1,7 @@
+import {
+  GetAllProsReq,
+  GetAllProsReqSchema,
+} from '../../schemas/request/getAllPros'
 import { GetPayoutRequestsReqSchema } from '../../schemas/request/getPayoutRequestSchema'
 import { PageReq } from '../../schemas/request/Page'
 import {

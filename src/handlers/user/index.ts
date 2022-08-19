@@ -28,12 +28,34 @@ const makeUserRouter = ({
         role: req.tokenData!.role,
         proId: req.tokenData?.userId,
         faceIdPhotoKey: (req.file as any).key,
-        faceIdPhotoOriginalFileName:
-          STORAGE_ENDPOINT_CDN + (req.file as any).key,
+        faceIdPhotoOriginalFileName: req.file!.originalname,
       })
       res.status(200).send({ data })
     }),
   )
+
+  router.post(
+    '/profilephoto',
+    allowOnly([ROLES.USER]),
+    _upload({
+      getKey: (file, req) =>
+        `profilephoto/user/${req.tokenData?.userId}/${nanoid()}/${
+          file.originalname
+        }`,
+      type: 'image',
+      acl: 'public-read',
+    }).single('profilephoto'),
+    ah(async (req, res) => {
+      const data = await service.user.uploadProfilePhoto({
+        userId: req.tokenData!.userId!,
+        profilePhotoKey: (req.file as any).key,
+        profilePhotoOriginalFileName: (req.file as any).originalname,
+        profilePhotoUrl: STORAGE_ENDPOINT_CDN + (req.file as any).key,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   router.post(
     '/subscribe',
     allowOnly([ROLES.USER]),

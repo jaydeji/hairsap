@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { BOOKING_STATUS, ROLES } from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
@@ -178,26 +179,18 @@ const cancelBooking =
 
 const rejectBooking =
   ({ repo }: { repo: Repo }) =>
-  async ({
-    userId,
-    bookingId,
-    role,
-  }: {
-    bookingId: number
-    userId: number
-    role: Role
-  }) => {
+  async ({ userId, bookingId }: { bookingId: number; userId: number }) => {
     PostAcceptBookingReqSchema.parse({ userId, bookingId })
-
-    if (role !== ROLES.PRO)
-      throw new ForbiddenError('Booking can only be rejected by pro')
 
     const booking = await repo.book.getBookingById(bookingId)
 
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('booking not found')
 
-    if (booking.status !== BOOKING_STATUS.PENDING)
+    if (
+      booking.status !== BOOKING_STATUS.PENDING &&
+      booking.status !== BOOKING_STATUS.ACCEPTED
+    )
       throw new NotFoundError('Booking cannot be rejected')
 
     await repo.book.updateBooking(bookingId, {
@@ -271,16 +264,8 @@ const markBookingAsProCompleted =
 
 const markBookingAsArrived =
   ({ repo }: { repo: Repo }) =>
-  async ({
-    proId,
-    bookingId,
-    role,
-  }: {
-    bookingId: number
-    proId: number
-    role: Role
-  }) => {
-    PostMarkBookingAsArrivedReqSchema.parse({ proId, bookingId, role })
+  async ({ proId, bookingId }: { bookingId: number; proId: number }) => {
+    PostMarkBookingAsArrivedReqSchema.parse({ proId, bookingId })
 
     const booking = await repo.book.getBookingById(bookingId)
 
@@ -311,6 +296,19 @@ const getAcceptedProBookings =
     return acceptedBookings
   }
 
+const getUncompletedBookings =
+  ({ repo }: { repo: Repo }) =>
+  async ({ userId }: { userId: number }) => {
+    z.object({ userId: z.number() }).parse({ userId })
+
+    const acceptedBookings = await repo.book.getProBookingsByStatuses(userId, [
+      BOOKING_STATUS.ACCEPTED,
+      BOOKING_STATUS.PENDING,
+    ])
+
+    return acceptedBookings
+  }
+
 const makeBook = ({ repo }: { repo: Repo }) => {
   return {
     bookPro: bookPro({ repo }),
@@ -321,6 +319,8 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     cancelBooking: cancelBooking({ repo }),
     markBookingAsUserCompleted: markBookingAsUserCompleted({ repo }),
     markBookingAsProCompleted: markBookingAsProCompleted({ repo }),
+    markBookingAsArrived: markBookingAsArrived({ repo }),
+    getUncompletedBookings: getUncompletedBookings({ repo }),
   }
 }
 

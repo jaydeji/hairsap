@@ -39,6 +39,32 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.post(
+    '/pros',
+    ah(async (req, res) => {
+      const data = await service.pro.getAllPros({
+        name: req.body.name,
+        serviceId: req.body.serviceId,
+        page: req.body.page,
+        perPage: req.body.perPage,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/users',
+    ah(async (req, res) => {
+      const data = await service.user.getAllUsers({
+        name: req.body.name,
+        userId: req.body.userId,
+        page: req.body.page,
+        perPage: req.body.perPage,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

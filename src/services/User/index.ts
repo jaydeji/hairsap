@@ -1,7 +1,12 @@
 import {
+  GetAllUsersReq,
+  GetAllUsersReqSchema,
+} from '../../schemas/request/getAllUsers'
+import {
   GetUserSubscriptionsReq,
   GetUserSubscriptionsReqSchema,
 } from '../../schemas/request/getUserSubscriptions'
+import { PageReq } from '../../schemas/request/Page'
 import {
   PatchUserRequest,
   PatchUserRequestSchema,
@@ -10,7 +15,12 @@ import {
   PostSubscribeReq,
   PostSubscribeReqSchema,
 } from '../../schemas/request/postSubscribe'
+import {
+  PostUploadProfilePhotoReq,
+  PostUploadProfilePhotoReqSchema,
+} from '../../schemas/request/postUploadProfilePhoto'
 import type { Repo } from '../../types'
+import { getPageMeta, paginate } from '../../utils'
 
 const updateUser =
   ({ repo }: { repo: Repo }) =>
@@ -33,11 +43,53 @@ const getUserSubscriptions =
     return await repo.user.getUserSubscriptions(body.userId)
   }
 
+const uploadProfilePhoto =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostUploadProfilePhotoReq) => {
+    PostUploadProfilePhotoReqSchema.parse(body)
+
+    const {
+      userId,
+      profilePhotoKey,
+      profilePhotoOriginalFileName,
+      profilePhotoUrl,
+    } = body
+
+    await repo.user.updateUser(userId, {
+      profilePhotoKey,
+      profilePhotoOriginalFileName,
+      profilePhotoUrl,
+    })
+  }
+
+const getAllUsers =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetAllUsersReq & PageReq) => {
+    GetAllUsersReqSchema.parse(body)
+
+    const { perPage, page } = body
+
+    const _page = paginate({ perPage, page })
+
+    const [total, data] = await repo.user.getAllUsers({
+      ...body,
+      skip: _page.skip,
+    })
+    const meta = getPageMeta({
+      ..._page,
+      total,
+    })
+
+    return { meta, data }
+  }
+
 const makeUser = ({ repo }: { repo: Repo }) => {
   return {
     updateUser: updateUser({ repo }),
     subscribe: subscribe({ repo }),
     getUserSubscriptions: getUserSubscriptions({ repo }),
+    uploadProfilePhoto: uploadProfilePhoto({ repo }),
+    getAllUsers: getAllUsers({ repo }),
   }
 }
 

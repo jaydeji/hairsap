@@ -71,7 +71,7 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
     { email: user.email, role: user.role, userId: user.userId },
     false,
     {
-      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
     },
   )
 
@@ -127,7 +127,7 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
     { email: pro.email, role: pro.role, userId: pro.userId },
     false,
     {
-      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
     },
   )
 

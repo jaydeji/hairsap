@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { BOOKING_STATUS } from '../config/constants'
+import { BOOKING_STATUS, ROLES } from '../config/constants'
 import { PageReq } from '../schemas/request/Page'
 import { BookingStatus } from '../types'
 
@@ -156,6 +156,33 @@ const getProServices =
       },
     })
 
+const getAllPros =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    serviceId,
+    name,
+  }: PageReq & { skip: number } & { serviceId?: number; name?: string }) => {
+    const where = {
+      role: ROLES.PRO,
+      proServices: {
+        some: {
+          serviceId,
+        },
+      },
+      name: {
+        contains: name,
+      },
+    }
+    return db.$transaction([
+      db.user.count({
+        where,
+      }),
+      db.user.findMany({
+        where,
+      }),
+    ])
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -164,6 +191,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getPayoutRequestsWP: getPayoutRequestsWP({ db }),
     getProSubscribers: getProSubscribers({ db }),
     getProServices: getProServices({ db }),
+    getAllPros: getAllPros({ db }),
   }
 }
 

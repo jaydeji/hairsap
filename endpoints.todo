@@ -1,6 +1,7 @@
 TASKS
 
 UNDONE
+GET /pro/:id
 /manual search
 /pro?name&filterby=service
 /pro/video - pro should be able to add a video
@@ -54,49 +55,26 @@ DONE
 /admin/proapplication/:proId/:action
 
 LATER
-/verifydevice
 design emails
 design invoice
 Auto payment deduction
 otp
 push notification
-DOcean spaces
 backup mysql,redis to spaces
 imprive login with implementing caches
 cleanup responses
 
-UNCONFIRMED
-/pro - this returns a list of nearest pros with pagination ❌
-/pro?userid - get beauty pro by userid
-/me/:id - get user/pro details
-
-what is the distance pricing per mile?
-
-ADJUSTMENTS
-change haircut price
 
 NOTES
-    "multer-s3": "^2.10.0",
-    RUNNER_ALLOW_RUNASROOT="1"
-    adjust finding yourself or texting yourself
-
+"multer-s3": "^2.10.0",
+RUNNER_ALLOW_RUNASROOT="1"
+adjust finding yourself or texting yourself
 
 
 USER
-show list of services of a pro and subservices
-profile photo different for user and pro its same as faceId
-otp is just to confirm account
-no change of device thing
+Admin search user by name or id
+Admin list of user bookings
 they select the channel
-no otp for admin
-beauty pro can only select one service
-delete beauty pros account when they are rejected
-pro can cancel or arrive at any time
-uncompleted bookings can be on activity screen
-a pro is busy when you reject
-they pick email or phone number when they register to confirm account
-you can switch off the timer for requests not to come in-X
-available and busy status for active timer
 weekly bonus list
 deactivated 12 am on sunday
 cant do any other thing except ask for reactivation-
@@ -110,9 +88,3 @@ earnings
 need services photo url
 
 
-token length
-
-
-Admin filter pro by most recent and by service 
-Admin search user by name or id
-Admin list of user bookings

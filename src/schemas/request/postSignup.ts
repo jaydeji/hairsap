@@ -21,6 +21,7 @@ export type PostSignupUserRequest = z.infer<typeof PostSignupUserRequestSchema>
 export const PostSignupProRequestSchema = PostSignupRequestSchema.extend({
   businessName: z.string(),
   role: z.literal(ROLES.PRO),
+  serviceId: z.number(),
 }).strict()
 
 export type PostSignupProRequest = z.infer<typeof PostSignupProRequestSchema>

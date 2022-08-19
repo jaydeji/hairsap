@@ -5,6 +5,7 @@ import type { Role, Service } from '../../types'
 import { ValidationError } from '../../utils/Error'
 import { _upload } from '../../config/multer-cloud'
 import { nanoid } from 'nanoid'
+import { allowOnly } from '../../middleware/auth'
 
 const makeBookingRouter = ({
   router,
@@ -104,11 +105,11 @@ const makeBookingRouter = ({
 
   router.post(
     '/:id/reject',
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.book.rejectBooking({
         bookingId: +req.params.id,
         userId: req.tokenData?.userId as number,
-        role: req.tokenData?.role as Role,
       })
       res.status(200).send({ data })
     }),
@@ -117,20 +118,42 @@ const makeBookingRouter = ({
   router.post(
     '/:id/:role/completed',
     ah(async (req, res) => {
-      let data
       if (req.params.role === ROLES.USER) {
-        data = await service.book.markBookingAsUserCompleted({
+        await service.book.markBookingAsUserCompleted({
           bookingId: +req.params.id,
           userId: req.tokenData?.userId as number,
           role: req.tokenData?.role as Role,
         })
       } else {
-        data = await service.book.markBookingAsProCompleted({
+        await service.book.markBookingAsProCompleted({
           bookingId: +req.params.id,
           proId: req.tokenData?.proId as number,
           role: req.tokenData?.role as Role,
         })
       }
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/:id/arrived',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      await service.book.markBookingAsArrived({
+        bookingId: +req.params.id,
+        proId: req.tokenData?.proId as number,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.get(
+    '/activity/:userId',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.book.getUncompletedBookings({
+        userId: +req.params.userId as number,
+      })
       res.status(200).send({ data })
     }),
   )

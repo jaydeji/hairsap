@@ -1,8 +1,13 @@
 import { z } from 'zod'
 import { ROLES } from '../../config/constants'
+import {
+  GetAllProsReq,
+  GetAllProsReqSchema,
+} from '../../schemas/request/getAllPros'
+import { PageReq } from '../../schemas/request/Page'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
 import type { Repo, Role } from '../../types'
-import { getTransportPrice } from '../../utils'
+import { getPageMeta, getTransportPrice, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const getNearestPro =
@@ -70,15 +75,36 @@ const requestReactivation =
 const getProSubscribers =
   ({ repo }: { repo: Repo }) =>
   async ({ proId }: { proId: number }) => {
-    z.number().parse(proId)
+    z.object({ proId: z.number() }).parse({ proId })
     return await repo.pro.getProSubscribers(proId)
   }
 
 const getProServices =
   ({ repo }: { repo: Repo }) =>
   async ({ proId }: { proId: number }) => {
-    z.number().parse(proId)
+    z.object({ proId: z.number() }).parse({ proId })
     return await repo.pro.getProServices(proId)
+  }
+
+const getAllPros =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetAllProsReq & PageReq) => {
+    GetAllProsReqSchema.parse(body)
+
+    const { perPage, page } = body
+
+    const _page = paginate({ perPage, page })
+
+    const [total, data] = await repo.pro.getAllPros({
+      ...body,
+      skip: _page.skip,
+    })
+    const meta = getPageMeta({
+      ..._page,
+      total,
+    })
+
+    return { meta, data }
   }
 
 const makePro = ({ repo }: { repo: Repo }) => {
@@ -88,6 +114,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     requestReactivation: requestReactivation({ repo }),
     getProSubscribers: getProSubscribers({ repo }),
     getProServices: getProServices({ repo }),
+    getAllPros: getAllPros({ repo }),
   }
 }
 

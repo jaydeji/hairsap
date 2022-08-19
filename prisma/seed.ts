@@ -44,6 +44,16 @@ const userData: Prisma.UserCreateManyInput[] = [
     latitude: 6.518572387441918,
     verified: true,
   },
+  {
+    address: 'no 4',
+    email: 'admin@gmail.com',
+    name: 'Admin',
+    role: 'admin',
+    userId: 4,
+    password:
+      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+    phone: '+2348118161239',
+  },
 ]
 
 const serviceData: Prisma.ServiceCreateManyInput[] = [
