@@ -1,6 +1,6 @@
 import { Repo } from '../../types'
 import { generateLoginOtp } from '../../utils/otp'
-import dayjs from '../../utils/dayjs'
+import { dayjs } from '../../utils'
 import { OTP_TYPE } from '../../config/constants'
 import { emailQueue, phoneQueue } from '../../config/queue'
 import { otpEmailTemplate } from '../../config/email/templates/signup'

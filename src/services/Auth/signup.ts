@@ -10,14 +10,13 @@ import {
   PostSignupUserRequest,
   PostSignupUserRequestSchema,
 } from '../../schemas/request/postSignup'
-import { hashPassword } from '../../utils'
+import { hashPassword, dayjs } from '../../utils'
 
 import type { Repo } from '../../types'
 import { ForbiddenError, ValidationError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 
 import { generateLoginOtp } from '../../utils/otp'
-import dayjs from '../../utils/dayjs'
 import { generateJwt } from '../../utils/jwtLib'
 
 const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {

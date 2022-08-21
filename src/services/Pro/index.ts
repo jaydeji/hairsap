@@ -5,10 +5,21 @@ import {
   GetAllProsReqSchema,
 } from '../../schemas/request/getAllPros'
 import { PageReq } from '../../schemas/request/Page'
+import {
+  PatchProRequestSchema,
+  PatchProRequest,
+} from '../../schemas/request/patchPro'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
 import type { Repo, Role } from '../../types'
 import { getPageMeta, getTransportPrice, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
+
+const updatePro =
+  ({ repo }: { repo: Repo }) =>
+  async (userId: number, body: PatchProRequest) => {
+    PatchProRequestSchema.parse({ ...body, userId: userId })
+    await repo.user.updateUser(userId, body)
+  }
 
 const getNearestPro =
   ({ repo }: { repo: Repo }) =>
@@ -107,6 +118,16 @@ const getAllPros =
     return { meta, data }
   }
 
+const getProDetails =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+
+    const data = await repo.pro.getProDetails({ proId: body.userId })
+
+    return data
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -115,6 +136,8 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getProSubscribers: getProSubscribers({ repo }),
     getProServices: getProServices({ repo }),
     getAllPros: getAllPros({ repo }),
+    getProDetails: getProDetails({ repo }),
+    updatePro: updatePro({ repo }),
   }
 }
 

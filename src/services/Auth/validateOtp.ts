@@ -5,7 +5,7 @@ import {
 import type { Repo } from '../../types'
 import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
-import dayjs from '../../utils/dayjs'
+import { dayjs } from '../../utils'
 
 export const validateOtp =
   ({ repo }: { repo: Repo }) =>

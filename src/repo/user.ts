@@ -145,6 +145,50 @@ const getAllUsers =
     ])
   }
 
+const getUserDetails =
+  ({ db }: { db: PrismaClient }) =>
+  async ({ userId }: { userId?: number }) => {
+    const [totalBookings, subscriptions, averageRatings, amountSpent, user] =
+      await db.$transaction([
+        db.booking.count({
+          where: {
+            userId,
+          },
+        }),
+        db.subscription.count({
+          where: {
+            userId,
+          },
+        }),
+        db.booking.aggregate({
+          where: {
+            userId,
+          },
+          _avg: {
+            rating: true,
+          },
+        }),
+        db.invoiceFees.aggregate({
+          _sum: {
+            price: true,
+          },
+          where: {
+            invoice: { booking: { userId } },
+            paid: true,
+          },
+        }),
+        db.user.findFirst({ where: { userId } }),
+      ])
+
+    return {
+      totalBookings,
+      subscriptions,
+      averageRatings: averageRatings._avg.rating,
+      amountSpent: amountSpent._sum.price,
+      user,
+    }
+  }
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -159,6 +203,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     subscribe: subscribe({ db }),
     getUserSubscriptions: getUserSubscriptions({ db }),
     getAllUsers: getAllUsers({ db }),
+    getUserDetails: getUserDetails({ db }),
   }
 }
 

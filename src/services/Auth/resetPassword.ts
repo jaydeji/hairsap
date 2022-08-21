@@ -1,7 +1,7 @@
 import { PostResetPasswordReq } from '../../schemas/request/postResetPassword'
 import { Repo } from '../../types'
 import { generateLoginOtp } from '../../utils/otp'
-import dayjs from '../../utils/dayjs'
+import { dayjs } from '../../utils'
 import { emailQueue } from '../../config/queue'
 import { resetPasswordTemplate } from '../../config/email/templates/resetPassword'
 import { PostConfirmResetPasswordReqSchema } from '../../schemas/request/postConfirmResetPassword'

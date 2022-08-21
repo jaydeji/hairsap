@@ -11,6 +11,15 @@ const makeProRouter = ({
   router: Router
   service: Service
 }) => {
+  router.patch(
+    '/',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.pro.updatePro(req.tokenData!.userId!, req.body)
+      res.status(200).send({ data })
+    }),
+  )
+
   router.post(
     '/auto',
     ah(async (req, res) => {

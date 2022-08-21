@@ -1,6 +1,14 @@
 import { z } from 'zod'
 import { BOOKING_STATUS, ROLES } from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
+import {
+  GetProBookingsReq,
+  GetProBookingsReqSchema,
+} from '../../schemas/request/getProBookings'
+import {
+  GetUserBookingsReq,
+  GetUserBookingsReqSchema,
+} from '../../schemas/request/getUserBookings'
 import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
 import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
@@ -10,7 +18,12 @@ import {
   PostMarkBookingAsUserCompletedReqSchema,
 } from '../../schemas/request/postMarkBookingAsCompleted'
 import type { Repo, Role } from '../../types'
-import { getArrivalTime, getTransportPrice } from '../../utils'
+import {
+  getArrivalTime,
+  getPageMeta,
+  getTransportPrice,
+  paginate,
+} from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const bookPro =
@@ -108,6 +121,7 @@ const addServiceToBooking =
     await repo.book.addServiceToBooking({
       subService,
       bookingId: data.bookingId,
+      userId: data.userId,
     })
   }
 
@@ -309,6 +323,34 @@ const getUncompletedBookings =
     return acceptedBookings
   }
 
+const getUserBookings =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetUserBookingsReq) => {
+    GetUserBookingsReqSchema.parse(body)
+
+    const { page, perPage } = body
+
+    const _page = paginate({ page, perPage })
+    const [total, data] = await repo.book.getUserBookings(body.userId, _page)
+
+    const meta = getPageMeta({
+      ..._page,
+      total,
+    })
+
+    return { meta, data }
+  }
+
+const getProBookings =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetProBookingsReq) => {
+    GetProBookingsReqSchema.parse(body)
+
+    const data = await repo.book.getProBookings(body)
+
+    return data
+  }
+
 const makeBook = ({ repo }: { repo: Repo }) => {
   return {
     bookPro: bookPro({ repo }),
@@ -321,6 +363,8 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     markBookingAsProCompleted: markBookingAsProCompleted({ repo }),
     markBookingAsArrived: markBookingAsArrived({ repo }),
     getUncompletedBookings: getUncompletedBookings({ repo }),
+    getUserBookings: getUserBookings({ repo }),
+    getProBookings: getProBookings({ repo }),
   }
 }
 

@@ -2,6 +2,7 @@ TASKS
 
 UNDONE
 GET /pro/:id
+/rate/review
 /manual search
 /pro?name&filterby=service
 /pro/video - pro should be able to add a video
@@ -63,6 +64,7 @@ push notification
 backup mysql,redis to spaces
 imprive login with implementing caches
 cleanup responses
+change userIds to proId where possible
 
 
 NOTES
@@ -72,8 +74,6 @@ adjust finding yourself or texting yourself
 
 
 USER
-Admin search user by name or id
-Admin list of user bookings
 they select the channel
 weekly bonus list
 deactivated 12 am on sunday

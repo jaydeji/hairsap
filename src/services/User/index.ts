@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   GetAllUsersReq,
   GetAllUsersReqSchema,
@@ -83,6 +84,17 @@ const getAllUsers =
     return { meta, data }
   }
 
+const getUserDetails =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+
+    const { totalBookings, subscriptions, averageRatings, amountSpent, user } =
+      await repo.user.getUserDetails(body)
+
+    return { totalBookings, subscriptions, averageRatings, amountSpent, user }
+  }
+
 const makeUser = ({ repo }: { repo: Repo }) => {
   return {
     updateUser: updateUser({ repo }),
@@ -90,6 +102,7 @@ const makeUser = ({ repo }: { repo: Repo }) => {
     getUserSubscriptions: getUserSubscriptions({ repo }),
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getAllUsers: getAllUsers({ repo }),
+    getUserDetails: getUserDetails({ repo }),
   }
 }
 

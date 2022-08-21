@@ -1,11 +1,10 @@
 import { Repo } from '../../types'
-import dayjs from '../../utils/dayjs'
 import { ForbiddenError } from '../../utils/Error'
 import {
   PostConfirmResetPasswordReq,
   PostConfirmResetPasswordReqSchema,
 } from '../../schemas/request/postConfirmResetPassword'
-import { hashPassword } from '../../utils'
+import { hashPassword, dayjs } from '../../utils'
 
 export const confirmResetPassword =
   ({ repo }: { repo: Repo }) =>

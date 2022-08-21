@@ -1,4 +1,4 @@
-import dayjs from './dayjs'
+import { dayjs } from '.'
 
 const oneSecond = 1000
 

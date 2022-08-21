@@ -14,7 +14,7 @@ const makeUserRouter = ({
   router: Router
   service: Service
 }) => {
-  router.patch('/', ah(patchUser({ service })))
+  router.patch('/', allowOnly([ROLES.USER]), ah(patchUser({ service })))
   router.post(
     '/faceid',
     _upload({

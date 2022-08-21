@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { BOOKING_STATUS, ROLES } from '../config/constants'
+import { ROLES } from '../config/constants'
 import { PageReq } from '../schemas/request/Page'
-import { BookingStatus } from '../types'
+import { dayjs } from '../utils'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -183,6 +183,154 @@ const getAllPros =
     ])
   }
 
+const getProDetails =
+  ({ db }: { db: PrismaClient }) =>
+  async ({ proId }: { proId?: number }) => {
+    const [
+      latestBookings,
+      dailyBookingSum,
+      dailyBookingCount,
+      weeklyBookingSum,
+      weeklyBookingCount,
+      monthlyBookingSum,
+      monthlyBookingCount,
+      allBookingSum,
+      allBookingCount,
+      subscriptions,
+      averageRatings,
+      user,
+    ] = await db.$transaction([
+      db.booking.findMany({
+        where: {
+          proId,
+          createdAt: { gte: dayjs().startOf('day').toDate() },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          bookedSubServices: {
+            select: {
+              subService: true,
+            },
+          },
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: { booking: { proId } },
+          createdAt: {
+            gte: dayjs().startOf('date').toDate(),
+          },
+        },
+      }),
+      db.booking.count({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('date').toDate(),
+          },
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: { booking: { proId } },
+          createdAt: {
+            gte: dayjs().startOf('week').toDate(),
+          },
+        },
+      }),
+      db.booking.count({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('week').toDate(),
+          },
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: { booking: { proId } },
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+        },
+      }),
+      db.booking.count({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: { booking: { proId } },
+        },
+      }),
+      db.booking.count({
+        where: {
+          proId,
+        },
+      }),
+      db.subscription.count({
+        where: {
+          proId: proId,
+        },
+      }),
+      db.booking.aggregate({
+        where: {
+          proId,
+        },
+        _avg: {
+          rating: true,
+        },
+      }),
+      db.user.findFirst({
+        where: { userId: proId },
+        include: {
+          account: true,
+          proServices: {
+            where: {
+              proId,
+            },
+            include: {
+              service: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    return {
+      latestBookings,
+      dailyBookingCount,
+      dailyBookingSum: dailyBookingSum._sum.price,
+      weeklyBookingCount,
+      weeklyBookingSum: weeklyBookingSum._sum.price,
+      monthlyBookingCount,
+      monthlyBookingSum: monthlyBookingSum._sum.price,
+      allBookingCount,
+      allBookingSum: allBookingSum._sum.price,
+      subscriptions,
+      averageRatings: averageRatings._avg.rating,
+      user,
+    }
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -192,6 +340,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProSubscribers: getProSubscribers({ db }),
     getProServices: getProServices({ db }),
     getAllPros: getAllPros({ db }),
+    getProDetails: getProDetails({ db }),
   }
 }
 
