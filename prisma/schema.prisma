@@ -75,13 +75,8 @@ model InvoiceFees {
   feeId     Int     @id @default(autoincrement())
   name      String
   price     Int
-  paid      Boolean @default(false)
   invoiceId Int
   invoice   Invoice @relation(fields: [invoiceId], references: [invoiceId])
-  // User      User    @relation("user", fields: [userId], references: [userId])
-  // userId    Int
-  // Pro       User    @relation("pro", fields: [proId], references: [userId])
-  // proId     Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -98,6 +93,10 @@ model Invoice {
   updatedAt    DateTime      @default(now()) @updatedAt
   booking      Booking       @relation(fields: [bookingId], references: [bookingId])
   invoiceFees  InvoiceFees[]
+  paid         Boolean       @default(false)
+  amountPaid   Int?
+  reference    String?
+  channel      String?
 }
 
 model Review {
@@ -209,8 +208,6 @@ model User {
   Subscription   Subscription[]  @relation("user")
   proBookings    Booking[]       @relation("pro")
   userBookings   Booking[]       @relation("user")
-  // userInvoiceFees InvoiceFees[]   @relation("user")
-  // proInvoiceFees  InvoiceFees[]   @relation("pro")
   account        Account?
 
   createdAt DateTime @default(now())
@@ -224,17 +221,19 @@ model User {
 }
 
 model PaymentEvents {
-  eventId Int    @id @default(autoincrement())
-  event   String
+  eventId Int     @id @default(autoincrement())
+  event   String?
   data    Json
-  reason  String
-  User    User?  @relation(fields: [userId], references: [userId])
+  reason  String?
+  User    User?   @relation(fields: [userId], references: [userId])
   userId  Int?
+  email   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId])
+  @@index([email])
 }
 
 model PasswordReset {

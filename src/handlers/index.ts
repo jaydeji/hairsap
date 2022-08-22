@@ -8,7 +8,7 @@ import { ForbiddenError, NotFoundError } from '../utils/Error'
 import { auth } from '../middleware/auth'
 import { z } from 'zod'
 import { PAYSTACK_URL } from '../config/constants'
-import got from 'got'
+import got from 'got-cjs'
 
 const makeRouter = ({
   router,
@@ -37,12 +37,16 @@ const makeRouter = ({
         logger.info(req.body)
         throw new ForbiddenError()
       }
+      //frontend should add "custom_fields" with invoiceitems to metadata
+      const userId = req.body?.data?.metadata?.userId
       paymentQueue.add({
-        userId: null,
-        event: req.body.event,
-        reason: req.body.reason,
-        data: req.body.data,
+        userId: userId ? +userId : undefined,
+        email: req.body?.data?.customer?.email,
+        event: req.body?.event,
+        reason: req.body?.data?.reason,
+        data: req.body,
       })
+
       res.sendStatus(200)
     }),
   )
@@ -53,18 +57,23 @@ const makeRouter = ({
       z.object({ reference: z.string() }).parse({
         reference: req.query.reference,
       })
-      const { data } = await got(
-        PAYSTACK_URL + '/transaction/verify/' + req.query.reference,
-        {
-          headers: {
-            Authorization: 'Bearer ' + process.env.PAYSTACK_SECRET,
+
+      let data
+      try {
+        data = await got(
+          PAYSTACK_URL + '/transaction/verify/' + req.query.reference,
+          {
+            headers: {
+              Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
+            },
           },
-        },
-      ).json()
+        ).json()
+      } catch (error) {
+        logger.err((error as any).message)
+        throw new NotFoundError()
+      }
 
-      logger.info(data)
-
-      res.sendStatus(200)
+      res.status(200).send()
     }),
   )
   router.get(

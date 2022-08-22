@@ -4,8 +4,8 @@ import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import type { Role, Service } from '../../types'
 import { ValidationError } from '../../utils/Error'
 import { _upload } from '../../config/multer-cloud'
-import { nanoid } from 'nanoid'
 import { allowOnly } from '../../middleware/auth'
+import { nanoid } from 'nanoid'
 
 const makeBookingRouter = ({
   router,

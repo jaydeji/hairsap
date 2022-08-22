@@ -2,11 +2,12 @@ import express, { Router } from 'express'
 import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
-
 import { auth as authMiddleWare, allowOnly } from './middleware/auth'
 import { handleError } from './utils/Error'
 import swaggerUi from 'swagger-ui-express'
-import swaggerDocument from '../docs/swagger.yml'
+import YAML from 'yamljs'
+import { ROLES } from './config/constants'
+import { Repo, Service } from './types'
 
 import makeRouter from './handlers'
 import makeAuthRouter from './handlers/auth'
@@ -16,9 +17,6 @@ import makeProRouter from './handlers/pro'
 import makeBookRouter from './handlers/book'
 import makeAdminRouter from './handlers/admin'
 
-import { ROLES } from './config/constants'
-import { Repo, Service } from './types'
-
 const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   const app = express()
 
@@ -27,7 +25,11 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(express.json())
   //TODO: tighten cors
   app.use(cors({ origin: '*' }))
-  app.use('/reference', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+  app.use(
+    '/reference',
+    swaggerUi.serve,
+    swaggerUi.setup(YAML.load(process.cwd() + '/docs/swagger.yml')),
+  )
   app.use('/auth', makeAuthRouter({ router: Router(), service, repo }))
   app.use(
     '/users',

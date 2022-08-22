@@ -45,8 +45,25 @@ chatQueue.process(async (job, done) => {
 
 paymentQueue.process(async (job, done) => {
   await db.paymentEvents.create({ data: job.data })
-  if (job.data?.event === 'paymentrequest.success') {
-    //TODO: mark payment as confirmed
+  if (job.data?.event === 'charge.success') {
+    const invoiceId = job.data?.data?.metadata?.invoiceId
+    const amountPaid = job.data?.data?.amount
+    const reference = job.data?.data?.reference
+    if (invoiceId && amountPaid) {
+      await db.invoice.update({
+        where: {
+          invoiceId,
+        },
+        data: {
+          amountPaid,
+          reference,
+          paid: true,
+          channel: 'card',
+        },
+      })
+    } else {
+      logger.info(job.data)
+    }
   }
   done()
 })

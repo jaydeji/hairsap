@@ -173,8 +173,7 @@ const getUserDetails =
             price: true,
           },
           where: {
-            invoice: { booking: { userId } },
-            paid: true,
+            invoice: { booking: { userId }, paid: true },
           },
         }),
         db.user.findFirst({ where: { userId } }),
