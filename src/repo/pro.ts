@@ -344,6 +344,27 @@ const getProData =
     })
   }
 
+const searchPro =
+  ({ db }: { db: PrismaClient }) =>
+  ({ name }: { name: string }) => {
+    return db.user.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: name,
+            },
+          },
+          {
+            businessName: {
+              contains: name,
+            },
+          },
+        ],
+      },
+    })
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -355,6 +376,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getAllPros: getAllPros({ db }),
     getProDetails: getProDetails({ db }),
     getProData: getProData({ db }),
+    searchPro: searchPro({ db }),
   }
 }
 

@@ -138,6 +138,16 @@ const getProData =
     return data
   }
 
+const searchPro =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { name: string }) => {
+    z.object({ name: z.string() }).strict().parse(body)
+
+    const data = await repo.pro.searchPro(body)
+
+    return data
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -149,6 +159,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getProDetails: getProDetails({ repo }),
     updatePro: updatePro({ repo }),
     getProData: getProData({ repo }),
+    searchPro: searchPro({ repo }),
   }
 }
 

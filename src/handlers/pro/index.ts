@@ -82,7 +82,18 @@ const makeProRouter = ({
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.pro.getProData({
-        proId: req.tokenData?.proId as number,
+        proId: req.tokenData?.userId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/search',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.pro.searchPro({
+        name: req.body.name,
       })
       res.status(200).send({ data })
     }),

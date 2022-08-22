@@ -404,6 +404,13 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     subServiceId: 45,
     price: 10000 * 100,
   },
+  {
+    name: 'Sister Locs',
+    photoUrl: '',
+    serviceId: 1,
+    subServiceId: 46,
+    price: 30000 * 100,
+  },
 ]
 
 const proServiceData: Prisma.ProServiceCreateManyInput[] = [
