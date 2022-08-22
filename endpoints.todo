@@ -68,7 +68,6 @@ change userIds to proId where possible
 
 
 NOTES
-"multer-s3": "^2.10.0",
 RUNNER_ALLOW_RUNASROOT="1"
 adjust finding yourself or texting yourself
 
@@ -77,9 +76,6 @@ USER
 they select the channel
 weekly bonus list
 deactivated 12 am on sunday
-cant do any other thing except ask for reactivation-
-switch to login as a user or pro-
-email/phonenumber to login-
 
 QUESTIONS
 How do they select if cash or card

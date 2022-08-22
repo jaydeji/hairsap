@@ -4,8 +4,11 @@ import type { Repo, Service } from '../types'
 import crypto from 'crypto'
 import { logger } from '../utils'
 import { paymentQueue } from '../config/queue'
-import { ForbiddenError } from '../utils/Error'
+import { ForbiddenError, NotFoundError } from '../utils/Error'
 import { auth } from '../middleware/auth'
+import { z } from 'zod'
+import { PAYSTACK_URL } from '../config/constants'
+import got from 'got'
 
 const makeRouter = ({
   router,
@@ -22,7 +25,7 @@ const makeRouter = ({
       res.send('welcome to hairsap')
     }),
   )
-  router.get(
+  router.post(
     '/webhook/paystack',
     ah((req, res) => {
       const secret = process.env.PAYMENT_SECRET as string
@@ -40,6 +43,27 @@ const makeRouter = ({
         reason: req.body.reason,
         data: req.body.data,
       })
+      res.sendStatus(200)
+    }),
+  )
+  router.get(
+    '/verify_transaction',
+    auth({ repo }),
+    ah(async (req, res) => {
+      z.object({ reference: z.string() }).parse({
+        reference: req.query.reference,
+      })
+      const { data } = await got(
+        PAYSTACK_URL + '/transaction/verify/' + req.query.reference,
+        {
+          headers: {
+            Authorization: 'Bearer ' + process.env.PAYSTACK_SECRET,
+          },
+        },
+      ).json()
+
+      logger.info(data)
+
       res.sendStatus(200)
     }),
   )

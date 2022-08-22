@@ -33,7 +33,7 @@ emailQueue.process(async (job, done) => {
 
 phoneQueue.process(async (job, done) => {
   if (process.env.NODE_ENV !== 'production') return done()
-  //  TODO: send test message
+  //  TODO send test message
 })
 
 chatQueue.process(async (job, done) => {
@@ -44,7 +44,7 @@ chatQueue.process(async (job, done) => {
 })
 
 paymentQueue.process(async (job, done) => {
-  await db.paymentEvents.create(job.data)
+  await db.paymentEvents.create({ data: job.data })
   if (job.data?.event === 'paymentrequest.success') {
     //TODO: mark payment as confirmed
   }

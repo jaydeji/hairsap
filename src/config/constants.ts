@@ -50,3 +50,5 @@ export const PERIODIC_CASH_AMOUNTS = {
   WEEKLY_BONUS: 25_000 * 100,
   WEEKLY_BONUS_QUOTA: 375_000 * 100,
 }
+
+export const PAYSTACK_URL = 'https://api.paystack.co'
