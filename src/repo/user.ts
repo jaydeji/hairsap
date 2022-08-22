@@ -11,8 +11,18 @@ const getUserById =
       where: {
         userId,
       },
+    })
+  }
+
+const getUserAndCardById =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) => {
+    return db.user.findUnique({
+      where: {
+        userId,
+      },
       include: {
-        otp: true,
+        card: true,
       },
     })
   }
@@ -188,9 +198,23 @@ const getUserDetails =
     }
   }
 
+const getUserData =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId }: { userId: number }) => {
+    return db.user.findUnique({
+      where: {
+        userId,
+      },
+      include: {
+        card: true,
+      },
+    })
+  }
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
+    getUserAndCardById: getUserAndCardById({ db }),
     getUserByIdAndOtp: getUserByIdAndOtp({ db }),
     getUserByEmail: getUserByEmail({ db }),
     getUserByPhone: getUserByPhone({ db }),
@@ -203,6 +227,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     getUserSubscriptions: getUserSubscriptions({ db }),
     getAllUsers: getAllUsers({ db }),
     getUserDetails: getUserDetails({ db }),
+    getUserData: getUserData({ db }),
   }
 }
 

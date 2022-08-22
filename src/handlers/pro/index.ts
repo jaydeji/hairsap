@@ -77,6 +77,17 @@ const makeProRouter = ({
     }),
   )
 
+  router.get(
+    '/me',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.pro.getProData({
+        proId: req.tokenData?.proId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

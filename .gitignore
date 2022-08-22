@@ -4,3 +4,4 @@ mysql_data
 redis_data
 .DS_Store
 dist
+.vscode

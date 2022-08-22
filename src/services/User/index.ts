@@ -95,6 +95,16 @@ const getUserDetails =
     return { totalBookings, subscriptions, averageRatings, amountSpent, user }
   }
 
+const getUserData =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+
+    const data = await repo.user.getUserData(body)
+
+    return data
+  }
+
 const makeUser = ({ repo }: { repo: Repo }) => {
   return {
     updateUser: updateUser({ repo }),
@@ -103,6 +113,7 @@ const makeUser = ({ repo }: { repo: Repo }) => {
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getAllUsers: getAllUsers({ repo }),
     getUserDetails: getUserDetails({ repo }),
+    getUserData: getUserData({ repo }),
   }
 }
 

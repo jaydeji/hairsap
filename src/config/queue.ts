@@ -7,10 +7,24 @@ import { ChatMessageType } from '../schemas/models/Message'
 
 const redisUrl = process.env.REDIS_URL as string
 
+type Payment = {
+  userId?: number
+  email?: string
+  event?: string
+  reason?: string
+  data: {
+    data?: {
+      metadata?: Record<string, any>
+      authorization?: Record<string, any>
+      [key: string]: any
+    }
+  }
+}
+
 const mainQueue = new Queue('main', redisUrl)
 const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
 const phoneQueue = new Queue('phone', redisUrl)
-const paymentQueue = new Queue('payment', redisUrl)
+const paymentQueue = new Queue<Payment>('payment', redisUrl)
 const chatQueue = new Queue<ChatMessageType>('chat', redisUrl)
 const paymentThreshold = new Queue('payment_threshold', redisUrl)
 
@@ -44,27 +58,86 @@ chatQueue.process(async (job, done) => {
 })
 
 paymentQueue.process(async (job, done) => {
-  await db.paymentEvents.create({ data: job.data })
-  if (job.data?.event === 'charge.success') {
-    const invoiceId = job.data?.data?.metadata?.invoiceId
-    const amountPaid = job.data?.data?.amount
-    const reference = job.data?.data?.reference
-    if (invoiceId && amountPaid) {
-      await db.invoice.update({
-        where: {
-          invoiceId,
-        },
-        data: {
-          amountPaid,
-          reference,
-          paid: true,
-          channel: 'card',
-        },
+  try {
+    await db.paymentEvents.create({ data: job.data })
+    if (job.data?.event === 'charge.success') {
+      const _invoiceId = job.data?.data?.data?.metadata?.invoiceId
+      const invoiceId = _invoiceId ? +_invoiceId : undefined
+      const amountPaid = job.data?.data?.data?.amount
+      const reference = job.data?.data?.data?.reference
+      logger.info({
+        invoiceId,
+        amountPaid,
+        job: job.data?.data?.data?.metadata,
       })
+
+      if (invoiceId && amountPaid) {
+        const invoice = await db.invoice.findUnique({
+          where: {
+            invoiceId,
+          },
+          include: {
+            invoiceFees: true,
+          },
+        })
+        if (invoice && invoice.paid !== true) {
+          const total =
+            invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0
+          await db.invoice.update({
+            where: {
+              invoiceId,
+            },
+            data: {
+              amountPaid,
+              reference,
+              paid: amountPaid >= total,
+              channel: 'card',
+            },
+          })
+        }
+      }
+      const authorization = job.data?.data?.data?.authorization
+      if (
+        job.data?.data?.data?.metadata?.store === 'true' &&
+        authorization?.reusable === true &&
+        authorization?.authorization_code &&
+        job.data?.userId &&
+        job.data.email
+      ) {
+        await db.user.update({
+          data: {
+            card: {
+              upsert: {
+                create: {
+                  email: job.data.email,
+                  authorization,
+                  authorizationCode: authorization.authorization_code,
+                  last4: authorization.authorization_code.last4,
+                  bank: authorization.authorization_code.bank,
+                  brand: authorization.authorization_code.brand,
+                },
+                update: {
+                  authorization,
+                  authorizationCode: authorization.authorization_code,
+                  last4: authorization.authorization_code.last4,
+                  bank: authorization.authorization_code.bank,
+                  brand: authorization.authorization_code.brand,
+                },
+              },
+            },
+          },
+          where: {
+            userId: job.data?.userId,
+          },
+        })
+      }
     } else {
       logger.info(job.data)
     }
+  } catch (error) {
+    logger.err(error)
   }
+
   done()
 })
 

@@ -1,3 +1,4 @@
+import { User } from '@prisma/client'
 import { Role } from '../../src/types'
 
 declare global {

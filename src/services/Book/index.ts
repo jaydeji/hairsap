@@ -1,5 +1,6 @@
+import got from 'got-cjs'
 import { z } from 'zod'
-import { BOOKING_STATUS, ROLES } from '../../config/constants'
+import { BOOKING_STATUS, PAYSTACK_URL, ROLES } from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
   GetProBookingsReq,
@@ -22,6 +23,7 @@ import {
   getArrivalTime,
   getPageMeta,
   getTransportPrice,
+  logger,
   paginate,
 } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
@@ -226,7 +228,10 @@ const markBookingAsUserCompleted =
   }) => {
     PostMarkBookingAsUserCompletedReqSchema.parse({ userId, bookingId, role })
 
-    const booking = await repo.book.getBookingById(bookingId)
+    const user = await repo.user.getUserAndCardById(userId)
+    if (!user) throw new NotFoundError('user not found')
+
+    const booking = await repo.book.getBookingAndInvoiceById(bookingId)
 
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('booking not found')
@@ -243,6 +248,26 @@ const markBookingAsUserCompleted =
       })
 
     //TODO: trigger payment
+    if (!user.card?.authorizationCode) return
+    if (!booking.invoice?.invoiceFees?.length) return
+
+    const amount = booking.invoice.invoiceFees.reduce(
+      (acc, e) => acc + e.price,
+      0,
+    )
+
+    await got
+      .post(PAYSTACK_URL + '/transaction/charge_authorization', {
+        headers: {
+          Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
+        },
+        json: {
+          authorization_code: user.card.authorizationCode,
+          email: user.email,
+          amount,
+        },
+      })
+      .json()
   }
 
 const markBookingAsProCompleted =

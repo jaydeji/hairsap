@@ -331,6 +331,19 @@ const getProDetails =
     }
   }
 
+const getProData =
+  ({ db }: { db: PrismaClient }) =>
+  ({ proId }: { proId: number }) => {
+    return db.user.findUnique({
+      where: {
+        userId: proId,
+      },
+      include: {
+        account: true,
+      },
+    })
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -341,6 +354,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProServices: getProServices({ db }),
     getAllPros: getAllPros({ db }),
     getProDetails: getProDetails({ db }),
+    getProData: getProData({ db }),
   }
 }
 

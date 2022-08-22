@@ -37,7 +37,7 @@ const makeRouter = ({
         logger.info(req.body)
         throw new ForbiddenError()
       }
-      //frontend should add "custom_fields" with invoiceitems to metadata
+      //TODO frontend should add "custom_fields" with invoiceitems to metadata
       const userId = req.body?.data?.metadata?.userId
       paymentQueue.add({
         userId: userId ? +userId : undefined,
@@ -58,16 +58,12 @@ const makeRouter = ({
         reference: req.query.reference,
       })
 
-      let data
       try {
-        data = await got(
-          PAYSTACK_URL + '/transaction/verify/' + req.query.reference,
-          {
-            headers: {
-              Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
-            },
+        await got(PAYSTACK_URL + '/transaction/verify/' + req.query.reference, {
+          headers: {
+            Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
           },
-        ).json()
+        }).json()
       } catch (error) {
         logger.err((error as any).message)
         throw new NotFoundError()

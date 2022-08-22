@@ -11,7 +11,7 @@ export const validateOtp =
   ({ repo }: { repo: Repo }) =>
   async (body: PostValidateOtpReq) => {
     PostValidateOtpReqSchema.parse(body)
-    const user = await repo.user.getUserById(body.userId)
+    const user = await repo.user.getUserByIdAndOtp(body.userId)
 
     if (!user) throw new ForbiddenError()
     if (!user.otp?.value) throw new ForbiddenError()

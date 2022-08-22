@@ -128,6 +128,16 @@ const getProDetails =
     return data
   }
 
+const getProData =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { proId: number }) => {
+    z.object({ proId: z.number() }).strict().parse(body)
+
+    const data = await repo.pro.getProData(body)
+
+    return data
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -138,6 +148,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getAllPros: getAllPros({ repo }),
     getProDetails: getProDetails({ repo }),
     updatePro: updatePro({ repo }),
+    getProData: getProData({ repo }),
   }
 }
 
