@@ -4,15 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "NODE_ENV=production && tsup src/index.ts",
+    "build": "NODE_ENV=production && npm run prisma:generate && tsup src/index.ts",
     "start": "DEBUG_COLORS=no node dist/index.js",
     "dev": "DEBUG_COLORS=no tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
     "prisma:generate": "prisma generate",
     "lint": "tsc --noEmit && eslint src",
     "lint:fix": "tsc --noEmit && eslint src --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky install",
-    "postinstall": "npm run prisma:generate"
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
