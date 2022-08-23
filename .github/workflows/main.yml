@@ -29,7 +29,10 @@ jobs:
       - name: echo
         run: echo Deployment started!
 
-      # Runs a set of commands using the runners shell
+      - name: Migrate
+        run: |
+         docker run -it --rm node:16-alpine npx prisma migrate deploy
+
       - name: Build
         run: |
           docker-compose -f docker-compose.prod.yml up --build -d 
