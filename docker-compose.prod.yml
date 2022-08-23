@@ -10,7 +10,6 @@ services:
     volumes:
       - ./prisma:/prisma
     command: sh -c "npx --yes prisma migrate deploy"
-    # command: sh -c "npx --yes prisma migrate resolve --applied 20220820223423_init"
     profiles: ['migrate']
 
   backend:
