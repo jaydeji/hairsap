@@ -211,6 +211,31 @@ const getUserData =
     })
   }
 
+const getCard =
+  ({ db }: { db: PrismaClient }) =>
+  async ({ userId }: { userId: number }) => {
+    const card = await db.user.findUnique({
+      where: {
+        userId,
+      },
+      select: {
+        userId: true,
+        card: true,
+      },
+    })
+    if (!card) return card
+    return card.card
+  }
+
+const deleteCard =
+  ({ db }: { db: PrismaClient }) =>
+  ({ cardId }: { cardId: number }) =>
+    db.card.delete({
+      where: {
+        cardId,
+      },
+    })
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -228,6 +253,8 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     getAllUsers: getAllUsers({ db }),
     getUserDetails: getUserDetails({ db }),
     getUserData: getUserData({ db }),
+    getCard: getCard({ db }),
+    deleteCard: deleteCard({ db }),
   }
 }
 

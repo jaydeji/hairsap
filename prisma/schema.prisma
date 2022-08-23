@@ -167,15 +167,17 @@ model Chat {
 }
 
 model Card {
-  cardId            Int     @id @default(autoincrement())
-  authorization     Json?
-  authorizationCode String?
+  cardId            Int    @id @default(autoincrement())
+  authorization     Json
+  authorizationCode String
   email             String
-  bank              String?
-  last4             String?
-  brand             String?
-  user              User    @relation(fields: [userId], references: [userId])
-  userId            Int     @unique
+  bank              String
+  last4             String
+  brand             String
+  expiryYear        String
+  expiryMonth       String
+  user              User   @relation(fields: [userId], references: [userId])
+  userId            Int    @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

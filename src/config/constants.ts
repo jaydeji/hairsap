@@ -52,3 +52,8 @@ export const PERIODIC_CASH_AMOUNTS = {
 }
 
 export const PAYSTACK_URL = 'https://api.paystack.co'
+
+export const CHANNEL = {
+  CASH: 'cash',
+  CARD: 'card',
+} as const

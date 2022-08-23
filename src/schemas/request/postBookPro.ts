@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CHANNEL } from '../../config/constants'
 
 export const PostBookProReqSchema = z
   .object({
@@ -8,6 +9,7 @@ export const PostBookProReqSchema = z
     userId: z.number(),
     proId: z.number(),
     address: z.string().min(5),
+    channel: z.nativeEnum(CHANNEL),
   })
   .strict()
 

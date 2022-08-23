@@ -105,6 +105,26 @@ const getUserData =
     return data
   }
 
+const getCard =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+
+    const data = await repo.user.getCard(body)
+    if (!data) return
+
+    return {
+      userId: data.userId,
+      card: {
+        cardId: data.cardId,
+        bank: data.bank,
+        last4: data.last4,
+        brand: data.brand,
+        createdAt: data.createdAt,
+      },
+    }
+  }
+
 const makeUser = ({ repo }: { repo: Repo }) => {
   return {
     updateUser: updateUser({ repo }),
@@ -114,6 +134,7 @@ const makeUser = ({ repo }: { repo: Repo }) => {
     getAllUsers: getAllUsers({ repo }),
     getUserDetails: getUserDetails({ repo }),
     getUserData: getUserData({ repo }),
+    getCard: getCard({ repo }),
   }
 }
 

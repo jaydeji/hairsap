@@ -49,6 +49,7 @@ const makeBookingRouter = ({
         latitude: body.latitude,
         longitude: body.longitude,
         address: body.address,
+        channel: body.channel,
         samplePhotoKey: (file as any).key,
         samplePhotoOriginalFileName: file.originalname,
         samplePhotoUrl: STORAGE_ENDPOINT_CDN + (file as any).key,

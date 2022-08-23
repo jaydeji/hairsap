@@ -77,6 +77,7 @@ const makeUserRouter = ({
       res.status(200).send({ data })
     }),
   )
+
   router.get(
     '/me',
     allowOnly([ROLES.USER]),
@@ -87,6 +88,18 @@ const makeUserRouter = ({
       res.status(200).send({ data })
     }),
   )
+
+  router.get(
+    '/card',
+    allowOnly([ROLES.USER]),
+    ah(async (req, res) => {
+      const data = await service.user.getCard({
+        userId: req.tokenData?.userId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

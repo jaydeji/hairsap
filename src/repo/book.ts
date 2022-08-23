@@ -12,6 +12,16 @@ const getBookingById =
       where: {
         bookingId,
       },
+      include: { invoice: true },
+    })
+
+const getInvoiceById =
+  ({ db }: { db: PrismaClient }) =>
+  (invoiceId: number) =>
+    db.invoice.findUnique({
+      where: {
+        invoiceId,
+      },
     })
 
 const getBookingAndInvoiceById =
@@ -148,6 +158,7 @@ const bookPro =
     samplePhotoUrl?: string
     samplePhotoKey?: string
     samplePhotoOriginalFileName?: string
+    channel: string
   }) =>
     db.booking.create({
       data: {
@@ -166,6 +177,7 @@ const bookPro =
         },
         invoice: {
           create: {
+            channel: data.channel,
             distance: data.distance,
             transportFee: data.transportFee,
             invoiceFees: {
@@ -298,6 +310,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getUserBookingsBySubService: getUserBookingsBySubService({ db }),
     getUserBookings: getUserBookings({ db }),
     getProBookings: getProBookings({ db }),
+    getInvoiceById: getInvoiceById({ db }),
   }
 }
 

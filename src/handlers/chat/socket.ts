@@ -81,6 +81,7 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
     socket.on('bookpro', async (payload: PostBookProReq) => {
       try {
         //TODO: add auth middleware
+        //TODO: remove because of photo upload. Send fcm instead
         const data = await service.book.bookPro({
           ...payload,
           userId: (socket as any).decodedToken.userId,

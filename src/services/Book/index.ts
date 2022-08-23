@@ -1,6 +1,11 @@
 import got from 'got-cjs'
 import { z } from 'zod'
-import { BOOKING_STATUS, PAYSTACK_URL, ROLES } from '../../config/constants'
+import {
+  BOOKING_STATUS,
+  CHANNEL,
+  PAYSTACK_URL,
+  ROLES,
+} from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
   GetProBookingsReq,
@@ -18,15 +23,16 @@ import {
   PostMarkBookingAsProCompletedReqSchema,
   PostMarkBookingAsUserCompletedReqSchema,
 } from '../../schemas/request/postMarkBookingAsCompleted'
-import type { Repo, Role } from '../../types'
+import type { Channel, Repo, Role } from '../../types'
 import {
   getArrivalTime,
   getPageMeta,
   getTransportPrice,
-  logger,
   paginate,
+  dayjs,
+  logger,
 } from '../../utils'
-import { ForbiddenError, NotFoundError } from '../../utils/Error'
+import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 
 const bookPro =
   ({ repo }: { repo: Repo }) =>
@@ -45,6 +51,7 @@ const bookPro =
     samplePhotoOriginalFileName?: string
     samplePhotoKey?: string
     samplePhotoUrl?: string
+    channel: Channel
   }) => {
     const { longitude, latitude } = data
 
@@ -70,6 +77,19 @@ const bookPro =
 
     if (userBookingsBySubService.length)
       throw new ForbiddenError('user has existing booking with service')
+
+    const cardData = await repo.user.getCard({ userId: data.userId })
+
+    if (data.channel === CHANNEL.CARD && !cardData) {
+      throw new ForbiddenError('user does not have an existing card')
+    }
+    if (
+      cardData &&
+      dayjs(cardData.expiryYear + cardData.expiryMonth).isBefore(new Date())
+    ) {
+      await repo.user.deleteCard({ cardId: cardData.cardId })
+      throw new ForbiddenError('card expired')
+    }
 
     const [distance, subService] = await Promise.all([
       repo.pro.getDistBtwLoctions({
@@ -228,10 +248,7 @@ const markBookingAsUserCompleted =
   }) => {
     PostMarkBookingAsUserCompletedReqSchema.parse({ userId, bookingId, role })
 
-    const user = await repo.user.getUserAndCardById(userId)
-    if (!user) throw new NotFoundError('user not found')
-
-    const booking = await repo.book.getBookingAndInvoiceById(bookingId)
+    const booking = await repo.book.getBookingById(bookingId)
 
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('booking not found')
@@ -241,33 +258,11 @@ const markBookingAsUserCompleted =
 
     if (booking.userCompleted)
       throw new ForbiddenError('booking already marked as completed')
-    else
-      await repo.book.updateBooking(bookingId, {
-        userCompleted: true,
-        status: booking.proCompleted ? BOOKING_STATUS.COMPLETED : undefined,
-      })
 
-    //TODO: trigger payment
-    if (!user.card?.authorizationCode) return
-    if (!booking.invoice?.invoiceFees?.length) return
-
-    const amount = booking.invoice.invoiceFees.reduce(
-      (acc, e) => acc + e.price,
-      0,
-    )
-
-    await got
-      .post(PAYSTACK_URL + '/transaction/charge_authorization', {
-        headers: {
-          Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
-        },
-        json: {
-          authorization_code: user.card.authorizationCode,
-          email: user.email,
-          amount,
-        },
-      })
-      .json()
+    await repo.book.updateBooking(bookingId, {
+      userCompleted: true,
+      status: booking.proCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+    })
   }
 
 const markBookingAsProCompleted =
@@ -283,22 +278,64 @@ const markBookingAsProCompleted =
   }) => {
     PostMarkBookingAsProCompletedReqSchema.parse({ proId, bookingId, role })
 
-    const booking = await repo.book.getBookingById(bookingId)
+    const booking = await repo.book.getBookingAndInvoiceById(bookingId)
 
     if (!booking || booking.proId !== proId)
       throw new NotFoundError('booking not found')
+
+    const user = await repo.user.getUserAndCardById(booking.userId)
+    if (!user) throw new NotFoundError('user not found')
 
     if (booking.status !== BOOKING_STATUS.ACCEPTED)
       throw new NotFoundError('Booking cannot be rejected')
 
     if (booking.proCompleted)
       throw new ForbiddenError('booking already marked as completed')
-    else
-      await repo.book.updateBooking(bookingId, {
-        proCompleted: true,
-        status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
-      })
-    //TODO: trigger payment
+
+    if (!booking.invoice?.channel) {
+      logger.warn('invoice/channel not found for booking-' + bookingId)
+      throw new InternalError()
+    }
+
+    await repo.book.updateBooking(bookingId, {
+      proCompleted: true,
+      status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+    })
+
+    if (booking.invoice.channel === CHANNEL.CASH) {
+      //TODO: trigger cash payment
+      //TODO: send notification above 50k
+    } else {
+      if (!user.card?.authorizationCode) return
+      if (!booking.invoice?.invoiceFees?.length) return
+
+      const amount = booking.invoice.invoiceFees.reduce(
+        (acc, e) => acc + e.price,
+        0,
+      )
+
+      try {
+        await got
+          .post(PAYSTACK_URL + '/transaction/charge_authorization', {
+            headers: {
+              Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
+            },
+            json: {
+              authorization_code: user.card.authorizationCode,
+              email: user.email,
+              amount,
+              metadata: {
+                invoiceId: booking.invoice.invoiceId,
+                userId: booking.userId,
+                custom_fields: booking.invoice.invoiceFees,
+              },
+            },
+          })
+          .json()
+      } catch (error) {
+        throw new InternalError('payment unsuccessful')
+      }
+    }
   }
 
 const markBookingAsArrived =

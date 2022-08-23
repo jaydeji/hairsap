@@ -1,6 +1,7 @@
 import {
   BOOKING_STATUS,
   BUCKET,
+  CHANNEL,
   MESSAGE_TYPE,
   OTP_TYPE,
   PRO_STATUS,
@@ -30,3 +31,4 @@ export type BookingStatus = typeof BOOKING_STATUS[keyof typeof BOOKING_STATUS]
 export type OtpType = typeof OTP_TYPE[keyof typeof OTP_TYPE]
 export type BucketType = typeof BUCKET[keyof typeof BUCKET]
 export type ProStatus = typeof PRO_STATUS[keyof typeof PRO_STATUS]
+export type Channel = typeof CHANNEL[keyof typeof CHANNEL]

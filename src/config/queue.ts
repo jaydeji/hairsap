@@ -4,6 +4,8 @@ import { SendMailOptions } from 'nodemailer'
 import { logger } from '../utils'
 import db from '../config/db'
 import { ChatMessageType } from '../schemas/models/Message'
+import got from 'got-cjs'
+import { PAYSTACK_URL } from './constants'
 
 const redisUrl = process.env.REDIS_URL as string
 
@@ -65,11 +67,6 @@ paymentQueue.process(async (job, done) => {
       const invoiceId = _invoiceId ? +_invoiceId : undefined
       const amountPaid = job.data?.data?.data?.amount
       const reference = job.data?.data?.data?.reference
-      logger.info({
-        invoiceId,
-        amountPaid,
-        job: job.data?.data?.data?.metadata,
-      })
 
       if (invoiceId && amountPaid) {
         const invoice = await db.invoice.findUnique({
@@ -104,25 +101,24 @@ paymentQueue.process(async (job, done) => {
         job.data?.userId &&
         job.data.email
       ) {
+        const dt = {
+          authorization,
+          authorizationCode: authorization.authorization_code,
+          last4: authorization.last4,
+          bank: authorization.bank,
+          brand: authorization.brand,
+          expiryYear: authorization.exp_year,
+          expiryMonth: authorization.exp_month,
+        }
         await db.user.update({
           data: {
             card: {
               upsert: {
                 create: {
                   email: job.data.email,
-                  authorization,
-                  authorizationCode: authorization.authorization_code,
-                  last4: authorization.authorization_code.last4,
-                  bank: authorization.authorization_code.bank,
-                  brand: authorization.authorization_code.brand,
+                  ...dt,
                 },
-                update: {
-                  authorization,
-                  authorizationCode: authorization.authorization_code,
-                  last4: authorization.authorization_code.last4,
-                  bank: authorization.authorization_code.bank,
-                  brand: authorization.authorization_code.brand,
-                },
+                update: dt,
               },
             },
           },
@@ -130,6 +126,18 @@ paymentQueue.process(async (job, done) => {
             userId: job.data?.userId,
           },
         })
+
+        if (amountPaid === 5000) {
+          await got.post(PAYSTACK_URL + '/refund', {
+            headers: {
+              Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
+            },
+            json: {
+              transaction: reference,
+              amount: amountPaid,
+            },
+          })
+        }
       }
     } else {
       logger.info(job.data)
