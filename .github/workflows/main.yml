@@ -29,9 +29,9 @@ jobs:
       - name: echo
         run: echo Deployment started!
 
-      - name: Migrate
-        run: |
-         docker run --rm --env-file /root/hsapdev/.env -v $(pwd)/prisma:/prisma node:16-alpine npx --yes prisma migrate deploy
+      # - name: Migrate
+      #   run: |
+      #    docker run --rm --env-file /root/hsapdev/.env -v $(pwd)/prisma:/prisma node:16-alpine npx --yes prisma migrate deploy
 
       - name: Build
         run: |

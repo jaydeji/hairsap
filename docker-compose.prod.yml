@@ -1,5 +1,16 @@
 version: '3.9'
 services:
+  migrate:
+    image: 'node:16-alpine'
+    env_file:
+      - /root/hsapdev/.env
+    depends_on:
+      - db
+    restart: no
+    volumes:
+      - prisma:/prisma
+    command: sh -c "npx --yes prisma migrate deploy"
+
   backend:
     build:
       context: .
@@ -37,7 +48,6 @@ services:
     #   STORAGE_KEY: ${STORAGE_KEY}
     #   STORAGE_SECRET: ${STORAGE_SECRET}
     #   PAYMENT_SECRET: ${PAYMENT_SECRET}
-
   db:
     image: 'mysql:8.0.29'
     env_file:
