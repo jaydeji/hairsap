@@ -6,7 +6,7 @@ services:
       - /root/hsapdev/.env
     depends_on:
       - db
-    restart: no
+    restart: 'no'
     volumes:
       - prisma:/prisma
     command: sh -c "npx --yes prisma migrate deploy"
