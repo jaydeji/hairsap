@@ -9,8 +9,8 @@ services:
     restart: 'no'
     volumes:
       - ./prisma:/prisma
-    # command: sh -c "npx --yes prisma migrate deploy"
-    command: sh -c "npx --yes prisma migrate resolve --rolled-back "20220819192930_init""
+    command: sh -c "npx --yes prisma migrate deploy"
+    # command: sh -c "npx --yes prisma migrate resolve --rolled-back "20220819192930_init""
     profiles: ['migrate']
 
   backend:
