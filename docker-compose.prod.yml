@@ -9,7 +9,7 @@ services:
     restart: 'no'
     volumes:
       - ./prisma:/prisma
-    command: sh -c "npx --yes prisma migrate deploy"
+    command: sh -c "printenv && npx --yes prisma migrate deploy"
     profiles: ['migrate']
 
   backend:
