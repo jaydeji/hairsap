@@ -8,7 +8,7 @@ services:
       - db
     restart: 'no'
     volumes:
-      - prisma:/prisma
+      - ./prisma:/prisma
     command: sh -c "npx --yes prisma migrate deploy"
 
   backend:
