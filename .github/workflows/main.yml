@@ -31,7 +31,7 @@ jobs:
 
       - name: Migrate
         run: |
-         docker run -it --rm node:16-alpine npx prisma migrate deploy
+         docker run --rm node:16-alpine npx --yes prisma migrate deploy
 
       - name: Build
         run: |
