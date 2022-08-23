@@ -11,6 +11,7 @@ services:
       - ./prisma:/prisma
     command: sh -c "npx --yes prisma migrate deploy"
     profiles: ['migrate']
+
   backend:
     build:
       context: .
@@ -21,33 +22,9 @@ services:
       - db
       - redis
     restart: always
-    # command: sh -c "npm start"
     env_file:
       - /root/hsapdev/.env
-    # environment:
-    #   NODE_ENV: production
-    #   PORT: 3000
-    #   DEBUG: error,info
-    #   JWT_SECRET: ${JWT_SECRET}
-    #   JWT_ADMIN_SECRET: ${JWT_ADMIN_SECRET}
-    #   DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY}
-    #   DATABASE_URL: ${DATABASE_URL}
-    #   SHADOW_DATABASE_URL: ${SHADOW_DATABASE_URL}
-    #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    #   MYSQL_USER: ${MYSQL_USER}
-    #   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    #   MYSQL_DATABASE: ${MYSQL_DATABASE}
-    #   REDIS_URL: ${REDIS_URL}
-    #   REDIS_PASSWORD: ${REDIS_PASSWORD}
-    #   MAIL_HOST: ${MAIL_HOST}
-    #   MAIL_PORT: ${MAIL_PORT}
-    #   MAIL_SECURE: ${MAIL_SECURE}
-    #   MAIL_USERNAME: ${MAIL_USERNAME}
-    #   MAIL_PASSWORD: ${MAIL_PASSWORD}
-    #   STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
-    #   STORAGE_KEY: ${STORAGE_KEY}
-    #   STORAGE_SECRET: ${STORAGE_SECRET}
-    #   PAYMENT_SECRET: ${PAYMENT_SECRET}
+
   db:
     image: 'mysql:8.0.29'
     env_file:
