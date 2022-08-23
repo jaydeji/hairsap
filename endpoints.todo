@@ -86,3 +86,9 @@ need services photo url
 
 weekly earning
 weekly bonus earning
+
+
+npx prisma migrate diff \
+--from-url "mysql://user:pass@dev.hairsap.com:3306/hairsap_dev" \
+--to-url "mysql://user:pass@localhost:3306/hairsap_dev" \
+--script | npx prisma db execute --url="mysql://user:pass@dev.hairsap.com:3306/hairsap_dev" --stdin
