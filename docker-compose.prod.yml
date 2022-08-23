@@ -30,6 +30,7 @@ services:
     image: 'mysql:8.0.29'
     env_file:
       - /root/hsapdev/.env
+    ports: ['3306:3306']
     # environment:
     #   MYSQL_DATABASE: hairsap_dev
     #   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
