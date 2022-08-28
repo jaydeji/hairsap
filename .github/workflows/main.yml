@@ -35,8 +35,8 @@ jobs:
 
       - name: Build
           # docker-compose run migrate -f docker-compose.prod.yml --env-file /root/hsapdev/.env
-          # docker-compose -f docker-compose.prod.yml run migrate
         run: |
+          docker-compose -f docker-compose.prod.yml run migrate
           docker-compose -f docker-compose.prod.yml up --build -d 
           docker image prune -f
 
