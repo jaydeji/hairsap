@@ -252,7 +252,7 @@ const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
   if (sentBonusNotification) return
 
   const total = await repo.book.getTotalOfWeeklyCompletedBookings(proId)
-  if ((total._sum.price || 0) > PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS_QUOTA) {
+  if ((total._sum.price || 0) >= PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS_QUOTA) {
     await Promise.all([
       repo.book.addBonus({ proId, amount: PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS }),
       repo.other.addNotificationStatus({ type: 'bonus', userId: proId }),
@@ -260,6 +260,37 @@ const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
     notifyQueue.add({
       title: 'New Bonus',
       body: 'New booking has been received',
+      userId: proId,
+    })
+  }
+}
+
+const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
+  const sentRedeemCashNotification = await repo.other.getNotificationStatus({
+    userId: proId,
+    period: 'day',
+    type: 'redeem',
+  })
+
+  if (sentRedeemCashNotification) return
+
+  const unredeemedCashPayments = await repo.book.getUnredeemedCashPayments({
+    proId,
+  })
+
+  const total = unredeemedCashPayments.reduce(
+    (acc, e) =>
+      acc +
+      e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0) +
+      e.transportFee,
+    0,
+  )
+
+  if (total >= PERIODIC_CASH_AMOUNTS.DAILY_REDEEM_THRESHOLD) {
+    await repo.other.addNotificationStatus({ type: 'redeem', userId: proId })
+    notifyQueue.add({
+      title: 'Redeem Payout Request',
+      body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
       userId: proId,
     })
   }
@@ -293,8 +324,7 @@ const markBookingAsCompleted =
     await resolveBonus({ repo, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
-      //TODO: trigger cash payment
-      //TODO: send notification above 50k
+      await redeemCash({ repo, proId: booking.proId })
     } else {
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
@@ -323,6 +353,8 @@ const markBookingAsCompleted =
           })
           .json()
       } catch (error) {
+        // TODO: handle failed payments
+        logger.info({ userId: user.userId }, 'payment unsuccessful')
         throw new InternalError('payment unsuccessful')
       }
     }

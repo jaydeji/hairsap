@@ -28,6 +28,14 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.get(
+    '/proapplications',
+    ah(async (_req, res) => {
+      const data = await service.admin.getProApplications()
+      res.status(200).send(data)
+    }),
+  )
+
   router.post(
     '/proapplication/:userId/:action',
     ah(async (req, res) => {
@@ -65,8 +73,8 @@ const makeAdminRouter = ({
     }),
   )
 
-  router.post(
-    '/userdetails',
+  router.get(
+    '/users/:id',
     ah(async (req, res) => {
       const data = await service.user.getUserDetails({
         userId: req.body.userId,
@@ -75,8 +83,8 @@ const makeAdminRouter = ({
     }),
   )
 
-  router.post(
-    '/prodetails',
+  router.get(
+    '/pros/:id',
     ah(async (req, res) => {
       const data = await service.pro.getProDetails({
         userId: req.body.userId,

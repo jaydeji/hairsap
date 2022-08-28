@@ -118,13 +118,18 @@ const getPayoutRequests =
 const getPayoutRequestsWP =
   ({ db }: { db: PrismaClient }) =>
   (page: PageReq & { skip: number }) =>
-    db.$transaction([
-      db.user.count({}),
-      db.user.findMany({
-        take: page.perPage,
-        skip: page.skip,
-      }),
-    ])
+    db.invoice.findMany({
+      take: page.perPage,
+      skip: page.skip,
+      where: {
+        paid: {
+          not: true,
+        },
+      },
+      include: {
+        invoiceFees: true,
+      },
+    })
 
 const getProSubscribers =
   ({ db }: { db: PrismaClient }) =>
@@ -369,6 +374,18 @@ const searchPro =
     })
   }
 
+const getProApplications =
+  ({ db }: { db: PrismaClient }) =>
+  () =>
+    db.user.findMany({
+      where: {
+        verified: {
+          not: true,
+        },
+        role: ROLES.PRO,
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -381,6 +398,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProDetails: getProDetails({ db }),
     getProData: getProData({ db }),
     searchPro: searchPro({ db }),
+    getProApplications: getProApplications({ db }),
   }
 }
 

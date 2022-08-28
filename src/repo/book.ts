@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
-import { BOOKING_STATUS } from '../config/constants'
+import { BOOKING_STATUS, CHANNEL } from '../config/constants'
 import { GetProBookingsReq } from '../schemas/request/getProBookings'
 import { PageReq } from '../schemas/request/Page'
 import { BookingStatus } from '../types'
@@ -360,6 +360,24 @@ const addBonus =
       data,
     })
 
+const getUnredeemedCashPayments =
+  ({ db }: { db: PrismaClient }) =>
+  ({ proId }: { proId: number }) =>
+    db.invoice.findMany({
+      where: {
+        channel: CHANNEL.CASH,
+        paid: {
+          not: true,
+        },
+        booking: {
+          proId,
+        },
+      },
+      include: {
+        invoiceFees: true,
+      },
+    })
+
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
@@ -379,9 +397,8 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getTotalOfWeeklyCompletedBookings: getTotalOfWeeklyCompletedBookings({
       db,
     }),
-    addBonus: addBonus({
-      db,
-    }),
+    addBonus: addBonus({ db }),
+    getUnredeemedCashPayments: getUnredeemedCashPayments({ db }),
   }
 }
 

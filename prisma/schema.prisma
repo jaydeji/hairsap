@@ -210,7 +210,7 @@ model User {
   receivedChats       Chat[]                @relation("receiver")
   sentChats           Chat[]                @relation("sender")
   bonuses             Bonus[]
-  redeemPayments      RedeemPayment[]
+  // redeemPayments      RedeemPayment[]
   subscribers         Subscription[]        @relation("pro")
   proServices         ProService[]
   Subscription        Subscription[]        @relation("user")
@@ -282,18 +282,16 @@ model Notification {
   @@index([userId])
 }
 
-model RedeemPayment {
-  redeemId  Int     @id @default(autoincrement())
-  confirmed Boolean
-  amount    Int
-  user      User    @relation(fields: [userId], references: [userId])
-  userId    Int
+// model RedeemPayment {
+//   redeemId  Int     @id @default(autoincrement())
+//   confirmed Boolean
+//   invoiceId
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @default(now()) @updatedAt
 
-  @@index([userId])
-}
+//   @@index([userId])
+// }
 
 model Bonus {
   bonusId   Int      @id @default(autoincrement())

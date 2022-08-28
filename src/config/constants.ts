@@ -44,9 +44,10 @@ export const STORAGE_ENDPOINT_CDN =
   'https://hairsap.' + process.env.STORAGE_ENDPOINT_CDN + '/'
 
 export const PERIODIC_CASH_AMOUNTS = {
-  DAILY: 70_000 * 100,
-  MONTHLY: 125_000 * 100,
+  // MONTHLY: 125_000 * 100,
   // WEEKLY_EARNING: 125_000 * 100, //affected by deductions and bonus
+  DAILY_REDEEM_THRESHOLD: 50_000 * 100,
+  DAILY_TASK_TARGET: 70_000 * 100,
   WEEKLY_TASK_TARGET: 350_000 * 100, //affected by deductions and bonus and weekly booking number is above 25
   WEEKLY_BONUS: 25_000 * 100,
   WEEKLY_BONUS_QUOTA: 420_000 * 100,

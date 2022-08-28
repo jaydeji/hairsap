@@ -37,11 +37,11 @@ const getPayoutRequests =
     GetPayoutRequestsReqSchema.parse(body)
 
     const _page = paginate(body)
-    const [total, data] = await repo.pro.getPayoutRequestsWP(_page)
+    const data = await repo.pro.getPayoutRequestsWP(_page)
 
     const meta = getPageMeta({
       ..._page,
-      total,
+      total: data.length,
     })
 
     return { meta, data }
@@ -61,11 +61,19 @@ const acceptOrRejectApplication =
     }
   }
 
+const getProApplications =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.pro.getProApplications()
+    return { data }
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
     getPayoutRequests: getPayoutRequests({ repo }),
     acceptOrRejectApplication: acceptOrRejectApplication({ repo }),
+    getProApplications: getProApplications({ repo }),
   }
 }
 
