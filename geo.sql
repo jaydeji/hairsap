@@ -137,3 +137,33 @@ SET
         6.520238459241921
     )
 where userId = 3;
+
+Update User as u1, (
+        SELECT
+            u.userId,
+            u.deactivationCount,
+            u.deactivated,
+            u.terminated,
+            SUM(ifees.price)
+        FROM User u
+            JOIN Booking b on b.proId = u.userId
+            JOIN `Invoice` i on i.bookingId = b.bookingId
+            JOIN `InvoiceFees` ifees on ifees.invoiceId = i.invoiceId
+        WHERE
+            role = 'pro'
+            AND deactivated = 0
+            AND u.terminated = 0
+            AND verified = 1
+            AND b.status = "completed"
+        GROUP BY u.userId
+        HAVING
+            SUM(ifees.price) < 30000000
+    ) as u2
+SET
+    u1.terminated = IF(
+        u2.deactivationCount > 2,
+        1,
+        u1.terminated
+    ),
+    u1.deactivated = 1
+WHERE u1.userId = u2.userId;

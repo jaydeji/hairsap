@@ -45,7 +45,7 @@ const makeBookingRouter = ({
       const data = await service.book.bookPro({
         userId: req.tokenData?.userId as number,
         proId: body.proId,
-        subServiceId: body.subServiceId,
+        subServiceId: body.subServiceId, //TODO: multiple subservice?
         latitude: body.latitude,
         longitude: body.longitude,
         address: body.address,
@@ -117,21 +117,13 @@ const makeBookingRouter = ({
   )
 
   router.post(
-    '/:id/:role/completed',
+    '/:id/completed',
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
-      if (req.params.role === ROLES.USER) {
-        await service.book.markBookingAsUserCompleted({
-          bookingId: +req.params.id,
-          userId: req.tokenData?.userId as number,
-          role: req.tokenData?.role as Role,
-        })
-      } else {
-        await service.book.markBookingAsProCompleted({
-          bookingId: +req.params.id,
-          proId: req.tokenData?.proId as number,
-          role: req.tokenData?.role as Role,
-        })
-      }
+      await service.book.markBookingAsCompleted({
+        bookingId: +req.params.id,
+        proId: req.tokenData?.userId as number,
+      })
       res.status(201).send()
     }),
   )
@@ -142,18 +134,53 @@ const makeBookingRouter = ({
     ah(async (req, res) => {
       await service.book.markBookingAsArrived({
         bookingId: +req.params.id,
-        proId: req.tokenData?.proId as number,
+        proId: req.tokenData?.userId as number,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.patch(
+    '/:id/intransit',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      await service.book.markBookingAsIntransit({
+        bookingId: +req.params.id,
+        proId: req.tokenData?.userId as number,
       })
       res.status(201).send()
     }),
   )
 
   router.get(
-    '/activity/:userId',
+    '/:userId/activity',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.book.getUncompletedBookings({
         userId: +req.params.userId as number,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/:id/rate',
+    allowOnly([ROLES.USER]),
+    ah(async (req, res) => {
+      const data = await service.book.rateAndReviewBooking({
+        bookingId: +req.params.id as number,
+        userId: +req.params.userId as number,
+        ...req.body,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.get(
+    '/transactions',
+    ah(async (req, res) => {
+      const data = await service.book.getTransactions({
+        userId: +req.tokenData!.userId!,
       })
       res.status(200).send({ data })
     }),

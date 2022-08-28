@@ -45,11 +45,21 @@ const getNearestPro =
     userId?: number
   }) => {
     // TODO: convert latlng to POINT and add SPATIAL INDEX
-    const r = await db.$queryRaw`
+    const result: {
+      userId: User['userId']
+      businessName: User['businessName']
+      proName: User['name']
+      address: User['address']
+      available: User['available']
+      serviceName: SubService['name']
+      price?: SubService['price']
+      distance?: number
+    }[] = await db.$queryRaw`
     SELECT * FROM (SELECT
     u.userId,
     u.businessName,
     u.name proName,
+    u.available,
     ss.name serviceName,
     u.address,
     ss.price,
@@ -80,17 +90,11 @@ WHERE
     AND available = 1
 ORDER BY distance, userId ASC LIMIT 1;`
 
-    return (
-      r as {
-        userId: User['userId']
-        businessName: User['businessName']
-        proName: User['name']
-        address: User['address']
-        serviceName: SubService['name']
-        price?: SubService['price']
-        distance?: number
-      }[]
-    )?.[0]
+    if (result.length) {
+      result[0].available = !!result[0].available
+    }
+
+    return result?.[0]
   }
 
 // MULTI-CURSOR PAGINATION

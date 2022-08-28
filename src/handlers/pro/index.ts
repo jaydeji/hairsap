@@ -1,7 +1,9 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { ROLES } from '../../config/constants'
-import { allowOnly } from '../../middleware/auth'
+import { nanoid } from 'nanoid'
+import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
+import { _upload } from '../../config/multer-cloud'
+import { allowOnly, denyOnly } from '../../middleware/auth'
 import type { Role, Service } from '../../types'
 
 const makeProRouter = ({
@@ -34,8 +36,10 @@ const makeProRouter = ({
     }),
   )
 
+  // TODO: REMOve
   router.post(
     '/verify:id',
+    allowOnly([ROLES.ADMIN]),
     ah(async (req, res) => {
       await service.pro.verifyPro({
         userId: +req.params.userId as number,
@@ -90,10 +94,31 @@ const makeProRouter = ({
 
   router.post(
     '/search',
-    allowOnly([ROLES.PRO]),
+    denyOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.pro.searchPro({
         name: req.body.name,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/applicationvideo',
+    allowOnly([ROLES.PRO]),
+    _upload({
+      getKey: (file, req) =>
+        `applicationvideo/pro/${req.tokenData?.userId}/${nanoid()}/${
+          file.originalname
+        }`,
+      type: 'video',
+    }).single('applicationvideo'),
+    ah(async (req, res) => {
+      const data = await service.pro.uploadApplicationVideo({
+        proId: req.tokenData!.userId!,
+        workVideoUrl: STORAGE_ENDPOINT_CDN + (req.file as any).key,
+        workVideoKey: (req.file as any).key,
+        workVideoOriginalFileName: req.file!.originalname,
       })
       res.status(200).send({ data })
     }),

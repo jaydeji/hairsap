@@ -99,15 +99,6 @@ model Invoice {
   channel      String?
 }
 
-model Review {
-  reviewId Int    @id @default(autoincrement())
-  value    String @db.Text
-  pro      User   @relation("pro", fields: [proId], references: [userId])
-  proId    Int
-  user     User   @relation("user", fields: [userId], references: [userId])
-  userId   Int
-}
-
 model Otp {
   otpId  String @id @default(uuid())
   value  String
@@ -120,15 +111,15 @@ model Otp {
 
 model Booking {
   bookingId                   Int       @id @default(autoincrement())
-  userCompleted               Boolean   @default(false)
-  proCompleted                Boolean   @default(false)
   arrived                     Boolean   @default(false)
+  inTransit                   Boolean   @default(false)
   address                     String
   samplePhotoUrl              String?
   samplePhotoKey              String?
   samplePhotoOriginalFileName String?
   status                      String
   rating                      Int?
+  review                      String?
   acceptedAt                  DateTime?
   rejectedAt                  DateTime?
   arrivalAt                   DateTime?
@@ -208,25 +199,26 @@ model User {
   verified                     Boolean? @default(false) //verify new pro account
   available                    Boolean? @default(true)
   workVideoUrl                 String?
+  workVideoKey                 String?
+  workVideoOriginalFileName    String?
   businessName                 String?
 
-  otp            Otp?
-  notifications  Notification[]
-  PasswordReset  PasswordReset[]
-  paymentEvents  PaymentEvents[]
-  proReviews     Review[]        @relation("pro")
-  userReviews    Review[]        @relation("user")
-  receivedChats  Chat[]          @relation("receiver")
-  sentChats      Chat[]          @relation("sender")
-  bonuses        Bonus[]
-  redeemPayments RedeemPayment[]
-  subscribers    Subscription[]  @relation("pro")
-  proServices    ProService[]
-  Subscription   Subscription[]  @relation("user")
-  proBookings    Booking[]       @relation("pro")
-  userBookings   Booking[]       @relation("user")
-  account        Account?
-  card           Card?
+  otp                 Otp?
+  notifications       Notification[]
+  PasswordReset       PasswordReset[]
+  paymentEvents       PaymentEvents[]
+  receivedChats       Chat[]                @relation("receiver")
+  sentChats           Chat[]                @relation("sender")
+  bonuses             Bonus[]
+  redeemPayments      RedeemPayment[]
+  subscribers         Subscription[]        @relation("pro")
+  proServices         ProService[]
+  Subscription        Subscription[]        @relation("user")
+  proBookings         Booking[]             @relation("pro")
+  userBookings        Booking[]             @relation("user")
+  NotificationTracker NotificationTracker[]
+  account             Account?
+  card                Card?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -267,10 +259,21 @@ model PasswordReset {
   @@index([userId])
 }
 
+model NotificationTracker {
+  notificationTrackerId Int    @id @default(autoincrement())
+  user                  User?  @relation(fields: [userId], references: [userId])
+  userId                Int?
+  type                  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model Notification {
-  notificationId Int    @id @default(autoincrement())
-  message        String
-  user           User   @relation(fields: [userId], references: [userId])
+  notificationId Int     @id @default(autoincrement())
+  body           String?
+  title          String?
+  user           User    @relation(fields: [userId], references: [userId])
   userId         Int
 
   createdAt DateTime @default(now())
@@ -297,10 +300,10 @@ model Bonus {
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  user      User     @relation(fields: [userId], references: [userId])
-  userId    Int
+  pro       User     @relation(fields: [proId], references: [userId])
+  proId     Int
 
-  @@index([userId])
+  @@index([proId])
 }
 
 model Account {

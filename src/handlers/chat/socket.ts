@@ -16,10 +16,11 @@ import { verifyJwt } from '../../utils/jwtLib'
 //socket input Object<any>
 //socket output Object<{data,message,error}>
 
-const users: Record<string, { socketId: string } | undefined> = {}
-const pros: Record<string, { socketId: string } | undefined> = {}
+const connectedUsers: Record<string, { socketId: string } | undefined> = {}
 
+let _io: IO
 const createChat = ({ io, service }: { io: IO; service: Service }) => {
+  _io = io
   io.use(function (socket, next) {
     if (socket.handshake.query?.token && socket.handshake.query?.role) {
       try {
@@ -46,32 +47,24 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
     }
 
     socket.on('disconnect', () => {
-      users[(socket as any).decodedToken.userId] = undefined
+      connectedUsers[(socket as any).decodedToken.userId] = undefined
       logger.info('user disconnected')
     })
 
-    socket.on(
-      'setup',
-      ({ userId, proId }: { userId?: number; proId?: number }) => {
-        if (userId)
-          users[userId] = {
-            socketId: socket.id,
-          }
-        if (proId)
-          pros[proId] = {
-            socketId: socket.id,
-          }
-      },
-    )
+    socket.on('setup', ({ userId }: { userId: number }) => {
+      connectedUsers[userId] = {
+        socketId: socket.id,
+      }
+    })
 
     socket.on('new message', (message: ChatMessageType) => {
       const _message = MessageSchema.safeParse(message)
       if (!_message.success) return
       chatQueue.add(message)
-      const socketId = users[message.receiverId]?.socketId
+      const socketId = connectedUsers[message.receiverId]?.socketId
       if (socketId) {
         socket
-          .to(users[message.receiverId]?.socketId as string)
+          .to(connectedUsers[message.receiverId]?.socketId as string)
           .emit('new message', message)
       } else {
         // TODO: send FCM
@@ -94,4 +87,14 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
   })
 }
 
+export const sendSocketNotify = (
+  key: 'notification',
+  userId: number,
+  message: any,
+) => {
+  const conn = connectedUsers[userId]
+  if (!conn) return false
+  _io.sockets.to(conn.socketId).emit(key, message)
+  return true
+}
 export default createChat

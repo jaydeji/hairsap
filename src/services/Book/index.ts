@@ -1,11 +1,13 @@
 import got from 'got-cjs'
 import { z } from 'zod'
 import {
+  PERIODIC_CASH_AMOUNTS,
   BOOKING_STATUS,
   CHANNEL,
   PAYSTACK_URL,
   ROLES,
 } from '../../config/constants'
+import { notifyQueue } from '../../config/queue'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
   GetProBookingsReq,
@@ -19,10 +21,11 @@ import { PatchAddServiceSchema } from '../../schemas/request/patchAddService'
 import { PostAcceptBookingReqSchema } from '../../schemas/request/postAcceptBooking'
 import { PostBookProReqSchema } from '../../schemas/request/postBookPro'
 import { PostMarkBookingAsArrivedReqSchema } from '../../schemas/request/postMarkBookingAsArrived'
+import { PostMarkBookingAsCompletedReqSchema } from '../../schemas/request/postMarkBookingAsCompleted'
 import {
-  PostMarkBookingAsProCompletedReqSchema,
-  PostMarkBookingAsUserCompletedReqSchema,
-} from '../../schemas/request/postMarkBookingAsCompleted'
+  PostRateBookingReq,
+  PostRateBookingReqSchema,
+} from '../../schemas/request/postRateBooking'
 import type { Channel, Repo, Role } from '../../types'
 import {
   getArrivalTime,
@@ -53,7 +56,7 @@ const bookPro =
     samplePhotoUrl?: string
     channel: Channel
   }) => {
-    const { longitude, latitude } = data
+    const { longitude, latitude, proId, userId } = data
 
     PostBookProReqSchema.parse(data)
 
@@ -62,7 +65,7 @@ const bookPro =
     if (!pro?.available) throw new ForbiddenError('Pro is not available')
 
     const bookings = await repo.book.getProBookingsByStatus(
-      data.proId,
+      proId,
       BOOKING_STATUS.ACCEPTED,
     )
 
@@ -71,14 +74,14 @@ const bookPro =
     const userBookingsBySubService =
       await repo.book.getUserBookingsBySubService({
         subServiceId: data.subServiceId,
-        userId: data.userId,
+        userId,
         status: BOOKING_STATUS.ACCEPTED,
       })
 
     if (userBookingsBySubService.length)
       throw new ForbiddenError('user has existing booking with service')
 
-    const cardData = await repo.user.getCard({ userId: data.userId })
+    const cardData = await repo.user.getCard({ userId })
 
     if (data.channel === CHANNEL.CARD && !cardData) {
       throw new ForbiddenError('user does not have an existing card')
@@ -95,7 +98,7 @@ const bookPro =
       repo.pro.getDistBtwLoctions({
         latitude,
         longitude,
-        proId: data.proId,
+        proId,
       }),
       repo.book.getSubService(data.subServiceId),
     ])
@@ -116,7 +119,11 @@ const bookPro =
       samplePhotoUrl,
     })
 
-    //TODO: send fmq
+    notifyQueue.add({
+      title: 'NewBooking',
+      body: 'New booking has been received',
+      userId: proId,
+    })
 
     return booking
   }
@@ -235,48 +242,33 @@ const rejectBooking =
     })
   }
 
-const markBookingAsUserCompleted =
-  ({ repo }: { repo: Repo }) =>
-  async ({
-    userId,
-    bookingId,
-    role,
-  }: {
-    bookingId: number
-    userId: number
-    role: Role
-  }) => {
-    PostMarkBookingAsUserCompletedReqSchema.parse({ userId, bookingId, role })
+const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
+  const sentBonusNotification = await repo.other.getNotificationStatus({
+    userId: proId,
+    period: 'week',
+    type: 'bonus',
+  })
 
-    const booking = await repo.book.getBookingById(bookingId)
+  if (sentBonusNotification) return
 
-    if (!booking || booking.userId !== userId)
-      throw new NotFoundError('booking not found')
-
-    if (booking.status !== BOOKING_STATUS.ACCEPTED)
-      throw new NotFoundError('Booking cannot be rejected')
-
-    if (booking.userCompleted)
-      throw new ForbiddenError('booking already marked as completed')
-
-    await repo.book.updateBooking(bookingId, {
-      userCompleted: true,
-      status: booking.proCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+  const total = await repo.book.getTotalOfWeeklyCompletedBookings(proId)
+  if ((total._sum.price || 0) > PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS_QUOTA) {
+    await Promise.all([
+      repo.book.addBonus({ proId, amount: PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS }),
+      repo.other.addNotificationStatus({ type: 'bonus', userId: proId }),
+    ])
+    notifyQueue.add({
+      title: 'New Bonus',
+      body: 'New booking has been received',
+      userId: proId,
     })
   }
+}
 
-const markBookingAsProCompleted =
+const markBookingAsCompleted =
   ({ repo }: { repo: Repo }) =>
-  async ({
-    proId,
-    bookingId,
-    role,
-  }: {
-    bookingId: number
-    proId: number
-    role: Role
-  }) => {
-    PostMarkBookingAsProCompletedReqSchema.parse({ proId, bookingId, role })
+  async ({ proId, bookingId }: { bookingId: number; proId: number }) => {
+    PostMarkBookingAsCompletedReqSchema.parse({ proId, bookingId })
 
     const booking = await repo.book.getBookingAndInvoiceById(bookingId)
 
@@ -289,18 +281,16 @@ const markBookingAsProCompleted =
     if (booking.status !== BOOKING_STATUS.ACCEPTED)
       throw new NotFoundError('Booking cannot be rejected')
 
-    if (booking.proCompleted)
-      throw new ForbiddenError('booking already marked as completed')
-
     if (!booking.invoice?.channel) {
       logger.warn('invoice/channel not found for booking-' + bookingId)
       throw new InternalError()
     }
 
     await repo.book.updateBooking(bookingId, {
-      proCompleted: true,
-      status: booking.userCompleted ? BOOKING_STATUS.COMPLETED : undefined,
+      status: BOOKING_STATUS.COMPLETED,
     })
+
+    await resolveBonus({ repo, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
       //TODO: trigger cash payment
@@ -359,6 +349,34 @@ const markBookingAsArrived =
       })
   }
 
+const markBookingAsIntransit =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { bookingId: number; proId: number }) => {
+    z.object({
+      bookingId: z.number(),
+      proId: z.number(),
+    })
+      .strict()
+      .parse(body)
+
+    const { bookingId, proId } = body
+
+    const booking = await repo.book.getBookingById(bookingId)
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+      throw new NotFoundError('Booking has not been accepted')
+
+    if (booking.inTransit)
+      throw new ForbiddenError('booking already marked as intransit')
+
+    await repo.book.updateBooking(bookingId, {
+      inTransit: true,
+    })
+    //TODO: notify socket
+  }
+
 const getAcceptedProBookings =
   ({ repo }: { repo: Repo }) =>
   async ({ userId }: { userId: number }) => {
@@ -375,7 +393,7 @@ const getAcceptedProBookings =
 const getUncompletedBookings =
   ({ repo }: { repo: Repo }) =>
   async ({ userId }: { userId: number }) => {
-    z.object({ userId: z.number() }).parse({ userId })
+    z.object({ userId: z.number() }).strict().parse({ userId })
 
     const acceptedBookings = await repo.book.getProBookingsByStatuses(userId, [
       BOOKING_STATUS.ACCEPTED,
@@ -413,6 +431,42 @@ const getProBookings =
     return data
   }
 
+const rateAndReviewBooking =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostRateBookingReq) => {
+    PostRateBookingReqSchema.parse(body)
+
+    const { bookingId, userId, rating, review } = body
+    const booking = await repo.book.getBookingById(bookingId)
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('booking not found')
+
+    if (booking.status !== BOOKING_STATUS.COMPLETED)
+      throw new NotFoundError('Booking has not been completed')
+
+    if (typeof booking.rating === 'number')
+      throw new NotFoundError('Booking has already been rated')
+
+    const data = await repo.book.updateBooking(bookingId, {
+      rating,
+      review,
+    })
+
+    return data
+  }
+
+const getTransactions =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+
+    const { userId } = body
+
+    const data = await repo.book.getTransactions(userId)
+
+    return data
+  }
+
 const makeBook = ({ repo }: { repo: Repo }) => {
   return {
     bookPro: bookPro({ repo }),
@@ -421,12 +475,14 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     rejectBooking: rejectBooking({ repo }),
     getAcceptedProBookings: getAcceptedProBookings({ repo }),
     cancelBooking: cancelBooking({ repo }),
-    markBookingAsUserCompleted: markBookingAsUserCompleted({ repo }),
-    markBookingAsProCompleted: markBookingAsProCompleted({ repo }),
+    markBookingAsCompleted: markBookingAsCompleted({ repo }),
     markBookingAsArrived: markBookingAsArrived({ repo }),
     getUncompletedBookings: getUncompletedBookings({ repo }),
     getUserBookings: getUserBookings({ repo }),
     getProBookings: getProBookings({ repo }),
+    markBookingAsIntransit: markBookingAsIntransit({ repo }),
+    rateAndReviewBooking: rateAndReviewBooking({ repo }),
+    getTransactions: getTransactions({ repo }),
   }
 }
 

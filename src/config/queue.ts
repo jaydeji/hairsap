@@ -5,7 +5,8 @@ import { logger } from '../utils'
 import db from '../config/db'
 import { ChatMessageType } from '../schemas/models/Message'
 import got from 'got-cjs'
-import { PAYSTACK_URL } from './constants'
+import { BOOKING_STATUS, PAYSTACK_URL, ROLES } from './constants'
+import { sendSocketNotify } from '../handlers/chat/socket'
 
 const redisUrl = process.env.REDIS_URL as string
 
@@ -23,28 +24,88 @@ type Payment = {
   }
 }
 
-const mainQueue = new Queue('main', redisUrl)
 const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
 const phoneQueue = new Queue('phone', redisUrl)
 const paymentQueue = new Queue<Payment>('payment', redisUrl)
 const chatQueue = new Queue<ChatMessageType>('chat', redisUrl)
+const notifyQueue = new Queue<{
+  title?: string
+  body?: string
+  userId: number
+}>('notifications', redisUrl)
 const paymentThreshold = new Queue('payment_threshold', redisUrl)
+const deactivateQueue = new Queue('deactivate', redisUrl)
+deactivateQueue.add(undefined, { repeat: { cron: '59 59 23 * * 7' } }) //every sunday night by 23:59:59
 
-mainQueue.process(async (job, done) => {
-  logger.info(job.id, job.data)
+deactivateQueue.process(async (_, done) => {
+  try {
+    const users = await db.$queryRaw`
+  Update User as u1, (
+        SELECT
+            u.userId,
+            u.deactivationCount,
+            u.deactivated,
+            u.terminated,
+            SUM(ifees.price)
+        FROM User u
+            JOIN Booking b on b.proId = u.userId
+            JOIN Invoice i on i.bookingId = b.bookingId
+            JOIN InvoiceFees ifees on ifees.invoiceId = i.invoiceId
+        WHERE
+            role = 'pro'
+            AND deactivated = 0
+            AND u.terminated = 0
+            AND verified = 1
+            AND b.status = "completed"
+        GROUP BY u.userId
+        HAVING
+            SUM(ifees.price) < 35000000
+    ) as u2
+SET
+    u1.terminated = IF(
+        u2.deactivationCount > 2,
+        1,
+        u1.terminated
+    ),
+    u1.deactivated = 1
+WHERE u1.userId = u2.userId;
+  `
+    console.log(users)
+  } catch (error) {
+    logger.err(error)
+  }
+  done()
+})
+
+notifyQueue.process(async (job, done) => {
+  const sent = sendSocketNotify('notification', job.data.userId, {
+    body: job.data.body,
+    title: job.data.title,
+    userId: job.data.userId,
+  })
+  if (!sent) {
+    // TODO: send fcm
+  }
+  try {
+    await db.notification.create({
+      data: {
+        body: job.data.body,
+        title: job.data.title,
+        userId: job.data.userId,
+      },
+    })
+  } catch (error) {
+    logger.err((error as any).message)
+  }
   done()
 })
 
 emailQueue.process(async (job, done) => {
   if (process.env.NODE_ENV !== 'production') return done()
-  sendMail(job.data)
-    .then((_info) => {
-      done()
-    })
-    .catch((error) => {
-      logger.err(error.message)
-      done()
-    })
+  sendMail(job.data).catch((error) => {
+    logger.err(error.message)
+  })
+  done()
 })
 
 phoneQueue.process(async (job, done) => {
@@ -53,10 +114,14 @@ phoneQueue.process(async (job, done) => {
 })
 
 chatQueue.process(async (job, done) => {
-  if (process.env.NODE_ENV !== 'production') return done()
-  await db.chat.create({
-    data: job.data,
-  })
+  try {
+    await db.chat.create({
+      data: job.data,
+    })
+  } catch (error) {
+    logger.err((error as any).message)
+  }
+  done()
 })
 
 paymentQueue.process(async (job, done) => {
@@ -79,7 +144,8 @@ paymentQueue.process(async (job, done) => {
         })
         if (invoice && invoice.paid !== true) {
           const total =
-            invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0
+            (invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0) +
+            invoice.transportFee
           await db.invoice.update({
             where: {
               invoiceId,
@@ -151,9 +217,9 @@ paymentQueue.process(async (job, done) => {
 
 export {
   emailQueue,
-  mainQueue,
   paymentThreshold,
   phoneQueue,
   paymentQueue,
   chatQueue,
+  notifyQueue,
 }

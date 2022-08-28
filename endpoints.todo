@@ -1,25 +1,20 @@
 TASKS
 
 UNDONE
-GET /pro/:id
-/rate/review
-/manual search
 /pro?name&filterby=service
-/pro/video - pro should be able to add a video
+
 /bookings - get all bookings paginated
 /bookings/daily/:id - get daily booking amount
 /bookings/weekly/:id - get weekly booking amount
 /bookings/monthly/:id - get monthly booking amount
 /bookings/new
 /bookings/returned
-/transactions - get all transactions paginated
 /pro/redeems
+notifications (chat and others)
 chat sockets 🚧
 
 PENDING
-/setactivetimer
 /getinvoice?id=1
-/report/booking?returned=true&status=completed&period=weekly
 /report/tasktarget?period=monthly
 /confirmpayout
 deactivation crons
@@ -78,7 +73,6 @@ weekly bonus list
 deactivated 12 am on sunday
 
 QUESTIONS
-How do they select if cash or card
 deactivated
 earnings
 need services photo url

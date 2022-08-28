@@ -8,7 +8,9 @@ create a .env file from the `.env.example` file and fill values without quotes
 docker-compose up -d
 npm install
 npm run prepare
+npm run prisma:generate
 npx prisma migrate dev --name init
+npx prisma db seed
 npm run dev
 ```
 

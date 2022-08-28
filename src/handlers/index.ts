@@ -37,7 +37,7 @@ const makeRouter = ({
         logger.info(req.body)
         throw new ForbiddenError()
       }
-      //TODO frontend should add "custom_fields" with invoiceitems to metadata
+      //TODO backend should add "custom_fields" with invoiceitems to metadata
       const userId = req.body?.data?.metadata?.userId
       paymentQueue.add({
         userId: userId ? +userId : undefined,

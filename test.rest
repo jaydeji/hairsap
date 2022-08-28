@@ -111,3 +111,20 @@ Authorization: Bearer {{utoken}}
 {
     "userId":1
 }
+
+###
+POST {{base}}/pros/auto HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+{
+    "userId":1,
+    "subServiceId":1,
+    "latitude":10,
+    "longitude":10
+}
+
+###
+GET {{base}}/bookings/transactions HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}

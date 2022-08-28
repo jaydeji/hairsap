@@ -296,6 +296,70 @@ const getProBookings =
     return { count: x?.[0]._count || 0, services: flattenedServices, total }
   }
 
+const getTransactions =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) =>
+    db.invoiceFees.findMany({
+      where: {
+        invoice: {
+          paid: true,
+          booking: {
+            OR: [
+              {
+                userId,
+              },
+              {
+                proId: userId,
+              },
+            ],
+          },
+        },
+      },
+      include: {
+        invoice: {
+          select: {
+            booking: {
+              select: {
+                pro: {
+                  select: {
+                    name: true,
+                    businessName: true,
+                  },
+                },
+                user: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+const getTotalOfWeeklyCompletedBookings =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) =>
+    db.invoiceFees.aggregate({
+      where: {
+        invoice: {
+          booking: { proId, status: BOOKING_STATUS.COMPLETED },
+          createdAt: { gte: dayjs().startOf('week').toDate() },
+        },
+      },
+      _sum: {
+        price: true,
+      },
+    })
+
+const addBonus =
+  ({ db }: { db: PrismaClient }) =>
+  (data: { proId: number; amount: number }) =>
+    db.bonus.create({
+      data,
+    })
+
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
@@ -311,6 +375,13 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getUserBookings: getUserBookings({ db }),
     getProBookings: getProBookings({ db }),
     getInvoiceById: getInvoiceById({ db }),
+    getTransactions: getTransactions({ db }),
+    getTotalOfWeeklyCompletedBookings: getTotalOfWeeklyCompletedBookings({
+      db,
+    }),
+    addBonus: addBonus({
+      db,
+    }),
   }
 }
 

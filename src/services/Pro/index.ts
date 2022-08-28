@@ -9,9 +9,18 @@ import {
   PatchProRequestSchema,
   PatchProRequest,
 } from '../../schemas/request/patchPro'
+import {
+  PostApplicationVideoReq,
+  PostApplicationVideoReqSchema,
+} from '../../schemas/request/postGetApplicationVideo'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
 import type { Repo, Role } from '../../types'
-import { getPageMeta, getTransportPrice, paginate } from '../../utils'
+import {
+  getArrivalTime,
+  getPageMeta,
+  getTransportPrice,
+  paginate,
+} from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const updatePro =
@@ -37,6 +46,7 @@ const getNearestPro =
     //TODO: get reviews count
 
     const transportation = getTransportPrice(pro.distance!)
+    const arrivalAt = getArrivalTime(pro.distance!)
     const price = pro.price!
 
     delete pro.distance
@@ -46,6 +56,7 @@ const getNearestPro =
       pro,
       transportation,
       total: price + transportation,
+      arrivalAt,
     }
   }
 
@@ -148,6 +159,20 @@ const searchPro =
     return data
   }
 
+const uploadApplicationVideo =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostApplicationVideoReq) => {
+    PostApplicationVideoReqSchema.parse(body)
+    const { proId, workVideoUrl, workVideoKey, workVideoOriginalFileName } =
+      body
+
+    await repo.user.updateUser(proId, {
+      workVideoUrl,
+      workVideoKey,
+      workVideoOriginalFileName,
+    })
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -160,6 +185,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     updatePro: updatePro({ repo }),
     getProData: getProData({ repo }),
     searchPro: searchPro({ repo }),
+    uploadApplicationVideo: uploadApplicationVideo({ repo }),
   }
 }
 
