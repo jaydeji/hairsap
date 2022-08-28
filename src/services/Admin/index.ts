@@ -1,3 +1,5 @@
+import { z } from 'zod'
+import { notifyQueue } from '../../config/queue'
 import { GetPayoutRequestsReqSchema } from '../../schemas/request/getPayoutRequestSchema'
 import { PageReq } from '../../schemas/request/Page'
 import {
@@ -68,12 +70,49 @@ const getProApplications =
     return { data }
   }
 
+const confirmPayoutRequest =
+  ({ repo }: { repo: Repo }) =>
+  async (invoiceId: number) => {
+    z.object({
+      invoiceId: z.number(),
+    })
+      .strict()
+      .parse({ invoiceId })
+    const invoice = await repo.book.getInvoiceById(invoiceId)
+    if (!invoice) throw new NotFoundError('invoice not found')
+    if (invoice.paid) throw new ForbiddenError('invoice already marked as paid')
+    const data = await repo.book.confirmPayoutRequest(invoiceId)
+    return { data }
+  }
+
+const requestPayout =
+  ({ repo }: { repo: Repo }) =>
+  async (proId: number) => {
+    z.object({
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ proId })
+
+    const { total } = await repo.book.getUnredeemedCashPayments({
+      proId,
+    })
+
+    notifyQueue.add({
+      title: 'Redeem Payout Request',
+      body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
+      userId: proId,
+    })
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
     getPayoutRequests: getPayoutRequests({ repo }),
     acceptOrRejectApplication: acceptOrRejectApplication({ repo }),
     getProApplications: getProApplications({ repo }),
+    confirmPayoutRequest: confirmPayoutRequest({ repo }),
+    requestPayout: requestPayout({ repo }),
   }
 }
 

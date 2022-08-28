@@ -274,17 +274,9 @@ const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
 
   if (sentRedeemCashNotification) return
 
-  const unredeemedCashPayments = await repo.book.getUnredeemedCashPayments({
+  const { total } = await repo.book.getUnredeemedCashPayments({
     proId,
   })
-
-  const total = unredeemedCashPayments.reduce(
-    (acc, e) =>
-      acc +
-      e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0) +
-      e.transportFee,
-    0,
-  )
 
   if (total >= PERIODIC_CASH_AMOUNTS.DAILY_REDEEM_THRESHOLD) {
     await repo.other.addNotificationStatus({ type: 'redeem', userId: proId })

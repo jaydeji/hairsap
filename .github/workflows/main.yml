@@ -29,14 +29,12 @@ jobs:
       - name: echo
         run: echo Deployment started!
 
-      # - name: Migrate
-      #   run: |
-      #    docker run --rm --env-file /root/hsapdev/.env -v $(pwd)/prisma:/prisma node:16-alpine npx --yes prisma migrate deploy
-
-      - name: Build
-          # docker-compose run migrate -f docker-compose.prod.yml --env-file /root/hsapdev/.env
+      - name: Migrate
         run: |
           docker-compose -f docker-compose.prod.yml run migrate
+
+      - name: Build
+        run: |
           docker-compose -f docker-compose.prod.yml up --build -d 
           docker image prune -f
 

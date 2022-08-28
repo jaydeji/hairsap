@@ -362,8 +362,8 @@ const addBonus =
 
 const getUnredeemedCashPayments =
   ({ db }: { db: PrismaClient }) =>
-  ({ proId }: { proId: number }) =>
-    db.invoice.findMany({
+  async ({ proId }: { proId: number }) => {
+    const unredeemedCashPayments = await db.invoice.findMany({
       where: {
         channel: CHANNEL.CASH,
         paid: {
@@ -375,6 +375,26 @@ const getUnredeemedCashPayments =
       },
       include: {
         invoiceFees: true,
+      },
+    })
+    const total = unredeemedCashPayments.reduce(
+      (acc, e) =>
+        acc +
+        e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0) +
+        e.transportFee,
+      0,
+    )
+    return { total, unredeemedCashPayments }
+  }
+const confirmPayoutRequest =
+  ({ db }: { db: PrismaClient }) =>
+  (invoiceId: number) =>
+    db.invoice.update({
+      data: {
+        paid: true,
+      },
+      where: {
+        invoiceId,
       },
     })
 
@@ -399,6 +419,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     }),
     addBonus: addBonus({ db }),
     getUnredeemedCashPayments: getUnredeemedCashPayments({ db }),
+    confirmPayoutRequest: confirmPayoutRequest({ db }),
   }
 }
 

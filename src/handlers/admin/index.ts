@@ -28,6 +28,22 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.post(
+    '/payout/:proId/request',
+    ah(async (req, res) => {
+      await service.admin.requestPayout(+req.params.proId)
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/payout/:invoiceId/confirm',
+    ah(async (req, res) => {
+      await service.admin.confirmPayoutRequest(+req.params.invoiceId)
+      res.status(201).send()
+    }),
+  )
+
   router.get(
     '/proapplications',
     ah(async (_req, res) => {
