@@ -124,6 +124,36 @@ const getDashboardBookingStats =
     return { data }
   }
 
+const getApplicationVideo =
+  ({ repo }: { repo: Repo }) =>
+  async (proId: number) => {
+    z.object({
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ proId })
+    const user = await repo.pro.getApplicationVideo(proId)
+    return {
+      userId: user?.userId,
+      email: user?.email,
+      address: user?.address,
+      name: user?.name,
+      phone: user?.phone,
+      role: user?.role,
+      profilePhotoUrl: user?.profilePhotoUrl,
+      deactivated: user?.deactivated,
+      deactivationCount: user?.deactivationCount,
+      reactivationCount: user?.reactivationCount,
+      reactivationRequested: user?.reactivationRequested,
+      terminated: user?.terminated,
+      verified: user?.verified,
+      available: user?.available,
+      businessName: user?.businessName,
+      createdAt: user?.createdAt,
+      proServices: user?.proServices,
+    }
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
@@ -134,6 +164,7 @@ const makeAdmin = ({ repo }: { repo: Repo }) => {
     requestPayout: requestPayout({ repo }),
     getDashboardStats: getDashboardStats({ repo }),
     getDashboardBookingStats: getDashboardBookingStats({ repo }),
+    getApplicationVideo: getApplicationVideo({ repo }),
   }
 }
 

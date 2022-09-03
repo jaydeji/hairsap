@@ -63,6 +63,14 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.get(
+    '/proapplication/:proId',
+    ah(async (req, res) => {
+      const data = await service.admin.getApplicationVideo(+req.params.proId)
+      res.status(201).send({ data })
+    }),
+  )
+
   router.post(
     '/pros',
     ah(async (req, res) => {
@@ -100,10 +108,10 @@ const makeAdminRouter = ({
   )
 
   router.get(
-    '/pros/:id',
+    '/pros/:userId',
     ah(async (req, res) => {
       const data = await service.pro.getProDetails({
-        userId: req.body.userId,
+        userId: +req.params.userId,
       })
       res.status(200).send({ data })
     }),

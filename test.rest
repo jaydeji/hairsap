@@ -154,3 +154,9 @@ Authorization: Bearer {{atoken}}
     "status":"returned",
     "period":"month"
 }
+
+###
+GET {{base}}/admin/pros/3 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{atoken}}
+
