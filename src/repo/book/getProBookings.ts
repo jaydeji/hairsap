@@ -70,9 +70,9 @@ export const getProBookings =
   }) => {
     const bookings = (await query({ db, period, proId, status })) as {
       name: string
-      total: number
+      total: string
     }[]
-    const total = bookings.reduce((acc, e) => acc + e.total, 0)
+    const total = bookings.reduce((acc, e) => acc + +e.total, 0)
 
     return { count: bookings.length, bookings, total }
   }

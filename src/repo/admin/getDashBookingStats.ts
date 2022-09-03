@@ -63,13 +63,13 @@ export const getDashboardBookingStats =
   ({ db }: { db: PrismaClient }) =>
   async ({ limit, period, status }: GetAdminDashBookStats) => {
     const bookings = (await query(db, limit, status, period)) as {
-      serviceIdCnt: number
-      serviceId: number
+      serviceIdCnt: string
+      serviceId: string
       name: string
     }[]
 
     return {
       bookings,
-      total: bookings.reduce((acc, e) => acc + e.serviceIdCnt, 0),
+      total: bookings.reduce((acc, e) => acc + +e.serviceIdCnt, 0),
     }
   }
