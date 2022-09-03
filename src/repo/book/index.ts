@@ -1,9 +1,9 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
-import { BOOKING_STATUS, CHANNEL } from '../config/constants'
-import { GetProBookingsReq } from '../schemas/request/getProBookings'
-import { PageReq } from '../schemas/request/Page'
-import { BookingStatus } from '../types'
-import { dayjs } from '../utils'
+import { BOOKING_STATUS, CHANNEL } from '../../config/constants'
+import { PageReq } from '../../schemas/request/Page'
+import { BookingStatus } from '../../types'
+import { dayjs } from '../../utils'
+import { getProBookings } from './getProBookings'
 
 const getBookingById =
   ({ db }: { db: PrismaClient }) =>
@@ -236,64 +236,6 @@ const getUserBookings =
         skip: page.skip,
       }),
     ])
-  }
-
-const getProBookings =
-  ({ db }: { db: PrismaClient }) =>
-  async ({
-    period,
-    proId,
-    status,
-  }: {
-    proId: number
-    status: GetProBookingsReq['status']
-    period: GetProBookingsReq['period']
-  }) => {
-    const x = await db.booking.groupBy({
-      by: ['proId', 'userId'],
-      where: {
-        proId,
-        status: BOOKING_STATUS.COMPLETED,
-        createdAt: { gte: dayjs().startOf(period).toDate() },
-      },
-      having: {
-        userId:
-          status === 'new'
-            ? {
-                lt: 2,
-              }
-            : {
-                gt: 1,
-              },
-      },
-      _count: true,
-    })
-
-    const y = await db.$transaction(
-      x.map(({ proId, userId }) => {
-        return db.invoiceFees.findMany({
-          where: {
-            invoice: {
-              booking: {
-                userId,
-                proId,
-              },
-            },
-          },
-          select: {
-            feeId: true,
-            name: true,
-            price: true,
-            createdAt: true,
-          },
-        })
-      }),
-    )
-
-    const flattenedServices = y.flat()
-    const total = flattenedServices.reduce((acc, e) => acc + e.price, 0)
-
-    return { count: x?.[0]._count || 0, services: flattenedServices, total }
   }
 
 const getTransactions =

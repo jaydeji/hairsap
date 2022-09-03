@@ -1,10 +1,22 @@
 import { z } from 'zod'
 
+const STATUS = {
+  NEW: 'new',
+  COMPLETED: 'completed',
+  RETURNED: 'returned',
+} as const
+
+const PERIOD = {
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+} as const
+
 export const GetProBookingsReqSchema = z
   .object({
     proId: z.number(),
-    status: z.union([z.literal('new'), z.literal('completed')]),
-    period: z.union([z.literal('day'), z.literal('week'), z.literal('month')]),
+    status: z.nativeEnum(STATUS),
+    period: z.nativeEnum(PERIOD),
   })
   .strict()
 

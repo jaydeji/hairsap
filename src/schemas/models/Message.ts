@@ -12,7 +12,6 @@ export const MessageSchema = z
           ),
         ),
       ),
-    text: z.string().optional(),
     photo: z.string().optional(),
     message: z.string().optional(),
     senderId: z.number(),

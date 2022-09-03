@@ -46,7 +46,7 @@ model ProService {
 model Service {
   serviceId   Int          @id @default(autoincrement())
   name        String
-  photoUrl    String
+  photoUrl    String       @db.VarChar(512)
   subServices SubService[]
   proServices ProService[]
 
@@ -57,7 +57,7 @@ model Service {
 model SubService {
   subServiceId      Int                 @id @default(autoincrement())
   name              String
-  photoUrl          String
+  photoUrl          String              @db.VarChar(512)
   price             Int
   serviceId         Int
   createdAt         DateTime            @default(now())
@@ -122,13 +122,13 @@ model Booking {
   bookingId                   Int       @id @default(autoincrement())
   arrived                     Boolean   @default(false)
   inTransit                   Boolean   @default(false)
-  address                     String
-  samplePhotoUrl              String?
+  address                     String    @db.Text()
+  samplePhotoUrl              String?   @db.VarChar(512)
   samplePhotoKey              String?
   samplePhotoOriginalFileName String?
   status                      String
   rating                      Int?
-  review                      String?
+  review                      String?   @db.Text()
   acceptedAt                  DateTime?
   rejectedAt                  DateTime?
   arrivalAt                   DateTime?
@@ -151,9 +151,8 @@ model Booking {
 model Chat {
   chatId      Int     @id @default(autoincrement())
   messageType String
-  message     String?
-  text        String?
-  photo       String?
+  message     String? @db.Text()
+  photo       String? @db.VarChar(512)
 
   senderId   Int
   receiverId Int
@@ -198,15 +197,15 @@ model Deactivation {
 
 model User {
   userId                       Int      @id @default(autoincrement())
-  email                        String   @db.VarChar(255)
-  address                      String
+  email                        String
+  address                      String   @db.Text()
   name                         String
   password                     String
   phone                        String
   role                         String
   faceIdPhotoKey               String?
   faceIdPhotoOriginalFileName  String?
-  profilePhotoUrl              String?
+  profilePhotoUrl              String?  @db.VarChar(512)
   profilePhotoKey              String?
   profilePhotoOriginalFileName String?
   longitude                    Decimal? @db.Decimal(10, 6)
@@ -219,7 +218,7 @@ model User {
   // approved              Boolean?        @default(false)
   verified                     Boolean? @default(false) //verify new pro account
   available                    Boolean? @default(true)
-  workVideoUrl                 String?
+  workVideoUrl                 String?  @db.VarChar(512)
   workVideoKey                 String?
   workVideoOriginalFileName    String?
   businessName                 String?
@@ -294,7 +293,7 @@ model NotificationTracker {
 
 model Notification {
   notificationId Int     @id @default(autoincrement())
-  body           String?
+  body           String? @db.Text()
   title          String?
   user           User    @relation(fields: [userId], references: [userId])
   userId         Int

@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { GetAdminDashBookStats } from '../../schemas/request/getAdminDashboardBookingStats'
+import { dayjs } from '../../utils'
 
 const query = (
   db: PrismaClient,
@@ -7,6 +8,7 @@ const query = (
   status: GetAdminDashBookStats['status'],
   period: GetAdminDashBookStats['period'],
 ) => {
+  const _period = dayjs().startOf(period).toDate()
   const where =
     limit === 'completed' ? Prisma.sql` AND status = 'COMPLETED'` : Prisma.empty
   const having =
@@ -27,7 +29,7 @@ const query = (
   JOIN SubService ss ON bss.subServiceId = ss.subServiceId
   JOIN Service s ON ss.serviceId = s.serviceId
   where
-  b.createdAt >= ${period}
+  b.createdAt >= ${_period}
   ${where}
   GROUP BY ss.serviceId;
   `
@@ -51,7 +53,7 @@ const query = (
   JOIN SubService ss ON bss.subServiceId = ss.subServiceId
   JOIN Service s ON ss.serviceId = s.serviceId
   where
-  b.createdAt >= ${period}
+  b.createdAt >= ${_period}
   ${where}
   GROUP BY ss.serviceId;
   `
