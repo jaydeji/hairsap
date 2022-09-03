@@ -386,6 +386,7 @@ const getUnredeemedCashPayments =
     )
     return { total, unredeemedCashPayments }
   }
+
 const confirmPayoutRequest =
   ({ db }: { db: PrismaClient }) =>
   (invoiceId: number) =>
@@ -396,6 +397,34 @@ const confirmPayoutRequest =
       where: {
         invoiceId,
       },
+    })
+
+const getUnpaidBonuses =
+  ({ db }: { db: PrismaClient }) =>
+  () =>
+    db.bonus.findMany({
+      where: {
+        paid: false,
+      },
+    })
+
+const getBonusById =
+  ({ db }: { db: PrismaClient }) =>
+  (bonusId: number) =>
+    db.bonus.findUnique({
+      where: {
+        bonusId,
+      },
+    })
+
+const updateBonus =
+  ({ db }: { db: PrismaClient }) =>
+  (bonusId: number, data: Prisma.BonusUpdateInput) =>
+    db.bonus.update({
+      where: {
+        bonusId,
+      },
+      data,
     })
 
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
@@ -420,6 +449,9 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     addBonus: addBonus({ db }),
     getUnredeemedCashPayments: getUnredeemedCashPayments({ db }),
     confirmPayoutRequest: confirmPayoutRequest({ db }),
+    getUnpaidBonuses: getUnpaidBonuses({ db }),
+    getBonusById: getBonusById({ db }),
+    updateBonus: updateBonus({ db }),
   }
 }
 

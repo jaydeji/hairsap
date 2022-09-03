@@ -7,7 +7,7 @@ import {
   PAYSTACK_URL,
   ROLES,
 } from '../../config/constants'
-import { notifyQueue } from '../../config/queue'
+import { deactivateRedeem, notifyQueue } from '../../config/queue'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
   GetProBookingsReq,
@@ -285,6 +285,14 @@ const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
       body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
       userId: proId,
     })
+    deactivateRedeem.add(
+      {
+        proId,
+      },
+      {
+        delay: dayjs.duration({ days: 2 }).as('ms'),
+      },
+    )
   }
 }
 
@@ -491,6 +499,29 @@ const getTransactions =
     return data
   }
 
+const getUnpaidBonuses =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.book.getUnpaidBonuses()
+
+    return { data }
+  }
+
+const markBonusAsPaid =
+  ({ repo }: { repo: Repo }) =>
+  async ({ bonusId }: { bonusId: number }) => {
+    const bonus = await repo.book.getBonusById(bonusId)
+
+    if (!bonus) throw new NotFoundError('booking not found')
+
+    if (bonus.paid === true)
+      throw new ForbiddenError('Bonus has already been marked as paid')
+
+    await repo.book.updateBonus(bonusId, {
+      paid: true,
+    })
+  }
+
 const makeBook = ({ repo }: { repo: Repo }) => {
   return {
     bookPro: bookPro({ repo }),
@@ -507,6 +538,8 @@ const makeBook = ({ repo }: { repo: Repo }) => {
     markBookingAsIntransit: markBookingAsIntransit({ repo }),
     rateAndReviewBooking: rateAndReviewBooking({ repo }),
     getTransactions: getTransactions({ repo }),
+    getUnpaidBonuses: getUnpaidBonuses({ repo }),
+    markBonusAsPaid: markBonusAsPaid({ repo }),
   }
 }
 

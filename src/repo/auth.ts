@@ -44,7 +44,7 @@ const deleteResetPasswordToken =
       },
     })
 
-const makAuthoRepo = ({ db }: { db: PrismaClient }) => {
+const makAuthRepo = ({ db }: { db: PrismaClient }) => {
   return {
     resetPassword: resetPassword({ db }),
     getResetPasswordToken: getResetPasswordToken({ db }),
@@ -52,4 +52,4 @@ const makAuthoRepo = ({ db }: { db: PrismaClient }) => {
   }
 }
 
-export default makAuthoRepo
+export default makAuthRepo

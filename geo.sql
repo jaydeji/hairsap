@@ -144,7 +144,8 @@ Update User as u1, (
             u.deactivationCount,
             u.deactivated,
             u.terminated,
-            SUM(ifees.price)
+            SUM(ifees.price) _sum,
+            COUNT(b.bookingId) _count
         FROM User u
             JOIN Booking b on b.proId = u.userId
             JOIN `Invoice` i on i.bookingId = b.bookingId
@@ -155,9 +156,11 @@ Update User as u1, (
             AND u.terminated = 0
             AND verified = 1
             AND b.status = "completed"
+            AND b.createdAt > '2022-08-28 12:51:42.815'
         GROUP BY u.userId
         HAVING
-            SUM(ifees.price) < 30000000
+            _sum < 30000000
+            AND _count > 24
     ) as u2
 SET
     u1.terminated = IF(

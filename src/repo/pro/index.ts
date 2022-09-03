@@ -1,7 +1,11 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { ROLES } from '../config/constants'
-import { PageReq } from '../schemas/request/Page'
-import { dayjs } from '../utils'
+import {
+  BOOKING_STATUS,
+  PERIODIC_CASH_AMOUNTS,
+  ROLES,
+} from '../../config/constants'
+import { PageReq } from '../../schemas/request/Page'
+import { dayjs } from '../../utils'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -192,9 +196,129 @@ const getAllPros =
     ])
   }
 
+const getTotalEarnings = async ({
+  db,
+  proId,
+}: {
+  db: PrismaClient
+  proId: number
+}) => {
+  const [
+    totalDayTransport,
+    totalWeekInvoiceFees,
+    totalMonthTransport,
+    totalDayInvoiceFees,
+    totalWeekTransport,
+    totalMonthInvoiceFees,
+  ] = await db.$transaction([
+    db.invoice.aggregate({
+      where: {
+        booking: {
+          proId,
+          status: BOOKING_STATUS.COMPLETED,
+          createdAt: {
+            gte: dayjs().startOf('day').toDate(),
+          },
+        },
+      },
+      _sum: {
+        transportFee: true,
+      },
+    }),
+    db.invoiceFees.aggregate({
+      where: {
+        invoice: {
+          booking: {
+            proId,
+            status: BOOKING_STATUS.COMPLETED,
+            createdAt: {
+              gte: dayjs().startOf('day').toDate(),
+            },
+          },
+        },
+      },
+      _sum: {
+        price: true,
+      },
+    }),
+    db.invoice.aggregate({
+      where: {
+        booking: {
+          proId,
+          status: BOOKING_STATUS.COMPLETED,
+          createdAt: {
+            gte: dayjs().startOf('week').toDate(),
+          },
+        },
+      },
+      _sum: {
+        transportFee: true,
+      },
+    }),
+    db.invoiceFees.aggregate({
+      where: {
+        invoice: {
+          booking: {
+            proId,
+            status: BOOKING_STATUS.COMPLETED,
+            createdAt: {
+              gte: dayjs().startOf('week').toDate(),
+            },
+          },
+        },
+      },
+      _sum: {
+        price: true,
+      },
+    }),
+    db.invoice.aggregate({
+      where: {
+        booking: {
+          proId,
+          status: BOOKING_STATUS.COMPLETED,
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+        },
+      },
+      _sum: {
+        transportFee: true,
+      },
+    }),
+    db.invoiceFees.aggregate({
+      where: {
+        invoice: {
+          booking: {
+            proId,
+            status: BOOKING_STATUS.COMPLETED,
+            createdAt: {
+              gte: dayjs().startOf('month').toDate(),
+            },
+          },
+        },
+      },
+      _sum: {
+        price: true,
+      },
+    }),
+  ])
+
+  return {
+    day:
+      (totalDayTransport._sum.transportFee || 0) +
+      (totalDayInvoiceFees._sum.price || 0),
+    week:
+      (totalWeekTransport._sum.transportFee || 0) +
+      (totalWeekInvoiceFees._sum.price || 0),
+    month:
+      (totalMonthTransport._sum.transportFee || 0) +
+      (totalMonthInvoiceFees._sum.price || 0),
+  }
+}
+
 const getProDetails =
   ({ db }: { db: PrismaClient }) =>
-  async ({ proId }: { proId?: number }) => {
+  async ({ proId }: { proId: number }) => {
     const [
       latestBookings,
       dailyBookingSum,
@@ -208,6 +332,12 @@ const getProDetails =
       subscriptions,
       averageRatings,
       user,
+      dailyTaskTarget,
+      weeklyTaskTarget,
+      monthlyTaskTarget,
+      dailyBonus,
+      weeklyBonus,
+      monthlyBonus,
     ] = await db.$transaction([
       db.booking.findMany({
         where: {
@@ -322,7 +452,90 @@ const getProDetails =
           },
         },
       }),
+      db.invoiceFees.aggregate({
+        where: {
+          invoice: {
+            booking: {
+              proId,
+              status: BOOKING_STATUS.COMPLETED,
+              createdAt: {
+                gte: dayjs().startOf('day').toDate(),
+              },
+            },
+          },
+        },
+        _sum: {
+          price: true,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        where: {
+          invoice: {
+            booking: {
+              proId,
+              status: BOOKING_STATUS.COMPLETED,
+              createdAt: {
+                gte: dayjs().startOf('week').toDate(),
+              },
+            },
+          },
+        },
+        _sum: {
+          price: true,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        where: {
+          invoice: {
+            booking: {
+              proId,
+              status: BOOKING_STATUS.COMPLETED,
+              createdAt: {
+                gte: dayjs().startOf('month').toDate(),
+              },
+            },
+          },
+        },
+        _sum: {
+          price: true,
+        },
+      }),
+      db.bonus.aggregate({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('day').toDate(),
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+      db.bonus.aggregate({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('week').toDate(),
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+      db.bonus.aggregate({
+        where: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
     ])
+
+    const earnings = await getTotalEarnings({ db, proId })
 
     return {
       latestBookings,
@@ -337,6 +550,26 @@ const getProDetails =
       subscriptions,
       averageRatings: averageRatings._avg.rating,
       user,
+      taskTarget: {
+        day:
+          ((dailyTaskTarget._sum.price || 0) /
+            PERIODIC_CASH_AMOUNTS.DAILY_TASK_TARGET) *
+          100,
+        week:
+          ((weeklyTaskTarget._sum.price || 0) /
+            PERIODIC_CASH_AMOUNTS.WEEKLY_TASK_TARGET) *
+          100,
+        month:
+          ((monthlyTaskTarget._sum.price || 0) /
+            PERIODIC_CASH_AMOUNTS.MONTHLY_TASK_TARGET) *
+          100,
+      },
+      bonus: {
+        day: dailyBonus._sum.amount,
+        week: weeklyBonus._sum.amount,
+        month: monthlyBonus._sum.amount,
+      },
+      earnings,
     }
   }
 
@@ -386,6 +619,16 @@ const getProApplications =
       },
     })
 
+const updateAvailability =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number, available: boolean) =>
+    db.available.create({
+      data: {
+        proId,
+        available,
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -399,6 +642,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProData: getProData({ db }),
     searchPro: searchPro({ db }),
     getProApplications: getProApplications({ db }),
+    updateAvailability: updateAvailability({ db }),
   }
 }
 

@@ -27,6 +27,11 @@ const updatePro =
   ({ repo }: { repo: Repo }) =>
   async (userId: number, body: PatchProRequest) => {
     PatchProRequestSchema.parse({ ...body, userId: userId })
+
+    if (typeof body.available === 'boolean') {
+      await repo.pro.updateAvailability(userId, body.available)
+    }
+
     await repo.user.updateUser(userId, body)
   }
 

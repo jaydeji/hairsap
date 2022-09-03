@@ -1,0 +1,73 @@
+import { Prisma, PrismaClient } from '@prisma/client'
+import { GetAdminDashBookStats } from '../../schemas/request/getAdminDashboardBookingStats'
+
+const query = (
+  db: PrismaClient,
+  limit: GetAdminDashBookStats['limit'],
+  status: GetAdminDashBookStats['status'],
+  period: GetAdminDashBookStats['period'],
+) => {
+  const where =
+    limit === 'completed' ? Prisma.sql` AND status = 'COMPLETED'` : Prisma.empty
+  const having =
+    status === 'new'
+      ? Prisma.sql` HAVING cnt = 1`
+      : status === 'returned'
+      ? Prisma.sql` HAVING cnt > 1`
+      : Prisma.empty
+
+  if (status === 'all') {
+    return db.$queryRaw`
+  SELECT
+  ss.serviceId,
+  s.name,
+  COUNT(ss.serviceId) serviceIdCnt 
+  FROM Booking b
+  JOIN BookingSubService bss ON b.bookingId = bss.bookingId
+  JOIN SubService ss ON bss.subServiceId = ss.subServiceId
+  JOIN Service s ON ss.serviceId = s.serviceId
+  where
+  b.createdAt >= ${period}
+  ${where}
+  GROUP BY ss.serviceId;
+  `
+  }
+
+  return db.$queryRaw`
+  SELECT
+  ss.serviceId,
+  s.name,
+  COUNT(ss.serviceId) serviceIdCnt
+  FROM (
+      SELECT
+          userId,
+          COUNT(userId) cnt
+      FROM booking
+      GROUP BY userId
+      ${having}
+  ) _b
+  JOIN booking b on _b.userId = b.userId
+  JOIN BookingSubService bss ON b.bookingId = bss.bookingId
+  JOIN SubService ss ON bss.subServiceId = ss.subServiceId
+  JOIN Service s ON ss.serviceId = s.serviceId
+  where
+  b.createdAt >= ${period}
+  ${where}
+  GROUP BY ss.serviceId;
+  `
+}
+
+export const getDashboardBookingStats =
+  ({ db }: { db: PrismaClient }) =>
+  async ({ limit, period, status }: GetAdminDashBookStats) => {
+    const bookings = (await query(db, limit, status, period)) as {
+      serviceIdCnt: number
+      serviceId: number
+      name: string
+    }[]
+
+    return {
+      bookings,
+      total: bookings.reduce((acc, e) => acc + e.serviceIdCnt, 0),
+    }
+  }

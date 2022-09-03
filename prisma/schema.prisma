@@ -9,10 +9,19 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+// track when pro sets availability
+model Available {
+  availableId Int      @id @default(autoincrement())
+  available   Boolean
+  pro         User     @relation(fields: [proId], references: [userId])
+  proId       Int
+  createdAt   DateTime @default(now()) @updatedAt
+}
+
 model Subscription {
-  pros   User @relation("pro", fields: [proId], references: [userId])
+  pros   User @relation("pro_sub", fields: [proId], references: [userId])
   proId  Int
-  users  User @relation("user", fields: [userId], references: [userId])
+  users  User @relation("user_sub", fields: [userId], references: [userId])
   userId Int
 
   createdAt DateTime @default(now())
@@ -124,15 +133,16 @@ model Booking {
   rejectedAt                  DateTime?
   arrivalAt                   DateTime?
   cancelledAt                 DateTime?
-  createdAt                   DateTime  @default(now())
-  updatedAt                   DateTime  @default(now()) @updatedAt
-  pro                         User?     @relation("pro", fields: [proId], references: [userId])
+  pro                         User      @relation("pro_booking", fields: [proId], references: [userId])
   proId                       Int
-  user                        User?     @relation("user", fields: [userId], references: [userId])
+  user                        User      @relation("user_booking", fields: [userId], references: [userId])
   userId                      Int
 
   invoice           Invoice?
   bookedSubServices BookingSubService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([proId])
   @@index([userId])
@@ -147,8 +157,8 @@ model Chat {
 
   senderId   Int
   receiverId Int
-  receiver   User @relation("receiver", fields: [receiverId], references: [userId])
-  sender     User @relation("sender", fields: [senderId], references: [userId])
+  receiver   User @relation("message_receiver", fields: [receiverId], references: [userId])
+  sender     User @relation("message_sender", fields: [senderId], references: [userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -174,6 +184,18 @@ model Card {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+model Deactivation {
+  deactivationId Int      @id @default(autoincrement())
+  reason         String
+  amount         Int
+  paid           Boolean? @default(false)
+  user           User     @relation(fields: [proId], references: [userId])
+  proId          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model User {
   userId                       Int      @id @default(autoincrement())
   email                        String   @db.VarChar(255)
@@ -190,7 +212,6 @@ model User {
   longitude                    Decimal? @db.Decimal(10, 6)
   latitude                     Decimal? @db.Decimal(10, 6)
   deactivated                  Boolean? @default(false)
-  deactivatedReason            Int?
   deactivationCount            Int      @default(0)
   reactivationCount            Int      @default(0)
   reactivationRequested        Boolean? @default(false)
@@ -207,16 +228,18 @@ model User {
   notifications       Notification[]
   PasswordReset       PasswordReset[]
   paymentEvents       PaymentEvents[]
-  receivedChats       Chat[]                @relation("receiver")
-  sentChats           Chat[]                @relation("sender")
+  receivedChats       Chat[]                @relation("message_receiver")
+  sentChats           Chat[]                @relation("message_sender")
   bonuses             Bonus[]
   // redeemPayments      RedeemPayment[]
-  subscribers         Subscription[]        @relation("pro")
   proServices         ProService[]
-  Subscription        Subscription[]        @relation("user")
-  proBookings         Booking[]             @relation("pro")
-  userBookings        Booking[]             @relation("user")
+  subscribers         Subscription[]        @relation("pro_sub")
+  Subscription        Subscription[]        @relation("user_sub")
+  proBookings         Booking[]             @relation("pro_booking")
+  userBookings        Booking[]             @relation("user_booking")
   NotificationTracker NotificationTracker[]
+  Deactivation        Deactivation[]
+  Available           Available[]
   account             Account?
   card                Card?
 
@@ -296,6 +319,7 @@ model Notification {
 model Bonus {
   bonusId   Int      @id @default(autoincrement())
   amount    Int
+  paid      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   pro       User     @relation(fields: [proId], references: [userId])

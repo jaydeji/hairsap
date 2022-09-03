@@ -1,12 +1,24 @@
 import Queue from 'bull'
 import { sendMail } from './email'
 import { SendMailOptions } from 'nodemailer'
-import { logger } from '../utils'
+import { logger, dayjs } from '../utils'
 import db from '../config/db'
 import { ChatMessageType } from '../schemas/models/Message'
 import got from 'got-cjs'
-import { BOOKING_STATUS, PAYSTACK_URL, ROLES } from './constants'
+import {
+  BOOKING_STATUS,
+  PAYSTACK_URL,
+  PERIODIC_CASH_AMOUNTS,
+  ROLES,
+} from './constants'
 import { sendSocketNotify } from '../handlers/chat/socket'
+import {
+  deactivateProByStarRating,
+  deactivateProByTaskTargetEveryWeek,
+  deactivateProNonRedeems,
+  terminateDeactivatedUsers,
+} from '../repo/pro/utils'
+import makeRepo from '../repo'
 
 const redisUrl = process.env.REDIS_URL as string
 
@@ -23,7 +35,7 @@ type Payment = {
     }
   }
 }
-
+const repo = makeRepo({ db })
 const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
 const phoneQueue = new Queue('phone', redisUrl)
 const paymentQueue = new Queue<Payment>('payment', redisUrl)
@@ -35,42 +47,27 @@ const notifyQueue = new Queue<{
 }>('notifications', redisUrl)
 const paymentThreshold = new Queue('payment_threshold', redisUrl)
 const deactivateQueue = new Queue('deactivate', redisUrl)
+const deactivateRedeem = new Queue<{ proId: number }>(
+  'deactivate_redeem',
+  redisUrl,
+)
 deactivateQueue.add(undefined, { repeat: { cron: '59 59 23 * * 7' } }) //every sunday night by 23:59:59
+
+deactivateRedeem.process(async (job, done) => {
+  try {
+    await deactivateProNonRedeems({ db, repo, proId: job.data.proId })
+  } catch (error) {
+    logger.err(error)
+  }
+  done()
+})
 
 deactivateQueue.process(async (_, done) => {
   try {
-    const users = await db.$queryRaw`
-  Update User as u1, (
-        SELECT
-            u.userId,
-            u.deactivationCount,
-            u.deactivated,
-            u.terminated,
-            SUM(ifees.price)
-        FROM User u
-            JOIN Booking b on b.proId = u.userId
-            JOIN Invoice i on i.bookingId = b.bookingId
-            JOIN InvoiceFees ifees on ifees.invoiceId = i.invoiceId
-        WHERE
-            role = 'pro'
-            AND deactivated = 0
-            AND u.terminated = 0
-            AND verified = 1
-            AND b.status = "completed"
-        GROUP BY u.userId
-        HAVING
-            SUM(ifees.price) < 35000000
-    ) as u2
-SET
-    u1.terminated = IF(
-        u2.deactivationCount > 2,
-        1,
-        u1.terminated
-    ),
-    u1.deactivated = 1
-WHERE u1.userId = u2.userId;
-  `
-    console.log(users)
+    await deactivateProByTaskTargetEveryWeek({ db })
+    await deactivateProByStarRating({ db })
+    //TODO:deactivate pro by weekly returning ratio
+    await terminateDeactivatedUsers({ db })
   } catch (error) {
     logger.err(error)
   }
@@ -222,4 +219,5 @@ export {
   paymentQueue,
   chatQueue,
   notifyQueue,
+  deactivateRedeem,
 }

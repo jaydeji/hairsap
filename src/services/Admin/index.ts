@@ -1,5 +1,9 @@
 import { z } from 'zod'
 import { notifyQueue } from '../../config/queue'
+import {
+  GetAdminDashBookStats,
+  GetAdminDashBookStatsSchema,
+} from '../../schemas/request/getAdminDashboardBookingStats'
 import { GetPayoutRequestsReqSchema } from '../../schemas/request/getPayoutRequestSchema'
 import { PageReq } from '../../schemas/request/Page'
 import {
@@ -105,6 +109,21 @@ const requestPayout =
     })
   }
 
+const getDashboardStats =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.admin.getDashboardStats()
+    return { data }
+  }
+
+const getDashboardBookingStats =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetAdminDashBookStats) => {
+    GetAdminDashBookStatsSchema.parse(body)
+    const data = await repo.admin.getDashboardBookingStats(body)
+    return { data }
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
@@ -113,6 +132,8 @@ const makeAdmin = ({ repo }: { repo: Repo }) => {
     getProApplications: getProApplications({ repo }),
     confirmPayoutRequest: confirmPayoutRequest({ repo }),
     requestPayout: requestPayout({ repo }),
+    getDashboardStats: getDashboardStats({ repo }),
+    getDashboardBookingStats: getDashboardBookingStats({ repo }),
   }
 }
 

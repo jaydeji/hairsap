@@ -5,6 +5,7 @@ import makeProRepo from './pro'
 import makeUserRepo from './user'
 import makeOtherRepo from './other'
 import makeAuthRepo from './auth'
+import makeAdminRepo from './admin'
 
 const makeRepo = ({ db }: { db: PrismaClient }) => {
   return {
@@ -14,6 +15,7 @@ const makeRepo = ({ db }: { db: PrismaClient }) => {
     book: makeBookRepo({ db }),
     other: makeOtherRepo({ db }),
     auth: makeAuthRepo({ db }),
+    admin: makeAdminRepo({ db }),
   }
 }
 

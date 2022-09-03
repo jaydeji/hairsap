@@ -77,9 +77,18 @@ deactivated
 earnings
 need services photo url
 
-
 weekly earning
 weekly bonus earning
+//star rating
+days where no rating
+more than one reason for deactivation
+at least 7 5 star ratings
+
+5 customers must give u 5 star ratings to get 5 stars
+at least 3 customers should give 5 stars for u not to be deactivated
+The true average starts should be displayed in the beauty pros profile
+deductions and transportation, bonus - weekly earnings
+replace bonus earning with star ratings
 
 
 npx prisma migrate diff \

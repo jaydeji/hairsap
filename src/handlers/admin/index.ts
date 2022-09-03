@@ -133,6 +133,38 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.get(
+    '/bonuses',
+    ah(async (_req, res) => {
+      const data = await service.book.getUnpaidBonuses()
+      res.status(200).send(data)
+    }),
+  )
+
+  router.post(
+    '/bonuses/:bonusId/paid',
+    ah(async (req, res) => {
+      await service.book.markBonusAsPaid({ bonusId: +req.query!.bonusId! })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/dashboard/bookings',
+    ah(async (req, res) => {
+      const data = await service.admin.getDashboardBookingStats(req.body)
+      res.status(200).send(data)
+    }),
+  )
+
+  router.get(
+    '/dashboard',
+    ah(async (_req, res) => {
+      const data = await service.admin.getDashboardStats()
+      res.status(200).send(data)
+    }),
+  )
+
   return router
 }
 
