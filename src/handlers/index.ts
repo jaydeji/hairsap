@@ -74,7 +74,7 @@ const makeRouter = ({
   )
   router.get(
     '/services',
-    auth({ repo }),
+    // auth({ repo }),
     ah(async (_req, res) => {
       const data = await service.other.getServices()
       res.status(200).send({ data })
