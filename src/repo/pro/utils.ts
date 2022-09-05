@@ -69,7 +69,7 @@ export const deactivateProByTaskTargetEveryWeek = async ({
           deactivationCount: {
             increment: 1,
           },
-          Deactivation: {
+          deactivations: {
             create: {
               reason: DEACTIVATION_REASONS.WEEKLY.reason,
               amount: DEACTIVATION_REASONS.WEEKLY.amount,
@@ -120,7 +120,7 @@ export const deactivateProByStarRating = async ({
           deactivationCount: {
             increment: 1,
           },
-          Deactivation: {
+          deactivations: {
             create: {
               reason: DEACTIVATION_REASONS.RATING.reason,
               amount: DEACTIVATION_REASONS.RATING.amount,
@@ -249,7 +249,7 @@ export const deactivateProNonRedeems = async ({
         deactivationCount: {
           increment: 1,
         },
-        Deactivation: {
+        deactivations: {
           create: {
             reason: DEACTIVATION_REASONS.HOURS.reason,
             amount: DEACTIVATION_REASONS.HOURS.amount,
@@ -291,7 +291,7 @@ export const deactivateProNonRedeems = async ({
           deactivationCount: {
             increment: 1,
           },
-          Deactivation: {
+          deactivations: {
             create: {
               reason: DEACTIVATION_REASONS.RATING.reason,
               amount: DEACTIVATION_REASONS.RATING.amount,

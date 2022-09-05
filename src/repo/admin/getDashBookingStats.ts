@@ -10,7 +10,7 @@ const query = (
 ) => {
   const _period = dayjs().startOf(period).toDate()
   const where =
-    limit === 'completed' ? Prisma.sql` AND status = 'COMPLETED'` : Prisma.empty
+    limit === 'completed' ? Prisma.sql` AND status = 'completed'` : Prisma.empty
   const having =
     status === 'new'
       ? Prisma.sql` HAVING cnt = 1`

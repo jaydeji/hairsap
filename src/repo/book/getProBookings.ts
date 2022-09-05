@@ -31,7 +31,7 @@ FROM booking b
     JOIN InvoiceFees ifees ON i.invoiceId = ifees.invoiceId
 WHERE b.createdAt >= ${_period}
     AND b.proId = ${proId}
-    AND b.status = 'COMPLETED'
+    AND b.status = 'completed'
 GROUP BY ifees.name;
     `
   }
@@ -45,7 +45,7 @@ FROM (
         FROM Booking
         WHERE
             proId = ${proId}
-            AND status = 'COMPLETED'
+            AND status = 'completed'
         GROUP BY userId
         ${having}
     ) _b

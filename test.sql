@@ -1,34 +1,104 @@
-SELECT *
+SELECT
+    u.userId proId,
+    IFNULL(_b1.newCnt, 0) cnt
 FROM (
+        -- get pros associated with new user bookings
         SELECT
-            name,
-            SUM(price)
-        FROM Booking b
-            JOIN `Invoice` i ON b.bookingId = i.bookingId
-            JOIN `InvoiceFees` ifees ON i.invoiceId = ifees.invoiceId
+            b.proId,
+            COUNT(b.proId) newCnt
+        FROM (
+                -- get new user bookings
+                SELECT
+                    userId,
+                    COUNT(userId) cnt
+                FROM booking
+                WHERE
+                    status = 'completed'
+                GROUP BY
+                    userId
+                HAVING
+                    cnt = 1
+            ) _b
+            JOIN booking b on _b.userId = b.userId -- JOIN `Invoice` i on b.bookingId = i.bookingId
+            -- JOIN `InvoiceFees` ifees on i.invoiceId = ifees.invoiceId
         WHERE
-            proId = 3
-            AND status = 'COMPLETED'
-        GROUP BY name
-    ) _ifees;
+            b.createdAt >= '2022-08-26 08:11:03.916'
+        GROUP BY b.proId
+    ) _b1
+    RIGHT JOIN User u on _b1.proId = u.userId
+WHERE u.role = 'pro';
 
 SELECT
-    ifees.name,
-    SUM(ifees.price)
+    b.proId,
+    -- SUM(ifees.price),
+    -- COUNT(b.proId) newCnt
+    i.invoiceId
 FROM (
-        SELECT b.userId
-        FROM Booking b
-            JOIN `Invoice` i ON b.bookingId = i.bookingId
-            JOIN `InvoiceFees` ifees ON i.invoiceId = ifees.invoiceId
+        -- get new user bookings
+        SELECT
+            userId,
+            COUNT(userId) cnt
+        FROM booking
         WHERE
-            proId = 3
-            AND status = 'COMPLETED'
-        GROUP BY b.userId
-        HAVING
-            COUNT(b.userId) = 1
+            status = 'completed'
+        GROUP BY userId
+        HAVING cnt > 1
     ) _b
     JOIN booking b on _b.userId = b.userId
-    JOIN `Invoice` i ON b.bookingId = i.bookingId
-    JOIN `InvoiceFees` ifees ON i.invoiceId = ifees.invoiceId
-WHERE b.createdAt >= ${period}
-GROUP BY ifees.name;
+    JOIN `Invoice` i on b.bookingId = i.bookingId
+    JOIN `InvoiceFees` ifees on i.invoiceId = ifees.invoiceId -- WHERE
+    --     b.createdAt >= '2022-08-26 08:11:03.916'
+    -- GROUP BY b.proId
+;
+
+INSERT INTO
+    `User` (
+        name,
+        email,
+        address,
+        password,
+        verified,
+        phone,
+        role
+    )
+VALUES (
+        'user1',
+        'user1@email.com',
+        'address 1',
+        'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+        1,
+        '000000001',
+        'user'
+    ), (
+        'user2',
+        'user2@email.com',
+        'address 2',
+        'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+        1,
+        '000000002',
+        'user'
+    ), (
+        'user3',
+        'user3@email.com',
+        'address 3',
+        'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+        1,
+        '000000003',
+        'user'
+    ), (
+        'user4',
+        'user4@email.com',
+        'address 4',
+        'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+        1,
+        '000000004',
+        'user'
+    ), (
+        'user5',
+        'user5@email.com',
+        'address 5',
+        'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+        1,
+        '000000005',
+        'user'
+    );

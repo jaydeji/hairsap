@@ -57,6 +57,9 @@ const getUserByPhone =
       where: {
         phone,
       },
+      include: {
+        deactivations: true,
+      },
     })
   }
 
@@ -66,6 +69,9 @@ const getUserByEmailAndRole =
     return db.user.findUnique({
       where: {
         email_role: { email, role },
+      },
+      include: {
+        deactivations: true,
       },
     })
   }

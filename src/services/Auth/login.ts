@@ -137,17 +137,14 @@ export const login =
         repo,
         body: body as PostLoginAdminRequest,
       })
-    }
-    if (isPro)
+    } else if (isPro)
       return loginPro({
         repo,
         body: body as PostLoginProRequest,
       })
-    if (isUser)
+    else
       return loginUser({
         repo,
         body: body as PostLoginUserRequest,
       })
-
-    throw new ForbiddenError()
   }

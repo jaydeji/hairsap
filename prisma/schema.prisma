@@ -223,24 +223,24 @@ model User {
   workVideoOriginalFileName    String?
   businessName                 String?
 
-  otp                 Otp?
-  notifications       Notification[]
-  PasswordReset       PasswordReset[]
-  paymentEvents       PaymentEvents[]
-  receivedChats       Chat[]                @relation("message_receiver")
-  sentChats           Chat[]                @relation("message_sender")
-  bonuses             Bonus[]
+  otp                  Otp?
+  notifications        Notification[]
+  PasswordReset        PasswordReset[]
+  paymentEvents        PaymentEvents[]
+  receivedChats        Chat[]                @relation("message_receiver")
+  sentChats            Chat[]                @relation("message_sender")
+  bonuses              Bonus[]
   // redeemPayments      RedeemPayment[]
-  proServices         ProService[]
-  subscribers         Subscription[]        @relation("pro_sub")
-  Subscription        Subscription[]        @relation("user_sub")
-  proBookings         Booking[]             @relation("pro_booking")
-  userBookings        Booking[]             @relation("user_booking")
-  NotificationTracker NotificationTracker[]
-  Deactivation        Deactivation[]
-  Available           Available[]
-  account             Account?
-  card                Card?
+  proServices          ProService[]
+  subscribers          Subscription[]        @relation("pro_sub")
+  subscriptions        Subscription[]        @relation("user_sub")
+  proBookings          Booking[]             @relation("pro_booking")
+  userBookings         Booking[]             @relation("user_booking")
+  notificationTrackers NotificationTracker[]
+  deactivations        Deactivation[]
+  availableTimes       Available[]
+  account              Account?
+  card                 Card?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
