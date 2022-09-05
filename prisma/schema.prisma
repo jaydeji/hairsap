@@ -198,7 +198,7 @@ model Deactivation {
 model User {
   userId                       Int      @id @default(autoincrement())
   email                        String
-  address                      String   @db.Text()
+  address                      String?  @db.Text()
   name                         String
   password                     String
   phone                        String
