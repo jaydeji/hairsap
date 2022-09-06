@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { ROLES } from '../../config/constants'
+import { CHANNEL, ROLES } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
 import { getProDetails } from './getProDetails'
 
@@ -125,6 +125,7 @@ const getPayoutRequestsWP =
         paid: {
           not: true,
         },
+        channel: CHANNEL.CASH,
       },
       include: {
         invoiceFees: true,
