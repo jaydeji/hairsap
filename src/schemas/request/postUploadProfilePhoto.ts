@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const PostUploadProfilePhotoReqSchema = z
+export const PostUploadUserProfilePhotoReqSchema = z
   .object({
     userId: z.number(),
     profilePhotoKey: z.string(),
@@ -8,6 +8,18 @@ export const PostUploadProfilePhotoReqSchema = z
     profilePhotoUrl: z.string(),
   })
   .strict()
-export type PostUploadProfilePhotoReq = z.infer<
-  typeof PostUploadProfilePhotoReqSchema
+export type PostUploadUserProfilePhotoReq = z.infer<
+  typeof PostUploadUserProfilePhotoReqSchema
+>
+
+export const PostUploadProProfilePhotoReqSchema = z
+  .object({
+    proId: z.number(),
+    tempProfilePhotoKey: z.string(),
+    tempProfilePhotoOriginalFileName: z.string(),
+    tempProfilePhotoUrl: z.string(),
+  })
+  .strict()
+export type PostUploadProProfilePhotoReq = z.infer<
+  typeof PostUploadProProfilePhotoReqSchema
 >

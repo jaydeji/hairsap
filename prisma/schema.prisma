@@ -196,32 +196,35 @@ model Deactivation {
 }
 
 model User {
-  userId                       Int      @id @default(autoincrement())
-  email                        String
-  address                      String?  @db.Text()
-  name                         String
-  password                     String
-  phone                        String
-  role                         String
-  faceIdPhotoKey               String?
-  faceIdPhotoOriginalFileName  String?
-  profilePhotoUrl              String?  @db.VarChar(512)
-  profilePhotoKey              String?
-  profilePhotoOriginalFileName String?
-  longitude                    Decimal? @db.Decimal(10, 6)
-  latitude                     Decimal? @db.Decimal(10, 6)
-  deactivated                  Boolean? @default(false)
-  deactivationCount            Int      @default(0)
-  reactivationCount            Int      @default(0)
-  reactivationRequested        Boolean? @default(false)
-  terminated                   Boolean? @default(false)
+  userId                           Int      @id @default(autoincrement())
+  email                            String
+  address                          String?  @db.Text()
+  name                             String
+  password                         String
+  phone                            String
+  role                             String
+  faceIdPhotoKey                   String?
+  faceIdPhotoOriginalFileName      String?
+  profilePhotoUrl                  String?  @db.VarChar(512)
+  profilePhotoKey                  String?
+  profilePhotoOriginalFileName     String?
+  tempProfilePhotoUrl              String?  @db.VarChar(512)
+  tempProfilePhotoKey              String?
+  tempProfilePhotoOriginalFileName String?
+  longitude                        Decimal? @db.Decimal(10, 6)
+  latitude                         Decimal? @db.Decimal(10, 6)
+  deactivated                      Boolean? @default(false)
+  deactivationCount                Int      @default(0)
+  reactivationCount                Int      @default(0)
+  reactivationRequested            Boolean? @default(false)
+  terminated                       Boolean? @default(false)
   // approved              Boolean?        @default(false)
-  verified                     Boolean? @default(false) //verify new pro account
-  available                    Boolean? @default(true)
-  workVideoUrl                 String?  @db.VarChar(512)
-  workVideoKey                 String?
-  workVideoOriginalFileName    String?
-  businessName                 String?
+  verified                         Boolean? @default(false) //verify new pro account
+  available                        Boolean? @default(true)
+  workVideoUrl                     String?  @db.VarChar(512)
+  workVideoKey                     String?
+  workVideoOriginalFileName        String?
+  businessName                     String?
 
   otp                  Otp?
   notifications        Notification[]
