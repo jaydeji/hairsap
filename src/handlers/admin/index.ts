@@ -173,6 +173,22 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.post(
+    '/unacceptedprophotos/:proId/accept',
+    ah(async (req, res) => {
+      await service.admin.acceptUnacceptedProPhotos(+req.params.proId)
+      res.status(201).send()
+    }),
+  )
+
+  router.get(
+    '/unacceptedprophotos',
+    ah(async (_req, res) => {
+      const data = await service.admin.getUnacceptedProPhotos()
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

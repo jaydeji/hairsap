@@ -124,6 +124,28 @@ const makeProRouter = ({
     }),
   )
 
+  router.post(
+    '/profilephoto',
+    allowOnly([ROLES.PRO]),
+    _upload({
+      getKey: (file, req) =>
+        `profilephoto/pro/${req.tokenData?.userId}/${nanoid()}/${
+          file.originalname
+        }`,
+      type: 'image',
+      acl: 'public-read',
+    }).single('profilephoto'),
+    ah(async (req, res) => {
+      const data = await service.pro.uploadProfilePhoto({
+        proId: req.tokenData!.userId!,
+        tempProfilePhotoKey: (req.file as any).key,
+        tempProfilePhotoOriginalFileName: (req.file as any).originalname,
+        tempProfilePhotoUrl: STORAGE_ENDPOINT_CDN + (req.file as any).key,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   return router
 }
 

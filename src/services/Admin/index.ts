@@ -11,7 +11,7 @@ import {
   PostAcceptOrRejectAppReqSchema,
 } from '../../schemas/request/postAcceptOrRejectApplication'
 import type { Repo, Role } from '../../types'
-import { getPageMeta, paginate } from '../../utils'
+import { getPageMeta, logger, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const acceptReactivation =
@@ -154,6 +154,34 @@ const getApplicationVideo =
     }
   }
 
+const getUnacceptedProPhotos =
+  ({ repo }: { repo: Repo }) =>
+  () => {
+    return repo.admin.getUnacceptedProPhotos()
+  }
+
+const acceptUnacceptedProPhotos =
+  ({ repo }: { repo: Repo }) =>
+  async (proId: number) => {
+    const pro = await repo.admin.getUnacceptedProPhoto(proId)
+
+    if (!pro) throw new ForbiddenError('pro not found')
+
+    if (!pro.tempProfilePhotoUrl) {
+      logger.info({ pro })
+      throw new ForbiddenError('photo url does not exist')
+    }
+
+    await repo.user.updateUser(proId, {
+      profilePhotoKey: pro.tempProfilePhotoKey,
+      profilePhotoOriginalFileName: pro.tempProfilePhotoOriginalFileName,
+      profilePhotoUrl: pro.tempProfilePhotoUrl,
+      tempProfilePhotoKey: null,
+      tempProfilePhotoOriginalFileName: null,
+      tempProfilePhotoUrl: null,
+    })
+  }
+
 const makeAdmin = ({ repo }: { repo: Repo }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
@@ -165,6 +193,8 @@ const makeAdmin = ({ repo }: { repo: Repo }) => {
     getDashboardStats: getDashboardStats({ repo }),
     getDashboardBookingStats: getDashboardBookingStats({ repo }),
     getApplicationVideo: getApplicationVideo({ repo }),
+    getUnacceptedProPhotos: getUnacceptedProPhotos({ repo }),
+    acceptUnacceptedProPhotos: acceptUnacceptedProPhotos({ repo }),
   }
 }
 

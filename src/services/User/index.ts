@@ -17,8 +17,8 @@ import {
   PostSubscribeReqSchema,
 } from '../../schemas/request/postSubscribe'
 import {
-  PostUploadProfilePhotoReq,
-  PostUploadProfilePhotoReqSchema,
+  PostUploadUserProfilePhotoReq,
+  PostUploadUserProfilePhotoReqSchema,
 } from '../../schemas/request/postUploadProfilePhoto'
 import type { Repo } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
@@ -46,8 +46,8 @@ const getUserSubscriptions =
 
 const uploadProfilePhoto =
   ({ repo }: { repo: Repo }) =>
-  async (body: PostUploadProfilePhotoReq) => {
-    PostUploadProfilePhotoReqSchema.parse(body)
+  async (body: PostUploadUserProfilePhotoReq) => {
+    PostUploadUserProfilePhotoReqSchema.parse(body)
 
     const {
       userId,

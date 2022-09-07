@@ -14,6 +14,10 @@ import {
   PostApplicationVideoReqSchema,
 } from '../../schemas/request/postGetApplicationVideo'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
+import {
+  PostUploadProProfilePhotoReq,
+  PostUploadProProfilePhotoReqSchema,
+} from '../../schemas/request/postUploadProfilePhoto'
 import type { Repo, Role } from '../../types'
 import {
   getArrivalTime,
@@ -178,6 +182,25 @@ const uploadApplicationVideo =
     })
   }
 
+const uploadProfilePhoto =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostUploadProProfilePhotoReq) => {
+    PostUploadProProfilePhotoReqSchema.parse(body)
+
+    const {
+      proId,
+      tempProfilePhotoKey,
+      tempProfilePhotoOriginalFileName,
+      tempProfilePhotoUrl,
+    } = body
+
+    await repo.user.updateUser(proId, {
+      tempProfilePhotoKey,
+      tempProfilePhotoOriginalFileName,
+      tempProfilePhotoUrl,
+    })
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -191,6 +214,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getProData: getProData({ repo }),
     searchPro: searchPro({ repo }),
     uploadApplicationVideo: uploadApplicationVideo({ repo }),
+    uploadProfilePhoto: uploadProfilePhoto({ repo }),
   }
 }
 
