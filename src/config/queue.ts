@@ -1,20 +1,16 @@
 import Queue from 'bull'
 import { sendMail } from './email'
 import { SendMailOptions } from 'nodemailer'
-import { logger, dayjs } from '../utils'
+import { logger } from '../utils'
 import db from '../config/db'
 import { ChatMessageType } from '../schemas/models/Message'
 import got from 'got-cjs'
-import {
-  BOOKING_STATUS,
-  PAYSTACK_URL,
-  PERIODIC_CASH_AMOUNTS,
-  ROLES,
-} from './constants'
+import { PAYSTACK_URL } from './constants'
 import { sendSocketNotify } from '../handlers/chat/socket'
 import {
   deactivateProByStarRating,
   deactivateProByTaskTargetEveryWeek,
+  deactivateProByWeeklyReturningRatio,
   deactivateProNonRedeems,
   terminateDeactivatedUsers,
 } from '../repo/pro/utils'
@@ -66,7 +62,7 @@ deactivateQueue.process(async (_, done) => {
   try {
     await deactivateProByTaskTargetEveryWeek({ db })
     await deactivateProByStarRating({ db })
-    //TODO:deactivate pro by weekly returning ratio
+    await deactivateProByWeeklyReturningRatio({ db })
     await terminateDeactivatedUsers({ db })
   } catch (error) {
     logger.err(error)

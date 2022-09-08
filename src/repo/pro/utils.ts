@@ -142,60 +142,100 @@ export const deactivateProByWeeklyReturningRatio = async ({
 }) => {
   const week = dayjs().startOf('week').toDate()
 
-  //   const newBookingUsers = await db.booking.findMany({
-  //     where: {
-  //       user: {
-  //         userBookings: {
-  //           some: {
-  //             createdAt: {
-  //               gte: week,
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   })
-  const newBookingUsers = await db.user.findMany({
-    where: {
-      role: ROLES.PRO,
-      userBookings: {
-        some: {
-          createdAt: {
-            gte: week,
+  const pros: { proId: string; retCnt: string; newCnt: string }[] =
+    await db.$queryRaw`
+select
+    u.userId proId,
+    IFNULL(retPros.cnt, 0) retCnt,
+    IFNULL(newPros.cnt, 0) newCnt
+FROM (
+        SELECT
+            b.proId,
+            COUNT(b.proId) cnt
+        FROM (
+                -- get returned user bookings
+                SELECT
+                    userId,
+                    COUNT(userId) cnt
+                FROM
+                    booking
+                WHERE
+                    status = 'completed'
+                GROUP BY
+                    userId
+                HAVING
+                    cnt > 1
+            ) _b
+            JOIN booking b on _b.userId = b.userId
+            JOIN Invoice i on b.bookingId = i.bookingId
+            JOIN InvoiceFees ifees on i.invoiceId = ifees.invoiceId
+        WHERE
+            b.createdAt >= ${week}
+        GROUP BY
+            b.proId
+    ) retPros
+    RIGHT JOIN User u on retPros.proId = u.userId
+    LEFT JOIN Booking b on b.proId = u.userId
+    LEFT JOIN Invoice i on b.bookingId = i.bookingId
+    LEFT JOIN InvoiceFees ifees on ifees.invoiceId = i.invoiceId
+    LEFT JOIN (
+        SELECT
+            b.proId,
+            COUNT(b.proId) cnt
+        FROM (
+                -- get new user bookings
+                SELECT
+                    userId,
+                    COUNT(userId) cnt
+                FROM
+                    booking
+                WHERE
+                    status = 'completed'
+                GROUP BY
+                    userId
+                HAVING
+                    cnt = 1
+            ) _b
+            JOIN booking b on _b.userId = b.userId
+            JOIN Invoice i on b.bookingId = i.bookingId
+            JOIN InvoiceFees ifees on i.invoiceId = ifees.invoiceId
+        WHERE
+            b.createdAt >= ${week}
+        GROUP BY
+            b.proId
+    ) newPros on newPros.proId = u.userId
+WHERE
+    u.role = 'pro'
+    AND b.status = 'completed'
+GROUP BY u.userId
+HAVING
+    SUM(ifees.price) >= 120000000
+`
+  const prosToDeactivate = pros
+    .filter((pro) => +pro.retCnt < +pro.newCnt)
+    .map((pro) => +pro.proId)
+
+  await db.$transaction(
+    prosToDeactivate.map((proId) =>
+      db.user.update({
+        data: {
+          deactivated: true,
+          deactivationCount: {
+            increment: 1,
+          },
+          deactivations: {
+            create: {
+              reason: DEACTIVATION_REASONS.RATIO.reason,
+              amount: DEACTIVATION_REASONS.RATIO.amount,
+            },
           },
         },
-      },
-    },
-    include: {
-      userBookings: true,
-    },
-  })
-
-  //   const prosToDeactivate = pros
-  //     .filter((pro) => pro.proBookings.filter((pb) => pb.rating === 5).length < 5)
-  //     .map((pro) => pro.userId)
-
-  //   await db.$transaction(
-  //     prosToDeactivate.map((proId) =>
-  //       db.user.update({
-  //         data: {
-  //           deactivated: true,
-  //           deactivationCount: {
-  //             increment: 1,
-  //           },
-  //           Deactivation: {
-  //             create: {
-  //               reason: DEACTIVATION_REASONS.RATING.reason,
-  //               amount: DEACTIVATION_REASONS.RATING.amount,
-  //             },
-  //           },
-  //         },
-  //         where: {
-  //           userId: proId,
-  //         },
-  //       }),
-  //     ),
-  //   )
+        where: {
+          userId: proId,
+        },
+      }),
+    ),
+  )
 }
 
 export const deactivateProNonRedeems = async ({
