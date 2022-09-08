@@ -22,8 +22,6 @@ To clear the database and reseed \
 `npx migrate reset -f` \
 To seed \
 `npx prisma db seed` or `npx prisma db seed ./seed.js`\
-To deploy to prod\
-`npx prisma db seed ./prisma/seed.prod.ts`
 `npx prisma migrate deploy --skip-generate`
 
 ## Endpoint authorization
