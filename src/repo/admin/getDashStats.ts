@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { BOOKING_STATUS, ROLES } from '../../config/constants'
+import { ROLES } from '../../config/constants'
 
 export const getDashboardStats =
   ({ db }: { db: PrismaClient }) =>
@@ -77,5 +77,12 @@ export const getDashboardStats =
       personalUsers: pU._count,
       proUsers: proU._count,
       totalUsers: totU._count,
+      bookings: {
+        braiding: braiding._count,
+        styling: styling._count,
+        barbing: barbing._count,
+        locs: locs._count,
+        total: totalBookings._count,
+      },
     }
   }
