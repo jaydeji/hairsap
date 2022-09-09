@@ -1,11 +1,12 @@
 import multer from 'multer'
 import multerS3 from 'multer-s3'
 import { S3Client, CopyObjectCommand } from '@aws-sdk/client-s3'
-// import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { Request } from 'express'
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import {} from '@aws-sdk/s3-request-presigner'
 import { STORAGE_ENDPOINT } from './constants'
 import path from 'path'
 import { ValidationError } from '../utils/Error'
+import { nanoid } from 'nanoid'
 
 const s3 = new S3Client({
   endpoint: STORAGE_ENDPOINT,
@@ -70,25 +71,37 @@ export const _upload = ({
     },
   })
 
-// const getSignedUrlforGet = () => {
-//   getSignedUrl(
-//     s3,
-//     new GetObjectCommand({
-//       Bucket: 'hairsap',
-//       Key: '',
-//     }),
-//     { expiresIn: 3600 },
-//   )
-// }
-// const getSignedUrlforPut = () => {
-//   getSignedUrl(
-//     s3,
-//     new PutObjectCommand({
-//       Bucket: 'hairsap',
-//       Key: '',
-//     }),
-//     { expiresIn: 3600 },
-//   )
+export const getChatImageSignedUrl = ({ userId }: { userId: number }) => {
+  const key = `chatphoto/${userId}/${nanoid()}/`
+  return createPresignedPost(s3, {
+    Bucket: 'hairsap',
+    Key: key + '${filename}',
+    Expires: 3600,
+    Conditions: [
+      { acl: 'public-read' },
+      ['content-length-range', 1, oneMB * 10],
+      ['starts-with', '$Content-Type', 'image/'],
+      ['starts-with', '$key', key],
+    ],
+    // ContentType: 'multipart/form-data',
+  })
+}
+
+// const getChatImagePresignedUrl = async (body: { userId: number }) => {
+//   z.object({ userId: z.number() }).parse(body)
+//   try {
+//     const { url, fields } = await getChatImageSignedUrl(body)
+
+//     return {
+//       originalFilename: filename,
+//       uploadedDocumentUrl: `https://${process.env.S3_CHARGEBACK_DOCUMENTS_BUCKET_NAME}.s3.eu-central-1.amazonaws.com/${uniqueFilename}`,
+//       postUrl: url,
+//       fields: fields,
+//     }
+//   } catch (error) {
+//     logger.err(error)
+//     throw new InternalError()
+//   }
 // }
 
 // export const uploadFaceId = ({

@@ -1,6 +1,7 @@
 TASKS
-
+adjust finding yourself or texting yourself
 notifications (chat and others)
+add chat endpoint
 chat sockets 🚧
 
 LATER
@@ -12,11 +13,8 @@ imprive login with implementing caches
 cleanup responses
 change userIds to proId where possible
 
-
 NOTES
 RUNNER_ALLOW_RUNASROOT="1"
-adjust finding yourself or texting yourself
-
 npx prisma migrate diff \
 --from-url "mysql://user:pass@dev.hairsap.com:3306/hairsap_dev" \
 --to-url "mysql://user:pass@localhost:3306/hairsap_dev" \
