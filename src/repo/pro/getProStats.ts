@@ -2,29 +2,33 @@ import { PrismaClient } from '@prisma/client'
 import { BOOKING_STATUS, PERIODIC_CASH_AMOUNTS } from '../../config/constants'
 import { dayjs } from '../../utils'
 
+const getTargetByPeriod = (
+  db: PrismaClient,
+  proId: number,
+  period: 'month' | 'day' | 'week',
+) => {
+  return db.invoiceFees.aggregate({
+    where: {
+      invoice: {
+        booking: {
+          proId,
+          createdAt: {
+            gte: dayjs().startOf(period).toDate(),
+          },
+          status: BOOKING_STATUS.COMPLETED,
+        },
+      },
+    },
+    _sum: {
+      price: true,
+    },
+  })
+}
+
 export const getProStats =
   ({ db }: { db: PrismaClient }) =>
   async ({ proId }: { proId: number }) => {
     const week = dayjs().startOf('week').toDate()
-
-    const getTargetByPeriod = (period: 'month' | 'day' | 'week') => {
-      return db.invoiceFees.aggregate({
-        where: {
-          invoice: {
-            booking: {
-              proId,
-              createdAt: {
-                gte: dayjs().startOf(period).toDate(),
-              },
-              status: BOOKING_STATUS.COMPLETED,
-            },
-          },
-        },
-        _sum: {
-          price: true,
-        },
-      })
-    }
 
     const [_ratings, earnings, dailyTarget, weeklyTarget, monthlyTarget] =
       await db.$transaction([
@@ -53,9 +57,9 @@ export const getProStats =
             price: true,
           },
         }),
-        getTargetByPeriod('day'),
-        getTargetByPeriod('week'),
-        getTargetByPeriod('month'),
+        getTargetByPeriod(db, proId, 'day'),
+        getTargetByPeriod(db, proId, 'week'),
+        getTargetByPeriod(db, proId, 'month'),
       ])
 
     return {
