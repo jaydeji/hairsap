@@ -1,0 +1,211 @@
+openapi: 3.0.3
+info:
+  title: Hairsap Api
+  description: |-
+    **This is the documentation for hairsap api.**
+    
+    NOTES
+    - Amounts should be sent as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
+    - Dates should be sent in ISO format e.g `2022-09-09T07:52:39.407Z`
+    
+  # termsOfService: http://swagger.io/terms/
+  contact:
+    name: the Developer
+    # url:
+    email: jideadedejifirst@gmail.com
+  version: 1.0.0
+externalDocs:
+  description: Github
+  url: http://github.com/lancerdonnie/Hairsap-be
+servers:
+  - url: http://dev.hairsap.com:3000
+tags:
+  - name: Admin
+    description: Operations on admin
+  - name: User
+    description: Operations on user
+  - name: Pro
+    description: Operations about pro
+  - name: Other
+    description: Other operations
+  - name: Book
+    description: Operations on bookings
+  - name: Auth
+    description: Operations on authentication/authorization
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user
+      description: Login a user or admin
+      operationId: login
+      parameters: []
+      requestBody:
+        description: Update an existent pet in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 201 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'          
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+       - BearerAuth: []
+
+  
+components:
+  schemas:
+    InternalError:
+          required:
+            - message
+          properties:
+            message:
+              type: string
+              default: Internal Error
+    ValidationError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Validation Error
+        validationError:
+          type: array
+          minimum: 1
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: too small
+              minimum:
+                type: number
+                example: 2
+              type:
+                type: string
+                example: string
+              inclusive:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Should be at least 2 characters
+              path:
+                type: array
+                items:
+                  type: string
+                  example: example
+    ForbiddenError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Forbidden
+    NotFoundError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Not Found
+    UnauthorizedError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          default: Unauthorized
+    Success:
+      properties:
+        message:
+          type: string
+        data:
+            oneOf:
+            - type: array
+            - type: object
+    AuthLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: unique user email
+          example: 'john@hairsap.com'
+        password:
+          type: string
+          description: card type, either virtual or physical
+          example: 'john1234'
+          minimum: 7
+          maximum: 32
+    AuthLoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: a JWT token
+          example: '1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC'
+
+  responses:
+    InternalError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalError'
+    ValidationError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    ForbiddenError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+    NotFoundError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+    UnauthorizedError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+    Success:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Success'
+  # requestBodies:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
