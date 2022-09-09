@@ -19,8 +19,6 @@ export const deactivateProByTaskTargetEveryWeek = async ({
   const _prosToDeactivate = await db.user.findMany({
     where: {
       role: ROLES.PRO,
-      deactivated: { not: true },
-      terminated: { not: true },
       verified: true,
       proBookings: {
         some: {

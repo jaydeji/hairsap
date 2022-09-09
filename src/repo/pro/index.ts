@@ -2,6 +2,7 @@ import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
 import { CHANNEL, ROLES } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
 import { getProDetails } from './getProDetails'
+import { getProStats } from './getProStats'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -276,6 +277,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProApplications: getProApplications({ db }),
     updateAvailability: updateAvailability({ db }),
     getApplicationVideo: getApplicationVideo({ db }),
+    getProStats: getProStats({ db }),
   }
 }
 

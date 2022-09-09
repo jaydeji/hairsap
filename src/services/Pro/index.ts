@@ -201,6 +201,13 @@ const uploadProfilePhoto =
     })
   }
 
+const getProStats =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { proId: number }) => {
+    z.object({ proId: z.number() }).parse(body)
+    return await repo.pro.getProStats(body)
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -215,6 +222,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     searchPro: searchPro({ repo }),
     uploadApplicationVideo: uploadApplicationVideo({ repo }),
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
+    getProStats: getProStats({ repo }),
   }
 }
 
