@@ -14,6 +14,14 @@ npx prisma db seed
 npm run dev
 ```
 
+## During Dev
+
+After pulling, run this command
+
+```
+npm run prisma:migrate
+```
+
 ## Database migration
 
 When you make changes to the prisma schema, you need to run a migration.\
