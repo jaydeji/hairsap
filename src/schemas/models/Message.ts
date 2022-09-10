@@ -12,12 +12,21 @@ export const MessageSchema = z
           ),
         ),
       ),
-    photo: z.string().optional(),
+    photoUrl: z.string().optional(),
     message: z.string().optional(),
     senderId: z.number(),
     receiverId: z.number(),
     messageType: z.nativeEnum(MESSAGE_TYPE),
   })
   .strict()
+  .superRefine(({ message, photoUrl }, ctx) => {
+    if (!message && !photoUrl) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['message', 'photoUrl'],
+        message: 'message or photoUrl must be provided',
+      })
+    }
+  })
 
 export type ChatMessageType = z.infer<typeof MessageSchema>

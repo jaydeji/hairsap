@@ -16,11 +16,13 @@ const decodeJwt = (token: string) => {
   return jwt.decode(token) as Request['tokenData']
 }
 
-const verifyJwt = (token: string, isAdmin: boolean) => {
+export type TokenData = NonNullable<Request['tokenData']>
+
+const verifyJwt = (token: string, isAdmin?: boolean) => {
   const secret =
     (isAdmin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || ''
 
-  return jwt.verify(token, secret)
+  return jwt.verify(token, secret) as TokenData
 }
 
 export { generateJwt, decodeJwt, verifyJwt }

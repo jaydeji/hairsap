@@ -8,6 +8,7 @@
     "start": "DEBUG_COLORS=no node dist/index.js",
     "dev": "DEBUG_COLORS=no tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
     "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
     "lint": "tsc --noEmit && eslint src",
     "lint:fix": "tsc --noEmit && eslint src --fix",
     "test": "echo \"Error: no test specified\" && exit 1",

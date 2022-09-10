@@ -22,13 +22,16 @@ let _io: IO
 const createChat = ({ io, service }: { io: IO; service: Service }) => {
   _io = io
   io.use(function (socket, next) {
-    if (socket.handshake.query?.token && socket.handshake.query?.role) {
+    if (socket.handshake.query.token) {
       try {
         const tokenData = verifyJwt(
           socket.handshake.query.token as string,
-          (socket.handshake.query?.role as Role) === ROLES.ADMIN,
+          (socket.handshake.query.role as Role) === ROLES.ADMIN,
         )
         ;(socket as any).decodedToken = tokenData
+        connectedUsers[tokenData.userId] = {
+          socketId: socket.id,
+        }
         next()
       } catch (error) {
         next(new UnauthorizedError())
@@ -38,7 +41,7 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
     }
   })
   io.on('connection', (socket) => {
-    logger.info('a user connected')
+    // logger.info('a user connected')
 
     if (process.env.NODE_ENV === 'development') {
       socket.onAny((event, ...args) => {
@@ -51,21 +54,22 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
       logger.info('user disconnected')
     })
 
-    socket.on('setup', ({ userId }: { userId: number }) => {
-      connectedUsers[userId] = {
-        socketId: socket.id,
-      }
-    })
+    // socket.on('setup', ({ userId }: { userId: number }) => {
+    //   connectedUsers[userId] = {
+    //     socketId: socket.id,
+    //   }
+    // })
 
     socket.on('new message', (message: ChatMessageType) => {
       const _message = MessageSchema.safeParse(message)
-      if (!_message.success) return
+      if (!_message.success)
+        return socket.emit('new message', { error: _message.error.issues })
       chatQueue.add(message)
       const socketId = connectedUsers[message.receiverId]?.socketId
       if (socketId) {
         socket
           .to(connectedUsers[message.receiverId]?.socketId as string)
-          .emit('new message', message)
+          .emit('new message', { data: message })
       } else {
         // TODO: send FCM
       }
@@ -73,7 +77,6 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
 
     socket.on('bookpro', async (payload: PostBookProReq) => {
       try {
-        //TODO: add auth middleware
         //TODO: remove because of photo upload. Send fcm instead
         const data = await service.book.bookPro({
           ...payload,

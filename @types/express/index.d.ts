@@ -6,7 +6,7 @@ declare global {
     interface Request {
       tokenData?: {
         email: string
-        userId?: number
+        userId: number
         role: Role
       }
     }
