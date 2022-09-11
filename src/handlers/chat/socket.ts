@@ -60,11 +60,11 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
     //   }
     // })
 
-    socket.on('new message', (message: ChatMessageType) => {
+    socket.on('new message', (message: ChatMessageType, callback) => {
       const _message = MessageSchema.safeParse(message)
-      if (!_message.success)
-        return socket.emit('new message', { error: _message.error.issues })
+      if (!_message.success) return callback?.({ error: _message.error.issues })
       chatQueue.add(message)
+      callback?.({ data: message })
       const socketId = connectedUsers[message.receiverId]?.socketId
       if (socketId) {
         socket
@@ -75,16 +75,16 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
       }
     })
 
-    socket.on('bookpro', async (payload: PostBookProReq) => {
+    socket.on('bookpro', async (payload: PostBookProReq, callback) => {
       try {
         //TODO: remove because of photo upload. Send fcm instead
         const data = await service.book.bookPro({
           ...payload,
           userId: (socket as any).decodedToken.userId,
         })
-        socket.emit('bookpro', { data })
+        callback?.({ data })
       } catch (error) {
-        socket.emit('bookpro', { error: (error as Error).message })
+        callback?.({ error: (error as Error).message })
       }
     })
   })
@@ -93,7 +93,7 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
 export const sendSocketNotify = (
   key: 'notification',
   userId: number,
-  message: any,
+  message: { body?: string; title?: string; userId: number },
 ) => {
   const conn = connectedUsers[userId]
   if (!conn) return false
