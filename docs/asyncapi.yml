@@ -1,0 +1,99 @@
+asyncapi: 2.2.0
+
+info:
+  title: Hairsap Sockets
+  version: 1.0.0
+  description: |
+    This is the documentation for hairsap sockets api.
+
+servers:
+  prod:
+    url: dev.hairsap.com:3000/socket.io
+    protocol: ws
+  dev:
+    url: localhost:4000/socket.io
+    protocol: ws
+
+channels:
+  /:
+    publish:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/NewMessage"
+    subscribe:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/Notification"
+
+components:
+  messages:
+    NewMessage:
+      name: new message
+      contentType: application/json
+      description: new chat message from client
+      examples:
+        - payload:
+            message: 'june'
+            photoUrl: 'https://google.com'
+            senderId: 1
+            receiverId: 2
+            messageType: 'text'
+            createdAt: '2022-09-09T07:52:39.407Z'
+      payload:
+        type: object
+        required: [createdAt,senderId,receiverId,messageType]
+        properties:
+          message:
+            type: string
+          createdAt:
+            type: string
+          photoUrl:
+            type: string
+          senderId:
+            type: number
+          receiverId:
+            type: number
+          messageType:
+            type: string
+            enum: [text, photo]
+      x-ack: # Documents that this event is always acknowledged by the receiver
+        args:
+          type: object
+          properties:
+            oneOf:
+            - error:
+              type: [string, Object]
+            - data:
+              type: Object
+    Notification:
+      name: notification
+      contentType: application/json
+      description: notificaitions
+      examples:
+        - payload:
+            userId: 1
+            title: 'New Booking'
+            body: 'You have received a new booking'
+      payload:
+        type: object
+        required: [userId]
+        properties:
+          userId:
+            type: number
+          title:
+            type: string
+          body:
+            type: string
+
+  channelBindings:
+    AuthenticatedWsBindings:
+      ws:
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+            role:
+              type: string
+              enum: [admin,user,pro]
+          required: [token]

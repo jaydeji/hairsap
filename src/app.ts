@@ -25,6 +25,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(express.json())
   //TODO: tighten cors
   app.use(cors({ origin: '*' }))
+  app.use('/sockets', express.static(process.cwd() + '/docs/asyncapi'))
   app.use(
     '/reference',
     swaggerUi.serve,

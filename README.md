@@ -8,7 +8,7 @@ create a .env file from the `.env.example` file and fill values without quotes
 docker-compose up -d
 npm install
 npm run prepare
-npm run prisma:generate
+npm run prisma:gen
 npx prisma migrate dev --name init
 npx prisma db seed
 npm run dev
@@ -19,7 +19,7 @@ npm run dev
 After pulling, run this command
 
 ```
-npm run prisma:migrate
+npm run prisma:mig
 ```
 
 ## Database migration
@@ -44,8 +44,16 @@ A JWT payload can be created for development testing using the debugger tool at 
 
 ## Documentation
 
+### API
+
+Use https://editor.swagger.io to test your yml file
 Add swagger documentation for new models and routes in swagger.yml file in the docs folder.
 The swagger docs are hosted on /reference
+
+### Web Sockets
+
+Use https://studio.asyncapi.com/ to test your yml file
+Edit `docs/asyncapi.yml` and run `npm run docs:sock:gen`
 
 ## Logging
 
