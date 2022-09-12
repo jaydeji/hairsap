@@ -52,12 +52,32 @@ const addNotificationStatus =
       },
     })
 
+const createNotification =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    userId,
+    body,
+    title,
+  }: {
+    userId: number
+    body?: string
+    title?: string
+  }) =>
+    db.notification.create({
+      data: {
+        body,
+        title,
+        userId,
+      },
+    })
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
     getNotifications: getNotifications({ db }),
     getNotificationStatus: getNotificationStatus({ db }),
     addNotificationStatus: addNotificationStatus({ db }),
+    createNotification: createNotification({ db }),
   }
 }
 

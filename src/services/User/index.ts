@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { notifyQueue } from '../../config/queue'
 import {
   GetAllUsersReq,
   GetAllUsersReqSchema,
@@ -34,7 +35,13 @@ const subscribe =
   ({ repo }: { repo: Repo }) =>
   async (body: PostSubscribeReq) => {
     PostSubscribeReqSchema.parse(body)
-    return await repo.user.subscribe(body)
+    await repo.user.subscribe(body)
+    notifyQueue.add({
+      userId: body.proId,
+      title: 'New subscriber',
+      body: 'You have gained a new subscriber',
+    })
+    return
   }
 
 const getUserSubscriptions =

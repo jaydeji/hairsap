@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ROLES } from '../../config/constants'
+import { ADMIN_ID, ROLES } from '../../config/constants'
 import {
   GetAllProsReq,
   GetAllProsReqSchema,
@@ -101,9 +101,14 @@ const requestReactivation =
     if (pro.reactivationRequested)
       throw new ForbiddenError('reactivation already requested')
 
-    //TODO: notification
     await repo.user.updateUser(userId, {
       reactivationRequested: true,
+    })
+
+    await repo.other.createNotification({
+      body: 'Reactivation request',
+      title: `Reactivation request from ${pro.name} with id: ${pro.userId}`,
+      userId: ADMIN_ID,
     })
   }
 

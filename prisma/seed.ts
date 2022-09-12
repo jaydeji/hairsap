@@ -8,12 +8,22 @@ const prisma = new PrismaClient({
 
 const userData: Prisma.UserCreateManyInput[] = [
   {
+    address: 'no 4',
+    email: 'admin@gmail.com',
+    name: 'Admin',
+    role: 'admin',
+    userId: 1,
+    password:
+      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
+    phone: '+2348118161239',
+  },
+  {
     address: 'no 1',
     email: 'jideadedejifirst@gmail.com',
     name: 'Jide Adedeji',
     profilePhotoUrl: null,
     role: 'user',
-    userId: 1,
+    userId: 2,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
     phone: '+2348118161237',
@@ -25,7 +35,7 @@ const userData: Prisma.UserCreateManyInput[] = [
     name: 'Tope Adedeji',
     profilePhotoUrl: null,
     role: 'user',
-    userId: 2,
+    userId: 3,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
     phone: '+2348118161236',
@@ -37,23 +47,13 @@ const userData: Prisma.UserCreateManyInput[] = [
     name: 'James Adedeji',
     profilePhotoUrl: null,
     role: 'pro',
-    userId: 3,
+    userId: 4,
     password:
       'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
     phone: '+2348118161237',
     longitude: 3.372669140201567,
     latitude: 6.518572387441918,
     verified: true,
-  },
-  {
-    address: 'no 4',
-    email: 'admin@gmail.com',
-    name: 'Admin',
-    role: 'admin',
-    userId: 4,
-    password:
-      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
-    phone: '+2348118161239',
   },
 ]
 

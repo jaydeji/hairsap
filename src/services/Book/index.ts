@@ -188,6 +188,12 @@ const acceptBooking =
       acceptedAt: new Date(),
       status: BOOKING_STATUS.ACCEPTED,
     })
+
+    notifyQueue.add({
+      userId: booking.userId,
+      title: 'Booking accepted',
+      body: 'Booking has been accepted',
+    })
   }
 
 const cancelBooking =
@@ -218,6 +224,12 @@ const cancelBooking =
       cancelledAt: new Date(),
       status: BOOKING_STATUS.CANCELLED,
     })
+
+    notifyQueue.add({
+      userId: booking.proId,
+      title: 'Booking cancelled',
+      body: 'Booking has been cancelled',
+    })
   }
 
 const rejectBooking =
@@ -240,6 +252,12 @@ const rejectBooking =
       status: BOOKING_STATUS.REJECTED,
       rejectedAt: new Date(),
     })
+
+    notifyQueue.add({
+      userId: booking.userId,
+      title: 'Booking rejected',
+      body: 'Booking has been rejected',
+    })
   }
 
 const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
@@ -259,7 +277,9 @@ const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
     ])
     notifyQueue.add({
       title: 'New Bonus',
-      body: 'New booking has been received',
+      body: `You have earned a bonus of ${
+        PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS / 100
+      }`,
       userId: proId,
     })
   }
@@ -406,7 +426,12 @@ const markBookingAsIntransit =
     await repo.book.updateBooking(bookingId, {
       inTransit: true,
     })
-    //TODO: notify socket
+
+    notifyQueue.add({
+      userId: booking.userId,
+      title: 'Prep for pro arrival',
+      body: 'Kindly provide an electrical outlet. Remove pets or baby around the vicinity before the pro arrives',
+    })
   }
 
 const getAcceptedProBookings =

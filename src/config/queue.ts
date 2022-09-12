@@ -80,12 +80,10 @@ notifyQueue.process(async (job, done) => {
     // TODO: send fcm
   }
   try {
-    await db.notification.create({
-      data: {
-        body: job.data.body,
-        title: job.data.title,
-        userId: job.data.userId,
-      },
+    await repo.other.createNotification({
+      body: job.data.body,
+      title: job.data.title,
+      userId: job.data.userId,
     })
   } catch (error) {
     logger.err((error as any).message)

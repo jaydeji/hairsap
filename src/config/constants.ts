@@ -61,6 +61,7 @@ export const PERIODIC_CASH_AMOUNTS = {
 }
 
 export const PAYSTACK_URL = 'https://api.paystack.co'
+export const ADMIN_ID = 1
 
 export const CHANNEL = {
   CASH: 'cash',

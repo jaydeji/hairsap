@@ -1,4 +1,4 @@
-import { OTP_TYPE, ROLES } from '../../config/constants'
+import { ADMIN_ID, OTP_TYPE, ROLES } from '../../config/constants'
 import {
   otpEmailTemplate,
   signUpEmailTemplate,
@@ -49,6 +49,7 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
   })
 
   emailQueue.add(signUpEmailTemplate(user.name))
+
   // paymentThreshold.add(
   //   { email: req.body.email },
   //   {
@@ -78,7 +79,7 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
     if (body.otpType === OTP_TYPE.PHONE) {
       phoneQueue.add({
         phone: user.phone,
-        otp,
+        body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
@@ -87,6 +88,12 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
       )
     }
   }
+
+  await repo.other.createNotification({
+    userId: ADMIN_ID,
+    title: `New User`,
+    body: `A new user with name ${user.name} has signed up`,
+  })
 
   return { user: PostLoginResponseSchema.parse(user), otp, token }
 }
@@ -134,7 +141,7 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
     if (body.otpType === OTP_TYPE.PHONE) {
       phoneQueue.add({
         phone: pro.phone,
-        otp,
+        body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
@@ -143,6 +150,12 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
       )
     }
   }
+
+  await repo.other.createNotification({
+    userId: ADMIN_ID,
+    title: `New Pro`,
+    body: `A new pro with name ${pro.name} has signed up`,
+  })
 
   return { pro: PostLoginResponseSchema.parse(pro), otp, token }
 }

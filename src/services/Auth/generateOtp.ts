@@ -33,7 +33,7 @@ export const generateOtp =
     if (body.otpType === OTP_TYPE.PHONE) {
       phoneQueue.add({
         phone: user.phone,
-        otp,
+        body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
 
