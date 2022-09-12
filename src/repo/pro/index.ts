@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { BOOKING_STATUS, CHANNEL, ROLES } from '../../config/constants'
+import { CHANNEL, ROLES } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
 import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'

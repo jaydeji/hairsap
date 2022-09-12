@@ -171,9 +171,5 @@ export const getProBookingRatio =
     if (period === 'day')
       return await getDailyBookingRatio({ db, newUsers, retUsers })
 
-    try {
-      return await getWeeklyDayBookingRatio({ db, newUsers, retUsers })
-    } catch (error) {
-      console.log(error)
-    }
+    return await getWeeklyDayBookingRatio({ db, newUsers, retUsers })
   }
