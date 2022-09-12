@@ -4,6 +4,10 @@ import {
   GetAllProsReq,
   GetAllProsReqSchema,
 } from '../../schemas/request/getAllPros'
+import {
+  GetProBookingRatioReq,
+  GetProBookingRatioReqSchema,
+} from '../../schemas/request/getProBookingRatio'
 import { PageReq } from '../../schemas/request/Page'
 import {
   PatchProRequestSchema,
@@ -208,6 +212,13 @@ const getProStats =
     return await repo.pro.getProStats(body)
   }
 
+const getProBookingRatio =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetProBookingRatioReq) => {
+    GetProBookingRatioReqSchema.parse(body)
+    return await repo.pro.getProBookingRatio(body)
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -223,6 +234,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     uploadApplicationVideo: uploadApplicationVideo({ repo }),
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getProStats: getProStats({ repo }),
+    getProBookingRatio: getProBookingRatio({ repo }),
   }
 }
 

@@ -2,6 +2,7 @@
 @otp= "{{loginUser.response.body.data.otp}}"
 @utoken= {{loginUser.response.body.data.token}}
 @atoken= {{loginAdmin.response.body.data.token}}
+@ptoken= {{loginPro.response.body.data.token}}
 @userid= {{loginUser.response.body.data.user.userId}}
 
 
@@ -29,6 +30,17 @@ Content-Type: application/json
     "email":"jideadedejifirst@gmail.com",
     "password":"jide1234",
     "role":"user"
+}
+
+###
+# @name loginPro
+POST {{base}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email":"jamesadedejifirst@gmail.com",
+    "password":"jide1234",
+    "role":"pro"
 }
 ###
 # @name loginAdmin
@@ -159,4 +171,9 @@ Authorization: Bearer {{atoken}}
 GET {{base}}/admin/pros/3 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{atoken}}
+
+###
+GET {{base}}/pros/booking/ratio/3/week HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{ptoken}}
 

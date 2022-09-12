@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { _upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
+import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import type { Role, Service } from '../../types'
 
 const makeProRouter = ({
@@ -152,6 +153,18 @@ const makeProRouter = ({
     ah(async (req, res) => {
       const data = await service.pro.getProStats({
         proId: +req.params.proId!,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.get(
+    '/booking/ratio/:proId/:period',
+    allowOnly([ROLES.PRO]),
+    ah(async (req, res) => {
+      const data = await service.pro.getProBookingRatio({
+        proId: +req.params.proId!,
+        period: req.params.period as GetProBookingRatioReq['period'],
       })
       res.status(200).send({ data })
     }),

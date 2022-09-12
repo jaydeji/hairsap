@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { CHANNEL, ROLES } from '../../config/constants'
+import { BOOKING_STATUS, CHANNEL, ROLES } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
+import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
 import { getProStats } from './getProStats'
 
@@ -278,6 +279,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     updateAvailability: updateAvailability({ db }),
     getApplicationVideo: getApplicationVideo({ db }),
     getProStats: getProStats({ db }),
+    getProBookingRatio: getProBookingRatio({ db }),
   }
 }
 
