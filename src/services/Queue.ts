@@ -15,6 +15,7 @@ import {
 } from '../repo/pro/utils'
 import { socket } from '../index'
 import { Repo } from '../types'
+import { Push } from './Push'
 
 const redisUrl = process.env.REDIS_URL as string
 
@@ -32,7 +33,7 @@ type Payment = {
   }
 }
 
-const makeQueue = ({ repo }: { repo: Repo }) => {
+const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
   const phoneQueue = new Queue('phone', redisUrl)
   const paymentQueue = new Queue<Payment>('payment', redisUrl)
@@ -94,7 +95,14 @@ const makeQueue = ({ repo }: { repo: Repo }) => {
       userId: job.data.userId,
     })
     if (!sent) {
-      // TODO: send fcm
+      push.sendPushMessage(job.data.userId, {
+        title: job.data.title,
+        data: {
+          body: job.data.body,
+          title: job.data.title,
+          userId: job.data.userId,
+        },
+      })
     }
     try {
       await repo.other.createNotification({

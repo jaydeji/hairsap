@@ -12,7 +12,8 @@ import makePush from './Push'
 import makeQueue from './Queue'
 
 const makeServices = ({ repo, expo }: { repo: Repo; expo: Expo }) => {
-  const queue = makeQueue({ repo })
+  const push = makePush({ repo, expo })
+  const queue = makeQueue({ repo, push })
 
   return {
     auth: makeAuth({ repo, queue }),
@@ -22,7 +23,7 @@ const makeServices = ({ repo, expo }: { repo: Repo; expo: Expo }) => {
     book: makeBook({ repo, queue }),
     admin: makeAdmin({ repo, queue }),
     other: makeOther({ repo }),
-    push: makePush({ expo }),
+    push,
     queue,
   }
 }

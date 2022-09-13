@@ -225,6 +225,7 @@ model User {
   workVideoKey                     String?
   workVideoOriginalFileName        String?
   businessName                     String?
+  pushToken                        String?
 
   otp                  Otp?
   notifications        Notification[]

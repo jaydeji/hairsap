@@ -71,6 +71,30 @@ const createNotification =
       },
     })
 
+const setPushToken =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, pushToken }: { userId: number; pushToken: string }) =>
+    db.user.update({
+      where: {
+        userId,
+      },
+      data: {
+        pushToken,
+      },
+    })
+
+const getPushToken =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId }: { userId: number }) =>
+    db.user.findUnique({
+      where: {
+        userId,
+      },
+      select: {
+        pushToken: true,
+      },
+    })
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -78,6 +102,8 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getNotificationStatus: getNotificationStatus({ db }),
     addNotificationStatus: addNotificationStatus({ db }),
     createNotification: createNotification({ db }),
+    setPushToken: setPushToken({ db }),
+    getPushToken: getPushToken({ db }),
   }
 }
 

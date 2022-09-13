@@ -90,6 +90,18 @@ const makeRouter = ({
     }),
   )
 
+  router.post(
+    '/pushtoken/:token',
+    auth({ repo }),
+    ah(async (req, res) => {
+      await service.other.setPushToken(
+        req.tokenData?.userId as number,
+        req.params.token as string,
+      )
+      res.status(201).send()
+    }),
+  )
+
   return router
 }
 

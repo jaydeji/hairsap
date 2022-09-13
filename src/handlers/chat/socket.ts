@@ -57,7 +57,7 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
     //   }
     // })
 
-    socket.on('new message', (message: ChatMessageType, callback) => {
+    socket.on('new message', async (message: ChatMessageType, callback) => {
       const _message = MessageSchema.safeParse(message)
       if (!_message.success) return callback?.({ error: _message.error.issues })
       service.queue.chatQueue.add(message)
@@ -68,7 +68,10 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
           .to(connectedUsers[message.receiverId]?.socketId as string)
           .emit('new message', { data: message })
       } else {
-        // TODO: send FCM
+        await service.push.sendPushMessage(message.receiverId, {
+          title: 'New chat message',
+          data: message,
+        })
       }
     })
 
