@@ -3,7 +3,6 @@ import ah from 'express-async-handler'
 import type { Repo, Service } from '../types'
 import crypto from 'crypto'
 import { logger } from '../utils'
-import { paymentQueue } from '../config/queue'
 import { ForbiddenError, NotFoundError } from '../utils/Error'
 import { auth } from '../middleware/auth'
 import { z } from 'zod'
@@ -39,7 +38,7 @@ const makeRouter = ({
       }
       //TODO backend should add "custom_fields" with invoiceitems to metadata
       const userId = req.body?.data?.metadata?.userId
-      paymentQueue.add({
+      service.queue.paymentQueue.add({
         userId: userId ? +userId : undefined,
         email: req.body?.data?.customer?.email,
         event: req.body?.event,

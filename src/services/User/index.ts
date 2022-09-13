@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { notifyQueue } from '../../config/queue'
 import {
   GetAllUsersReq,
   GetAllUsersReqSchema,
@@ -23,6 +22,7 @@ import {
 } from '../../schemas/request/postUploadProfilePhoto'
 import type { Repo } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
+import { Queue } from '../Queue'
 
 const updateUser =
   ({ repo }: { repo: Repo }) =>
@@ -32,11 +32,11 @@ const updateUser =
   }
 
 const subscribe =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async (body: PostSubscribeReq) => {
     PostSubscribeReqSchema.parse(body)
     await repo.user.subscribe(body)
-    notifyQueue.add({
+    queue.notifyQueue.add({
       userId: body.proId,
       title: 'New subscriber',
       body: 'You have gained a new subscriber',
@@ -132,10 +132,10 @@ const getCard =
     }
   }
 
-const makeUser = ({ repo }: { repo: Repo }) => {
+const makeUser = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     updateUser: updateUser({ repo }),
-    subscribe: subscribe({ repo }),
+    subscribe: subscribe({ repo, queue }),
     getUserSubscriptions: getUserSubscriptions({ repo }),
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getAllUsers: getAllUsers({ repo }),

@@ -6,16 +6,17 @@ import { resetPassword } from './resetPassword'
 import { confirmResetPassword } from './confirmResetPassword'
 import { uploadFaceId } from './uploadFaceId'
 import { generateOtp } from './generateOtp'
+import { Queue } from '../Queue'
 
-const makeAuth = ({ repo }: { repo: Repo }) => {
+const makeAuth = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     login: login({ repo }),
-    signUp: signUp({ repo }),
+    signUp: signUp({ repo, queue }),
     validateOtp: validateOtp({ repo }),
     uploadFaceId: uploadFaceId({ repo }),
     confirmResetPassword: confirmResetPassword({ repo }),
-    resetPassword: resetPassword({ repo }),
-    generateOtp: generateOtp({ repo }),
+    resetPassword: resetPassword({ repo, queue }),
+    generateOtp: generateOtp({ repo, queue }),
   }
 }
 

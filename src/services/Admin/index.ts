@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { notifyQueue } from '../../config/queue'
 import {
   GetAdminDashBookStats,
   GetAdminDashBookStatsSchema,
@@ -13,6 +12,7 @@ import {
 import type { Repo, Role } from '../../types'
 import { getPageMeta, logger, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
+import { Queue } from '../Queue'
 
 const acceptReactivation =
   ({ repo }: { repo: Repo }) =>
@@ -90,7 +90,7 @@ const confirmPayoutRequest =
   }
 
 const requestPayout =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async (proId: number) => {
     z.object({
       proId: z.number(),
@@ -102,7 +102,7 @@ const requestPayout =
       proId,
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       title: 'Redeem Payout Request',
       body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
       userId: proId,
@@ -182,14 +182,14 @@ const acceptUnacceptedProPhotos =
     })
   }
 
-const makeAdmin = ({ repo }: { repo: Repo }) => {
+const makeAdmin = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
     getPayoutRequests: getPayoutRequests({ repo }),
     acceptOrRejectApplication: acceptOrRejectApplication({ repo }),
     getProApplications: getProApplications({ repo }),
     confirmPayoutRequest: confirmPayoutRequest({ repo }),
-    requestPayout: requestPayout({ repo }),
+    requestPayout: requestPayout({ repo, queue }),
     getDashboardStats: getDashboardStats({ repo }),
     getDashboardBookingStats: getDashboardBookingStats({ repo }),
     getApplicationVideo: getApplicationVideo({ repo }),

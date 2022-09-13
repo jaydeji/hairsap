@@ -2,16 +2,20 @@ import 'dotenv/config'
 import 'source-map-support/register'
 import http from 'http'
 
-import createApp from './app'
-import { logger } from './utils'
-import createChat from './handlers/chat/socket'
 import { Server } from 'socket.io'
+import { Expo } from 'expo-server-sdk'
+
+import createApp from './app'
+import createSocket from './handlers/chat/socket'
 import db from './config/db'
 import makeRepo from './repo'
 import makeServices from './services'
+import { logger } from './utils'
+
+const expo = new Expo()
 
 const repo = makeRepo({ db })
-const service = makeServices({ repo })
+const service = makeServices({ repo, expo })
 
 const app = createApp({ repo, service })
 
@@ -24,7 +28,7 @@ const io = new Server(server, {
   },
 })
 
-createChat({ io, service })
+export const socket = createSocket({ io, service })
 
 const PORT = process.env.PORT || 4000
 

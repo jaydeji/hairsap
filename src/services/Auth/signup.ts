@@ -3,7 +3,6 @@ import {
   otpEmailTemplate,
   signUpEmailTemplate,
 } from '../../config/email/templates/signup'
-import { emailQueue, phoneQueue } from '../../config/queue'
 import {
   PostSignupProRequest,
   PostSignupProRequestSchema,
@@ -18,8 +17,13 @@ import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 
 import { generateLoginOtp } from '../../utils/otp'
 import { generateJwt } from '../../utils/jwtLib'
+import { Queue } from '../Queue'
 
-const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
+const signupUser = async (
+  repo: Repo,
+  queue: Queue,
+  body: PostSignupUserRequest,
+) => {
   PostSignupUserRequestSchema.parse(body)
 
   const userWithEmail = await repo.user.getUserByEmail(body.email)
@@ -48,24 +52,7 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
       : undefined,
   })
 
-  emailQueue.add(signUpEmailTemplate(user.name))
-
-  // paymentThreshold.add(
-  //   { email: req.body.email },
-  //   {
-  //     attempts: 3,
-  //     backoff: {
-  //       type: 'exponential',
-  //       delay: 5000,
-  //     },
-  //     delay: 60 * 60 * 24 * 2 * 1000,
-  //     // repeat: {
-  //     //   cron: '',
-  //     //   startDate: new Date(),
-  //     // },
-  //     // timeout
-  //   },
-  // )
+  queue.emailQueue.add(signUpEmailTemplate(user.name))
 
   const token = generateJwt(
     { email: user.email, role: user.role, userId: user.userId },
@@ -77,13 +64,13 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
 
   if (otp) {
     if (body.otpType === OTP_TYPE.PHONE) {
-      phoneQueue.add({
+      queue.phoneQueue.add({
         phone: user.phone,
         body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
-      emailQueue.add(
+      queue.emailQueue.add(
         otpEmailTemplate({ name: user.name, email: user.email, otp }),
       )
     }
@@ -98,7 +85,11 @@ const signupUser = async (repo: Repo, body: PostSignupUserRequest) => {
   return { user: PostLoginResponseSchema.parse(user), otp, token }
 }
 
-const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
+const signupPro = async (
+  repo: Repo,
+  queue: Queue,
+  body: PostSignupProRequest,
+) => {
   PostSignupProRequestSchema.parse(body)
 
   const proWithEmail = await repo.user.getUserByEmail(body.email)
@@ -127,7 +118,7 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
       : undefined,
   })
 
-  emailQueue.add(signUpEmailTemplate(pro.name))
+  queue.emailQueue.add(signUpEmailTemplate(pro.name))
 
   const token = generateJwt(
     { email: pro.email, role: pro.role, userId: pro.userId },
@@ -139,13 +130,13 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
 
   if (otp) {
     if (body.otpType === OTP_TYPE.PHONE) {
-      phoneQueue.add({
+      queue.phoneQueue.add({
         phone: pro.phone,
         body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
-      emailQueue.add(
+      queue.emailQueue.add(
         otpEmailTemplate({ name: pro.name, email: pro.email, otp }),
       )
     }
@@ -161,13 +152,13 @@ const signupPro = async (repo: Repo, body: PostSignupProRequest) => {
 }
 
 export const signUp =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   (body: PostSignupProRequest | PostSignupUserRequest) => {
     if (body.role === ROLES.USER) {
-      return signupUser(repo, body)
+      return signupUser(repo, queue, body)
     }
     if (body.role === ROLES.PRO) {
-      return signupPro(repo, body)
+      return signupPro(repo, queue, body)
     }
     throw new ForbiddenError()
   }

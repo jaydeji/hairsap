@@ -2,16 +2,16 @@ import { Repo } from '../../types'
 import { generateLoginOtp } from '../../utils/otp'
 import { dayjs } from '../../utils'
 import { OTP_TYPE } from '../../config/constants'
-import { emailQueue, phoneQueue } from '../../config/queue'
 import { otpEmailTemplate } from '../../config/email/templates/signup'
 import { ForbiddenError } from '../../utils/Error'
 import {
   PostGenerateOtpReq,
   PostGenerateOtpReqSchema,
 } from '../../schemas/request/postGenerateOtp'
+import { Queue } from '../Queue'
 
 export const generateOtp =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async (body: PostGenerateOtpReq) => {
     PostGenerateOtpReqSchema.parse(body)
 
@@ -31,14 +31,14 @@ export const generateOtp =
     })
 
     if (body.otpType === OTP_TYPE.PHONE) {
-      phoneQueue.add({
+      queue.phoneQueue.add({
         phone: user.phone,
         body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
     }
 
     if (body.otpType === OTP_TYPE.EMAIL) {
-      emailQueue.add(
+      queue.emailQueue.add(
         otpEmailTemplate({ name: user.name, email: user.email, otp }),
       )
     }

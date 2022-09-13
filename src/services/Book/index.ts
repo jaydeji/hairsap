@@ -7,7 +7,6 @@ import {
   PAYSTACK_URL,
   ROLES,
 } from '../../config/constants'
-import { deactivateRedeem, notifyQueue } from '../../config/queue'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
   GetProBookingsReq,
@@ -36,9 +35,10 @@ import {
   logger,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
+import { Queue } from '../Queue'
 
 const bookPro =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({
     samplePhotoOriginalFileName,
     samplePhotoKey,
@@ -119,7 +119,7 @@ const bookPro =
       samplePhotoUrl,
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       title: 'NewBooking',
       body: 'New booking has been received',
       userId: proId,
@@ -155,7 +155,7 @@ const addServiceToBooking =
   }
 
 const acceptBooking =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({
     userId,
     bookingId,
@@ -189,7 +189,7 @@ const acceptBooking =
       status: BOOKING_STATUS.ACCEPTED,
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Booking accepted',
       body: 'Booking has been accepted',
@@ -197,7 +197,7 @@ const acceptBooking =
   }
 
 const cancelBooking =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({
     userId,
     bookingId,
@@ -225,7 +225,7 @@ const cancelBooking =
       status: BOOKING_STATUS.CANCELLED,
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       userId: booking.proId,
       title: 'Booking cancelled',
       body: 'Booking has been cancelled',
@@ -233,7 +233,7 @@ const cancelBooking =
   }
 
 const rejectBooking =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ userId, bookingId }: { bookingId: number; userId: number }) => {
     PostAcceptBookingReqSchema.parse({ userId, bookingId })
 
@@ -253,14 +253,22 @@ const rejectBooking =
       rejectedAt: new Date(),
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Booking rejected',
       body: 'Booking has been rejected',
     })
   }
 
-const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
+const resolveBonus = async ({
+  repo,
+  proId,
+  queue,
+}: {
+  repo: Repo
+  queue: Queue
+  proId: number
+}) => {
   const sentBonusNotification = await repo.other.getNotificationStatus({
     userId: proId,
     period: 'week',
@@ -275,7 +283,7 @@ const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
       repo.book.addBonus({ proId, amount: PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS }),
       repo.other.addNotificationStatus({ type: 'bonus', userId: proId }),
     ])
-    notifyQueue.add({
+    queue.notifyQueue.add({
       title: 'New Bonus',
       body: `You have earned a bonus of ${
         PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS / 100
@@ -285,7 +293,15 @@ const resolveBonus = async ({ repo, proId }: { repo: Repo; proId: number }) => {
   }
 }
 
-const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
+const redeemCash = async ({
+  repo,
+  queue,
+  proId,
+}: {
+  repo: Repo
+  queue: Queue
+  proId: number
+}) => {
   const sentRedeemCashNotification = await repo.other.getNotificationStatus({
     userId: proId,
     period: 'day',
@@ -300,12 +316,12 @@ const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
 
   if (total >= PERIODIC_CASH_AMOUNTS.DAILY_REDEEM_THRESHOLD) {
     await repo.other.addNotificationStatus({ type: 'redeem', userId: proId })
-    notifyQueue.add({
+    queue.notifyQueue.add({
       title: 'Redeem Payout Request',
       body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
       userId: proId,
     })
-    deactivateRedeem.add(
+    queue.deactivateRedeem.add(
       {
         proId,
       },
@@ -317,7 +333,7 @@ const redeemCash = async ({ repo, proId }: { repo: Repo; proId: number }) => {
 }
 
 const markBookingAsCompleted =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ proId, bookingId }: { bookingId: number; proId: number }) => {
     PostMarkBookingAsCompletedReqSchema.parse({ proId, bookingId })
 
@@ -341,10 +357,10 @@ const markBookingAsCompleted =
       status: BOOKING_STATUS.COMPLETED,
     })
 
-    await resolveBonus({ repo, proId: booking.proId })
+    await resolveBonus({ repo, queue, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
-      await redeemCash({ repo, proId: booking.proId })
+      await redeemCash({ repo, queue, proId: booking.proId })
     } else {
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
@@ -402,7 +418,7 @@ const markBookingAsArrived =
   }
 
 const markBookingAsIntransit =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async (body: { bookingId: number; proId: number }) => {
     z.object({
       bookingId: z.number(),
@@ -427,7 +443,7 @@ const markBookingAsIntransit =
       inTransit: true,
     })
 
-    notifyQueue.add({
+    queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Prep for pro arrival',
       body: 'Kindly provide an electrical outlet. Remove pets or baby around the vicinity before the pro arrives',
@@ -547,20 +563,20 @@ const markBonusAsPaid =
     })
   }
 
-const makeBook = ({ repo }: { repo: Repo }) => {
+const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
-    bookPro: bookPro({ repo }),
+    bookPro: bookPro({ repo, queue }),
     addServiceToBooking: addServiceToBooking({ repo }),
-    acceptBooking: acceptBooking({ repo }),
-    rejectBooking: rejectBooking({ repo }),
+    acceptBooking: acceptBooking({ repo, queue }),
+    rejectBooking: rejectBooking({ repo, queue }),
     getAcceptedProBookings: getAcceptedProBookings({ repo }),
-    cancelBooking: cancelBooking({ repo }),
-    markBookingAsCompleted: markBookingAsCompleted({ repo }),
+    cancelBooking: cancelBooking({ repo, queue }),
+    markBookingAsCompleted: markBookingAsCompleted({ repo, queue }),
     markBookingAsArrived: markBookingAsArrived({ repo }),
     getUncompletedBookings: getUncompletedBookings({ repo }),
     getUserBookings: getUserBookings({ repo }),
     getProBookings: getProBookings({ repo }),
-    markBookingAsIntransit: markBookingAsIntransit({ repo }),
+    markBookingAsIntransit: markBookingAsIntransit({ repo, queue }),
     rateAndReviewBooking: rateAndReviewBooking({ repo }),
     getTransactions: getTransactions({ repo }),
     getUnpaidBonuses: getUnpaidBonuses({ repo }),

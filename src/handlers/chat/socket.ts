@@ -1,5 +1,4 @@
 import { ROLES } from '../../config/constants'
-import { chatQueue } from '../../config/queue'
 import { IO } from '../../index'
 import { ChatMessageType, MessageSchema } from '../../schemas/models/Message'
 import { PostBookProReq } from '../../schemas/request/postBookPro'
@@ -16,11 +15,9 @@ import { verifyJwt } from '../../utils/jwtLib'
 //socket input Object<any>
 //socket output Object<{data,message,error}>
 
-const connectedUsers: Record<string, { socketId: string } | undefined> = {}
+const createSocket = ({ io, service }: { io: IO; service: Service }) => {
+  const connectedUsers: Record<string, { socketId: string } | undefined> = {}
 
-let _io: IO
-const createChat = ({ io, service }: { io: IO; service: Service }) => {
-  _io = io
   io.use(function (socket, next) {
     if (socket.handshake.query.token) {
       try {
@@ -63,7 +60,7 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
     socket.on('new message', (message: ChatMessageType, callback) => {
       const _message = MessageSchema.safeParse(message)
       if (!_message.success) return callback?.({ error: _message.error.issues })
-      chatQueue.add(message)
+      service.queue.chatQueue.add(message)
       callback?.({ data: message })
       const socketId = connectedUsers[message.receiverId]?.socketId
       if (socketId) {
@@ -88,16 +85,21 @@ const createChat = ({ io, service }: { io: IO; service: Service }) => {
       }
     })
   })
+
+  return {
+    io,
+    connectedUsers,
+    sendSocketNotify: (
+      key: 'notification',
+      userId: number,
+      message: { body?: string; title?: string; userId: number },
+    ) => {
+      const conn = connectedUsers[userId]
+      if (!conn) return false
+      io.sockets.to(conn.socketId).emit(key, message)
+      return true
+    },
+  }
 }
 
-export const sendSocketNotify = (
-  key: 'notification',
-  userId: number,
-  message: { body?: string; title?: string; userId: number },
-) => {
-  const conn = connectedUsers[userId]
-  if (!conn) return false
-  _io.sockets.to(conn.socketId).emit(key, message)
-  return true
-}
-export default createChat
+export default createSocket
