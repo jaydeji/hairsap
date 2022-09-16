@@ -35,13 +35,13 @@ export const generateOtp =
         phone: user.phone,
         body: `Please use the OTP: ${otp} to complete your signup - Hairsap`,
       })
-    }
-
-    if (body.otpType === OTP_TYPE.EMAIL) {
+    } else if (body.otpType === OTP_TYPE.EMAIL) {
       queue.emailQueue.add(
         otpEmailTemplate({ name: user.name, email: user.email, otp }),
       )
+    } else {
+      throw new ForbiddenError()
     }
 
-    throw new ForbiddenError()
+    return { otp }
   }

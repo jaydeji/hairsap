@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 export const GetAllUsersReqSchema = z
   .object({
-    userId: z.number().optional(),
     name: z.string().optional(),
   })
   .strict()

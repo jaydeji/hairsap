@@ -92,7 +92,7 @@ const createUser = ({
 }: {
   db: PrismaClient
   user: Prisma.UserCreateInput
-}) => db.user.create({ data: user })
+}) => db.user.create({ data: user, include: { deactivations: true } })
 
 const deleteUser =
   ({ db }: { db: PrismaClient }) =>
@@ -140,13 +140,9 @@ const getUserSubscriptions =
 
 const getAllUsers =
   ({ db }: { db: PrismaClient }) =>
-  ({
-    userId,
-    name,
-  }: PageReq & { skip: number } & { userId?: number; name?: string }) => {
+  ({ name }: PageReq & { skip: number } & { name?: string }) => {
     const where = {
       role: ROLES.USER,
-      userId,
       name: {
         contains: name,
       },
@@ -157,6 +153,15 @@ const getAllUsers =
       }),
       db.user.findMany({
         where,
+        select: {
+          address: true,
+          userId: true,
+          createdAt: true,
+          email: true,
+          phone: true,
+          profilePhotoUrl: true,
+          name: true,
+        },
       }),
     ])
   }

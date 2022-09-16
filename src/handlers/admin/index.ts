@@ -89,7 +89,6 @@ const makeAdminRouter = ({
     ah(async (req, res) => {
       const data = await service.user.getAllUsers({
         name: req.body.name,
-        userId: req.body.userId,
         page: req.body.page,
         perPage: req.body.perPage,
       })
