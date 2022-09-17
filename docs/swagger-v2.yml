@@ -263,14 +263,20 @@ paths:
       security:
         - BearerAuth: []
 
-  /reactivate/accept/:userId:
+  /reactivate/accept/{userId}:
     post:
       tags:
         - Admin
       summary: accept reactivation
       description: accept reactivation
       operationId: acceptreactivation
-      parameters: []
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
       requestBody:
         description: accept reactivation
         content:
@@ -333,49 +339,61 @@ paths:
       security:
         - BearerAuth: []
 
-  /payout/:proId/request:
-    post:
-      tags:
-        - Admin
-      summary: payout proId request
-      description: payout proId request
-      operationId: payoutproidrequest
-      parameters: []
-      requestBody:
+  /payout/{proId}/request:
+      post:
+        tags:
+          - Admin
+        summary: payout proId request
         description: payout proId request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AdminPayoutProIdRequest'
-        required: true
-      responses:
-        '200':
-          description: Status 200 Response
+        operationId: payoutproidrequest
+        parameters:
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number        
+        requestBody:
+          description: payout proId request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminPayoutProIdResponse'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalError'
-      security:
-        - BearerAuth: []
+                $ref: '#/components/schemas/AdminPayoutProIdRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AdminPayoutProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
 
-  /payout/:invoiceId/confirm:
+  /payout/{invoiceId}/confirm:
     post:
       tags:
         - Admin
       summary: payout invoiceId confirmation
       description: payout invoiceId confirmation
       operationId: payoutinvoiceidconfirmation
-      parameters: []
+      parameters:
+       - name: invoiceId
+         in: path
+         required: true
+         allowEmptyValue: false
+         schema:
+          type: number
       requestBody:
         description: payout invoiceId confirmation
         content:
@@ -431,14 +449,28 @@ paths:
       security:
         - BearerAuth: []
 
-  /proapplication/:userId/:action:
+  /proapplication/{userId}/{action}:
     post:
       tags:
         - Admin
       summary: proapplication userId action
       description: pro application userId action
       operationId: proapplicationuseridaction
-      parameters: []
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        - name: action
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'accept'
+            enum: [accept,reject]
       requestBody:
         description: pro application userId action
         content:
@@ -466,14 +498,20 @@ paths:
       security:
         - BearerAuth: []
 
-  /proapplication/:proId:
+  /proapplication/{proId}:
     get:
       tags:
         - Admin
       summary: pro application proId
       description: pro application proId
       operationId: proapplicationproid
-      parameters: []
+      parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
       responses:
         '200':
           description: Status 200 Response
@@ -564,14 +602,21 @@ paths:
       security:
         - BearerAuth: []
 
-  /users/:id:
+  /users/{userId}:
     get:
       tags:
         - Admin
       summary: users id
       description: users id
       operationId: usersid
-      parameters: []
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+            example: 1
       responses:
         '200':
           description: Status 200 Response
@@ -592,14 +637,21 @@ paths:
       security:
         - BearerAuth: []
 
-  /pros/:userId:
+  /pros/{userId}:
     get:
       tags:
         - Admin
       summary: pros user id
       description: pros user id
       operationId: prosuserid
-      parameters: []
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+            example: 1
       responses:
         '200':
           description: Status 200 Response
@@ -718,14 +770,20 @@ paths:
       security:
         - BearerAuth: []
 
-  /bonuses/:bonusId/paid:
+  /bonuses/{bonusId}/paid:
     post:
       tags:
         - Admin
       summary: bonuses paid  
       description: bonuses paid 
       operationId: bonusespaid
-      parameters: []
+      parameters: 
+        - name: bonusId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
       requestBody:
         description: bonuses paid  
         content:
@@ -817,14 +875,20 @@ paths:
         - BearerAuth: []
 
 
-  /unacceptedprophotos/:proId/accept:
+  /unacceptedprophotos/{proId}/accept:
     post:
       tags:
         - Admin
       summary: unaccepted pro photos proId
       description: unaccepted pro photos proId
       operationId: unacceptedprophotosproid 
-      parameters: []
+      parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
       requestBody:
         description: unaccepted pro photos proId
         content:
@@ -1276,7 +1340,66 @@ components:
           oneOf:
             - type: array
             - type: object
-    
+    Meta: 
+     type: object
+     properties:
+        total:
+          type: number
+        skipped:
+          type: number
+        perPage:
+          type: number
+        page:
+          type: number
+        pageCount:
+          type: number
+    Booking:
+      type: object
+      properties: 
+        bookingId:
+          type: number
+        arrived:
+          type: boolean
+        inTransit:
+          type: boolean
+        address:
+          type: string
+        samplePhotoUrl:
+          type: string
+        status:
+          type: string
+          enum: [cancelled,rejected,accepted,completed,pending]
+        rating:
+          type: number
+        review:
+          type: string
+        acceptedAt:
+          type: string
+        rejectedAt:
+          type: string
+        arrivalAt:
+          type: string
+        cancelledAt:
+          type: string
+        proId:
+          type: number
+        userId:
+          type: number
+        createdAt:
+          type: string
+    Bonus:
+      type: object
+      properties:
+        bonusId:
+          type: number
+        amount:
+          type: number
+        paid:
+          type: boolean
+        createdAt:
+          type: string
+        proId:
+          type: number
     AuthLoginRequest:
       type: object
       required:
@@ -1580,11 +1703,9 @@ components:
       properties:
         role:
           type: string
-          enum: [user,pro]
+          enum: [user,pro,admin]
         email:
           type: string
-        userId:
-          type: number
     AuthResetPasswordResponse:
       type: object
 
@@ -1597,179 +1718,126 @@ components:
           type: string
           description: user email
           example: 'john@hairsap.com'
-        userId:
-          type: number
-        expiredAt:
-          type: string
         token:
           type: string
         password:
           type: string
         role:
           type: string
-          enum: [user,pro]
+          enum: [user,pro,admin]
     AuthConfirmResetPasswordResponse:
       type: object
      
     AdminAcceptReactivationRequest:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
     AdminAcceptReactivationResponse:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
 
     AdminPayoutRequestsRequest:
       type: object
-      required:
-        - userId
-        - role
       properties:
-        userId:
+        page:
           type: number
-          description: user id
+          description: page
           example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
+        perPage:
+          type: number
+          description: perPage
+          example: 10
     AdminPayoutRequestsResponse:
       type: object
       required:
-        - userId
-        - role
+        - meta
+        - data
       properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
+        meta: 
+          $ref: '#/components/schemas/Meta'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              invoice:
+                type: object
+                properties:
+                  invoiceId:
+                    type: number  
+                  transportFee:
+                    type: number 
+                  distance:
+                    type: number    
+                  bookingId:
+                    type: number  
+                  createdAt:
+                    type: string  
+                  paid:
+                    type: boolean        
+                  amountPaid:
+                    type: number   
+                  reference:
+                    type: string    
+                  channel:
+                    type: string 
+                    enum: [cash,card]     
+                  invoiceFees:
+                    type: object
+                    properties:
+                        feeId:
+                          type: number
+                        name:
+                          type: string
+                        price:
+                          type: number
+                        invoiceId:
+                          type: number
+                        createdAt:
+                          type: string
 
     AdminPayoutProIdRequest:
       type: object
       required:
-        - userId
-        - role
+        - proId
       properties:
-        userId:
+        proId:
           type: number
-          description: user id
+          description: pro id
           example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
     AdminPayoutProIdResponse:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
 
     AdminPayoutInvoiceIdConfirmationRequest:
       type: object
       required:
-        - userId
-        - role
+        - invoiceId
       properties:
-        userId:
+        invoiceId:
           type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
     AdminPayoutInvoiceIdConfirmationResponse:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
 
     AdminProApplicationsResponse:
-      type: object
+      type: array
       required:
         - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
+        - name
+      items:
+        type: object
+        properties:
+          userId:
+            type: number
+            description: user id
+            example: 1
+          name:
+            type: string
+          service:
+            type: string
 
     AdminProApplicationUserIdActionRequest:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
+      
     AdminProApplicationUserIdActionResponse:
       type: object
-      required:
-        - userId
-        - role
-      properties:
-        userId:
-          type: number
-          description: user id
-          example: 1
-        role:
-          type: string
-          description: user role
-          example: 'admin'
+    
 
     AdminProApplicationProIdResponse:
       type: object
@@ -1812,29 +1880,29 @@ components:
           example: 10
     AdminProsResponse:
       type: object
-      required:
-        - name
-        - serviceId
-        - page
-        - perPage
       properties:
-        name:
-          type: string
-          description: name
-          example: 'pro'
-        serviceId:
-          type: number
-          description: serviceId
-          example: 1
-        page:
-          type: number
-          description: page
-          example: 1
-        perPage:
-          type: number
-          description: perPage
-          example: 10
-
+        meta: 
+          $ref: '#/components/schemas/Meta'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: number
+              businessName:
+                type: string 
+              name:
+                type: string 
+              email:
+                type: string    
+              deactivated:
+                type: boolean  
+              createdAt:
+                type: string  
+              profilePhotoUrl:
+                type: string  
+                 
     AdminUsersRequest:
       type: object
       required:
@@ -1882,27 +1950,148 @@ components:
           type: string
         profilePhotoUrl:
           type: string
+        verified:
+          type: boolean
 
     AdminUsersIdResponse:
       type: object
       required:
         - userId
       properties:
-        userId:
+        amountSpent:
           type: number
-          description: userId
-          example: 1
+        averageRatings:
+          type: number
+        subscriptions:
+          type: number
+        totalBookings:
+          type: number
+        user:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+            email:
+              type: string
+            createdAt:
+              type: string
+            verified:
+              type: boolean
+            phone:
+              type: string
+            address:
+              type: string
 
     AdminProsUserIdResponse:
       type: object
-      required:
-        - userId
       properties:
-        userId:
+        dailyBookingCount:
           type: number
-          description: userId
-          example: 1
-
+        dailyBookingSum:
+          type: number
+        weeklyBookingCount:
+          type: number
+        weeklyBookingSum:
+          type: number
+        monthlyBookingCount:
+          type: number
+        monthlyBookingSum:
+          type: number
+        allBookingCount:
+          type: number
+        allBookingSum:
+          type: number
+        subscriptions:
+          type: number
+        averageRatings:
+          type: number
+        ratings:
+          type: number
+        taskTarget:
+          type: object
+          properties:
+            day:
+              type: number
+            week:
+              type: number
+            month:
+              type: number
+        earnings:
+          type: object
+          properties:
+            day:
+              type: number
+            week:
+              type: number
+            month:
+              type: number
+        user:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+            email:
+              type: string
+            createdAt:
+              type: string
+            deactivated:
+              type: boolean
+            phone:
+              type: string
+            address:
+              type: string
+            service:
+              type: string
+            account:
+              type: object
+              properties:
+                accountId:
+                  type: number
+                accountNumber:
+                  type: string
+                accountName:
+                  type: string
+                bankName:
+                  type: string
+        latestBookings:
+          type: array
+          items:
+            type: object
+            properties:
+              bookingId:
+                type: number
+              createdAt:
+                type: string
+              bookedSubServices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    subServiceId:
+                      type: number
+                    serviceId:
+                      type: number
+                    name:
+                      type: string
+                    photoUrl:
+                      type: string
+                    price:
+                      type: number
+                    createdAt:
+                      type: string
+                      
     AdminUserBookingsRequest:
       type: object
       required:
@@ -1925,22 +2114,25 @@ components:
     AdminUserBookingsResponse:
       type: object
       required:
-        - userId
-        - page
-        - perPage
+        - meta
+        - data
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        page:
-          type: number
-          description: page
-          example: 1
-        perPage:
-          type: number
-          description: perPage
-          example: 10
+       meta: 
+        $ref: '#/components/schemas/Meta'
+       data:
+        type: array
+        items:
+          allOf: 
+            - $ref: '#/components/schemas/Booking'
+            - type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                    profilePhotoUrl: 
+                      type: string
 
     AdminProBookingsRequest:
       type: object
@@ -1961,6 +2153,7 @@ components:
           type: number
           description: perPage
           example: 10
+
     AdminProBookingsResponse:
       type: object
       required:
@@ -1968,28 +2161,23 @@ components:
         - page
         - perPage
       properties:
-        proId:
+        count:
           type: number
-          description: proId
-          example: 1
-        page:
+        total:
           type: number
-          description: page
-          example: 1
-        perPage:
-          type: number
-          description: perPage
-          example: 10
-
+        bookings:
+          type: array
+          items:
+            type: object
+            properties:
+              name: 
+                type: string
+              total: 
+                type: number
     AdminBonusesResponse:
-      type: object
-      required:
-        - bonusId
-      properties:
-        bonusId:
-          type: number
-          description: bonusId
-          example: 1
+      type: array
+      items:
+        $ref: '#/components/schemas/Bonus'
 
     AdminBonusesPaidRequest:
       type: object

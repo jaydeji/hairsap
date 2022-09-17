@@ -161,6 +161,7 @@ const getAllUsers =
           phone: true,
           profilePhotoUrl: true,
           name: true,
+          verified: true,
         },
       }),
     ])
@@ -197,7 +198,19 @@ const getUserDetails =
             invoice: { booking: { userId }, paid: true },
           },
         }),
-        db.user.findFirst({ where: { userId } }),
+        db.user.findFirst({
+          where: { userId },
+          select: {
+            name: true,
+            userId: true,
+            profilePhotoUrl: true,
+            email: true,
+            createdAt: true,
+            verified: true,
+            phone: true,
+            address: true,
+          },
+        }),
       ])
 
     return {

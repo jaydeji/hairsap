@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { Role } from '../types'
 
 const resetPassword =
   ({ db }: { db: PrismaClient }) =>
@@ -21,12 +22,13 @@ const resetPassword =
 
 const getResetPasswordToken =
   ({ db }: { db: PrismaClient }) =>
-  ({ userId, token }: { userId: number; token: string }) => {
-    return db.passwordReset.findUnique({
+  ({ email, token, role }: { email: string; token: string; role: Role }) => {
+    return db.passwordReset.findFirst({
       where: {
-        userId_token: {
-          token,
-          userId,
+        token,
+        user: {
+          email,
+          role,
         },
       },
     })

@@ -20,7 +20,7 @@ export const confirmResetPassword =
 
     const hashedPassword = hashPassword(body.password)
 
-    await repo.user.updateUser(body.userId, {
+    await repo.user.updateUser(passwordTokenData.userId, {
       password: hashedPassword,
     })
   }

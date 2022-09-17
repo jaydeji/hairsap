@@ -162,9 +162,9 @@ export const getProDetails =
       dailyTaskTarget,
       weeklyTaskTarget,
       monthlyTaskTarget,
-      dailyBonus,
-      weeklyBonus,
-      monthlyBonus,
+      // dailyBonus,
+      // weeklyBonus,
+      // monthlyBonus,
     ] = await db.$transaction([
       db.booking.findMany({
         where: {
@@ -174,12 +174,10 @@ export const getProDetails =
         orderBy: {
           createdAt: 'desc',
         },
-        include: {
-          bookedSubServices: {
-            select: {
-              subService: true,
-            },
-          },
+        select: {
+          bookingId: true,
+          createdAt: true,
+          bookedSubServices: true,
         },
       }),
       db.invoiceFees.aggregate({
@@ -327,39 +325,39 @@ export const getProDetails =
           price: true,
         },
       }),
-      db.bonus.aggregate({
-        where: {
-          proId,
-          createdAt: {
-            gte: dayjs().startOf('day').toDate(),
-          },
-        },
-        _sum: {
-          amount: true,
-        },
-      }),
-      db.bonus.aggregate({
-        where: {
-          proId,
-          createdAt: {
-            gte: dayjs().startOf('week').toDate(),
-          },
-        },
-        _sum: {
-          amount: true,
-        },
-      }),
-      db.bonus.aggregate({
-        where: {
-          proId,
-          createdAt: {
-            gte: dayjs().startOf('month').toDate(),
-          },
-        },
-        _sum: {
-          amount: true,
-        },
-      }),
+      // db.bonus.aggregate({
+      //   where: {
+      //     proId,
+      //     createdAt: {
+      //       gte: dayjs().startOf('day').toDate(),
+      //     },
+      //   },
+      //   _sum: {
+      //     amount: true,
+      //   },
+      // }),
+      // db.bonus.aggregate({
+      //   where: {
+      //     proId,
+      //     createdAt: {
+      //       gte: dayjs().startOf('week').toDate(),
+      //     },
+      //   },
+      //   _sum: {
+      //     amount: true,
+      //   },
+      // }),
+      // db.bonus.aggregate({
+      //   where: {
+      //     proId,
+      //     createdAt: {
+      //       gte: dayjs().startOf('month').toDate(),
+      //     },
+      //   },
+      //   _sum: {
+      //     amount: true,
+      //   },
+      // }),
     ])
 
     const earnings = await getTotalEarnings({ db, proId })
@@ -395,7 +393,7 @@ export const getProDetails =
         businessName: user?.businessName,
         createdAt: user?.createdAt,
         account: user?.account,
-        proServices: user?.proServices,
+        service: user?.proServices?.[0]?.service?.name,
       },
       ratings,
       taskTarget: {
@@ -412,11 +410,11 @@ export const getProDetails =
             PERIODIC_CASH_AMOUNTS.MONTHLY_TASK_TARGET) *
           100,
       },
-      bonus: {
-        day: dailyBonus._sum.amount,
-        week: weeklyBonus._sum.amount,
-        month: monthlyBonus._sum.amount,
-      },
+      // bonus: {
+      //   day: dailyBonus._sum.amount,
+      //   week: weeklyBonus._sum.amount,
+      //   month: monthlyBonus._sum.amount,
+      // },
       earnings,
     }
   }

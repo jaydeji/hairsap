@@ -1,6 +1,8 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import type { Role, Service } from '../../types'
+import { ROLES } from '../../config/constants'
+import { allowOnly } from '../../middleware/auth'
+import type { Service } from '../../types'
 
 const makeAdminRouter = ({
   router,
@@ -11,10 +13,10 @@ const makeAdminRouter = ({
 }) => {
   router.post(
     '/reactivate/accept/:userId',
+    allowOnly([ROLES.ADMIN]),
     ah(async (req, res) => {
       await service.admin.acceptReactivation({
         userId: +req.params.userId as number,
-        role: req.tokenData?.role as Role,
       })
       res.status(201).send()
     }),
@@ -96,17 +98,17 @@ const makeAdminRouter = ({
     }),
   )
 
-  router.get(
-    '/users/:id',
+  router.get<{ userId: string }>(
+    '/users/:userId',
     ah(async (req, res) => {
       const data = await service.user.getUserDetails({
-        userId: req.body.userId,
+        userId: +req.params.userId,
       })
       res.status(200).send({ data })
     }),
   )
 
-  router.get(
+  router.get<{ userId: string }>(
     '/pros/:userId',
     ah(async (req, res) => {
       const data = await service.pro.getProDetails({

@@ -232,6 +232,14 @@ const getUserBookings =
         where: {
           userId,
         },
+        include: {
+          user: {
+            select: {
+              name: true,
+              profilePhotoUrl: true,
+            },
+          },
+        },
         take: page.perPage,
         skip: page.skip,
       }),

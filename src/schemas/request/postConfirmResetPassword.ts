@@ -7,8 +7,6 @@ export const PostConfirmResetPasswordReqSchema = z
     token: z.string().min(1),
     role: z.nativeEnum(ROLES),
     email: z.string().email(),
-    expiredAt: z.date(),
-    userId: z.number(),
   })
   .merge(PostLoginRequestSchema.pick({ password: true }))
   .strict()

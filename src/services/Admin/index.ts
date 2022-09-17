@@ -16,7 +16,7 @@ import { Queue } from '../Queue'
 
 const acceptReactivation =
   ({ repo }: { repo: Repo }) =>
-  async ({ userId }: { userId: number; role: Role }) => {
+  async ({ userId }: { userId: number }) => {
     const pro = await repo.user.getUserById(userId)
 
     if (!pro) throw new NotFoundError('pro not found')
@@ -70,7 +70,11 @@ const acceptOrRejectApplication =
 const getProApplications =
   ({ repo }: { repo: Repo }) =>
   async () => {
-    const data = await repo.pro.getProApplications()
+    const data = (await repo.pro.getProApplications()).map((e) => ({
+      userId: e.userId,
+      name: e.name,
+      service: e.proServices?.[0].service.name,
+    }))
     return { data }
   }
 

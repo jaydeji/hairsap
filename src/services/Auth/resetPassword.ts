@@ -7,6 +7,7 @@ import { generateLoginOtp } from '../../utils/otp'
 import { dayjs } from '../../utils'
 import { resetPasswordTemplate } from '../../config/email/templates/resetPassword'
 import { Queue } from '../Queue'
+import { NotFoundError } from '../../utils/Error'
 
 export const resetPassword =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -15,8 +16,12 @@ export const resetPassword =
 
     const token = await generateLoginOtp()
 
+    const user = await repo.user.getUserByEmail(body.email)
+
+    if (!user) throw new NotFoundError('user not found')
+
     await repo.auth.resetPassword({
-      userId: body.userId,
+      userId: user.userId,
       expiredAt: dayjs().add(1, 'hour').toDate(),
       token,
     })

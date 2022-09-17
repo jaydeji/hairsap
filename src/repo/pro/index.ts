@@ -191,6 +191,16 @@ const getAllPros =
       }),
       db.user.findMany({
         where,
+        select: {
+          name: true,
+          phone: true,
+          businessName: true,
+          email: true,
+          userId: true,
+          deactivated: true,
+          createdAt: true,
+          profilePhotoUrl: true,
+        },
       }),
     ])
   }
@@ -238,6 +248,19 @@ const getProApplications =
           not: true,
         },
         role: ROLES.PRO,
+      },
+      select: {
+        userId: true,
+        name: true,
+        proServices: {
+          select: {
+            service: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     })
 
