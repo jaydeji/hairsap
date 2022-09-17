@@ -38,7 +38,7 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
     }
   })
   io.on('connection', (socket) => {
-    // logger.info('a user connected')
+    logger.debug('a user connected')
 
     if (process.env.NODE_ENV === 'development') {
       socket.onAny((event, ...args) => {

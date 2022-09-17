@@ -3,7 +3,7 @@ import ah from 'express-async-handler'
 import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import type { Role, Service } from '../../types'
 import { ValidationError } from '../../utils/Error'
-import { _upload } from '../../config/multer-cloud'
+import { upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
 import { nanoid } from 'nanoid'
 
@@ -16,17 +16,6 @@ const makeBookingRouter = ({
 }) => {
   router.post(
     '/',
-    _upload({
-      getKey: (file, req) =>
-        `samplephoto/user/${req.tokenData?.userId}/${nanoid()}/${
-          file.originalname
-        }`,
-      type: 'image',
-      acl: 'public-read',
-    }).fields([
-      { name: 'payload', maxCount: 1 },
-      { name: 'samplePhoto', maxCount: 1 },
-    ]),
     ah(async (req, res) => {
       let body
       try {
@@ -37,10 +26,13 @@ const makeBookingRouter = ({
         throw new ValidationError((error as Error).message)
       }
 
-      const files = req.files as {
-        [fieldname: string]: Express.Multer.File[]
-      }
-      const file = files['samplePhoto'][0]
+      const result = await upload({
+        file: req.files?.['samplephoto'] as any,
+        type: 'image',
+        prefix: `samplephoto/user/${req.tokenData?.userId}/${nanoid()}`,
+        fieldName: 'samplephoto',
+        acl: 'public-read',
+      })
 
       const data = await service.book.bookPro({
         userId: req.tokenData?.userId as number,
@@ -50,9 +42,9 @@ const makeBookingRouter = ({
         longitude: body.longitude,
         address: body.address,
         channel: body.channel,
-        samplePhotoKey: (file as any).key,
-        samplePhotoOriginalFileName: file.originalname,
-        samplePhotoUrl: STORAGE_ENDPOINT_CDN + (file as any).key,
+        samplePhotoKey: result.key,
+        samplePhotoOriginalFileName: result.originalName,
+        samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
       })
       res.status(200).send({ data })
     }),

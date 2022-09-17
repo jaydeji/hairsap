@@ -263,7 +263,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /reactivate/accept/{userId}:
+  /admin/reactivate/accept/{userId}:
     post:
       tags:
         - Admin
@@ -304,7 +304,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /payout/requests:
+  /admin/payout/requests:
     post:
       tags:
         - Admin
@@ -339,7 +339,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /payout/{proId}/request:
+  /admin/payout/{proId}/request:
       post:
         tags:
           - Admin
@@ -380,7 +380,7 @@ paths:
         security:
           - BearerAuth: []
 
-  /payout/{invoiceId}/confirm:
+  /admin/payout/{invoiceId}/confirm:
     post:
       tags:
         - Admin
@@ -421,7 +421,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /proapplications:
+  /admin/proapplications:
     get:
       tags:
         - Admin
@@ -449,7 +449,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /proapplication/{userId}/{action}:
+  /admin/proapplication/{userId}/{action}:
     post:
       tags:
         - Admin
@@ -498,7 +498,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /proapplication/{proId}:
+  /admin/proapplication/{proId}:
     get:
       tags:
         - Admin
@@ -532,7 +532,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /pros:
+  /admin/pros:
     post:
       tags:
         - Admin
@@ -567,7 +567,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /users:
+  /admin/users:
     post:
       tags:
         - Admin
@@ -602,7 +602,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /users/{userId}:
+  /admin/users/{userId}:
     get:
       tags:
         - Admin
@@ -637,7 +637,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /pros/{userId}:
+  /admin/pros/{userId}:
     get:
       tags:
         - Admin
@@ -672,7 +672,7 @@ paths:
       security:
         - BearerAuth: []
         
-  /userbookings:
+  /admin/userbookings:
     post:
       tags:
         - Admin
@@ -707,7 +707,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /probookings:
+  /admin/probookings:
     post:
       tags:
         - Admin
@@ -742,7 +742,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /bonuses:
+  /admin/bonuses:
     get:
       tags:
         - Admin
@@ -770,7 +770,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /bonuses/{bonusId}/paid:
+  /admin/bonuses/{bonusId}/paid:
     post:
       tags:
         - Admin
@@ -811,7 +811,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /dashboard/bookings:
+  /admin/dashboard/bookings:
     post:
       tags:
         - Admin
@@ -846,7 +846,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /dashboard:
+  /admin/dashboard:
     get:
       tags:
         - Admin
@@ -875,7 +875,7 @@ paths:
         - BearerAuth: []
 
 
-  /unacceptedprophotos/{proId}/accept:
+  /admin/unacceptedprophotos/{proId}/accept:
     post:
       tags:
         - Admin
@@ -916,7 +916,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /unacceptedprophotos:
+  /admin/unacceptedprophotos:
     get:
       tags:
         - Admin
@@ -945,7 +945,7 @@ paths:
         - BearerAuth: []
 
 
-  /:
+  /users:
     patch:
       tags:
         - User
@@ -980,7 +980,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /faceid:
+  /users/faceid:
     post:
       tags:
         - User
@@ -991,7 +991,7 @@ paths:
       requestBody:
         description: user faceid
         content:
-          application/json:
+          mutltipart/form-data:
             schema:
               $ref: '#/components/schemas/UserfaceIdRequest'
         required: true
@@ -1400,6 +1400,44 @@ components:
           type: string
         proId:
           type: number
+    User:
+      type: object
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+        name:
+          type: string
+        profilePhotoUrl:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+        deactivated:
+          type: boolean
+        phone:
+          type: string
+        address:
+          type: string
+        role:
+          type: string
+          enum: [user,pro,admin]
+        longitude:
+          type: number
+        latitude:
+          type: number
+        terminated:
+          type: boolean
+        verified:
+          type: boolean
+        reactivationRequested:
+          type: boolean
+        available:
+          type: boolean
+        businessName:
+          type: boolean
     AuthLoginRequest:
       type: object
       required:
@@ -2259,52 +2297,37 @@ components:
 
     UserPatchRequest:
       type: object
-      required:
-        - userId
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
+        address:
+          type: string
     UserPatchResponse:
       type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
 
     UserfaceIdRequest:
       type: object
       required:
         - userId
-        - role
+        - faceId
         - proId
-        - faceIdPhotoKey
-        - faceIdPhotoOriginalFileName
       properties:
         userId:
           type: number
           description: userId
           example: 1
-        role:
-          type: string
-          description: role
-          example: 'user'
         proId:
           type: number
           description: proId
           example: 1
-        faceIdPhotoKey:
+        file:
+            type: array
+            items:
+              type: string
+              format: binary
+        faceId:
           type: string
-          description: faceIdPhotoKey
-          example: 'photo key'
-        faceIdPhotoOriginalFileName:
-          type: number
-          description: faceIdPhotoOriginalFileName
-          example: 'Photo Original File Name'
+          format: binary #base64
+      
+
     UserfaceIdResponse:
       type: object
       required:

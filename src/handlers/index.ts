@@ -64,7 +64,7 @@ const makeRouter = ({
           },
         }).json()
       } catch (error) {
-        logger.err((error as any).message)
+        logger.err(error)
         throw new NotFoundError()
       }
 

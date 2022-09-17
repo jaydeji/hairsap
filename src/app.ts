@@ -2,6 +2,7 @@ import express, { Router } from 'express'
 import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
+import fileUpload from 'express-fileupload'
 import { auth as authMiddleWare, allowOnly } from './middleware/auth'
 import { handleError } from './utils/Error'
 import swaggerUi from 'swagger-ui-express'
@@ -23,6 +24,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(compression())
   app.use(helmet())
   app.use(express.json())
+  app.use(fileUpload())
   //TODO: tighten cors
   app.use(cors({ origin: '*' }))
   app.use('/sockets', express.static(process.cwd() + '/docs/asyncapi'))

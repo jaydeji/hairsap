@@ -1,37 +1,31 @@
-import { debug } from 'debug'
-const i = debug('info')
-const e = debug('error')
-const w = debug('warn')
+import pino from 'pino'
 
-export enum Formatter {
-  MULTI_LINE_OBJ = '%0',
-  SINGLE_LINE_OBJ = '%o',
-  JSON = '%j',
-  NONE = '%%',
+const logger = pino({
+  transport: {
+    targets: [
+      // {
+      //   target: './transport.ts',
+      //   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      //   options: {},
+      // },
+      ...(process.env.NODE_ENV === 'development'
+        ? [
+            {
+              target: 'pino-pretty',
+              level: 'debug',
+              options: {
+                colorize: true,
+              },
+            },
+          ]
+        : []),
+    ],
+  },
+})
+
+export default {
+  info: logger.info.bind(logger),
+  err: logger.error.bind(logger),
+  warn: logger.warn.bind(logger),
+  debug: logger.debug.bind(logger),
 }
-
-const info = (obj: unknown, message?: string, formatter?: Formatter): void => {
-  if (message)
-    if (formatter) i(formatter, obj, message)
-    else i('%j', obj, message)
-  else if (formatter) i(formatter, obj)
-  else i('%j', obj)
-}
-
-const err = (obj: unknown, message?: string, formatter?: Formatter): void => {
-  if (message)
-    if (formatter) e(formatter, obj, message)
-    else e('%o', obj, message)
-  else if (formatter) e(formatter, obj)
-  else e('%o', obj)
-}
-
-const warn = (obj: unknown, message?: string, formatter?: Formatter): void => {
-  if (message)
-    if (formatter) w(formatter, obj, message)
-    else w('%j', obj, message)
-  else if (formatter) w(formatter, obj)
-  else w('%j', obj)
-}
-
-export default { info, err, warn }

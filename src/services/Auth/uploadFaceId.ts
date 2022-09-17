@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { z } from 'zod'
 import { copyObject } from '../../config/multer-cloud'
 import type { Repo, Role } from '../../types'
 
@@ -66,6 +67,11 @@ export const uploadFaceId =
     if (userId)
       return uploadFaceIdUser({
         repo,
-        body: { userId, role, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+        body: {
+          userId,
+          role,
+          faceIdPhotoKey,
+          faceIdPhotoOriginalFileName,
+        },
       })
   }

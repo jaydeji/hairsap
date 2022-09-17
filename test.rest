@@ -182,3 +182,11 @@ GET {{base}}/pros/booking/ratio/3/week HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{ptoken}}
 
+###
+POST {{base}}/users/test HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer {{utoken}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; faceid="text"
+

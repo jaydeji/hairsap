@@ -2,7 +2,7 @@ import type { Router } from 'express'
 import ah from 'express-async-handler'
 import { nanoid } from 'nanoid'
 import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
-import { _upload } from '../../config/multer-cloud'
+import { upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import type { Role, Service } from '../../types'
@@ -107,19 +107,20 @@ const makeProRouter = ({
   router.post(
     '/applicationvideo',
     allowOnly([ROLES.PRO]),
-    _upload({
-      getKey: (file, req) =>
-        `applicationvideo/pro/${req.tokenData?.userId}/${nanoid()}/${
-          file.originalname
-        }`,
-      type: 'video',
-    }).single('applicationvideo'),
     ah(async (req, res) => {
+      const result = await upload({
+        file: req.files?.['applicationvideo'] as any,
+        type: 'video',
+        prefix: `applicationvideo/pro/${req.tokenData?.userId}/${nanoid()}`,
+        fieldName: 'applicationvideo',
+        acl: 'public-read',
+      })
+
       const data = await service.pro.uploadApplicationVideo({
         proId: req.tokenData!.userId!,
-        workVideoUrl: STORAGE_ENDPOINT_CDN + (req.file as any).key,
-        workVideoKey: (req.file as any).key,
-        workVideoOriginalFileName: req.file!.originalname,
+        workVideoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        workVideoKey: result.key,
+        workVideoOriginalFileName: result.originalName,
       })
       res.status(200).send({ data })
     }),
@@ -128,21 +129,22 @@ const makeProRouter = ({
   router.post(
     '/profilephoto',
     allowOnly([ROLES.PRO]),
-    _upload({
-      getKey: (file, req) =>
-        `profilephoto/pro/${req.tokenData?.userId}/${nanoid()}/${
-          file.originalname
-        }`,
-      type: 'image',
-      acl: 'public-read',
-    }).single('profilephoto'),
     ah(async (req, res) => {
+      const result = await upload({
+        file: req.files?.['profilephoto'] as any,
+        type: 'image',
+        prefix: `profilephoto/pro/${req.tokenData?.userId}/${nanoid()}`,
+        fieldName: 'profilephoto',
+        acl: 'public-read',
+      })
+
       const data = await service.pro.uploadProfilePhoto({
         proId: req.tokenData!.userId!,
-        tempProfilePhotoKey: (req.file as any).key,
-        tempProfilePhotoOriginalFileName: (req.file as any).originalname,
-        tempProfilePhotoUrl: STORAGE_ENDPOINT_CDN + (req.file as any).key,
+        tempProfilePhotoKey: result.key,
+        tempProfilePhotoOriginalFileName: result.originalName,
+        tempProfilePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
       })
+
       res.status(200).send({ data })
     }),
   )

@@ -111,7 +111,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
         userId: job.data.userId,
       })
     } catch (error) {
-      logger.err((error as any).message)
+      logger.err(error)
     }
     done()
   })
@@ -119,7 +119,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   emailQueue.process(async (job, done) => {
     if (process.env.NODE_ENV !== 'production') return done()
     sendMail(job.data).catch((error) => {
-      logger.err(error.message)
+      logger.err(error)
     })
     done()
   })
@@ -135,7 +135,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
         data: job.data,
       })
     } catch (error) {
-      logger.err((error as any).message)
+      logger.err(error)
     }
     done()
   })

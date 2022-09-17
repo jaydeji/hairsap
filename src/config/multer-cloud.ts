@@ -1,6 +1,8 @@
-import multer from 'multer'
-import multerS3 from 'multer-s3'
-import { S3Client, CopyObjectCommand } from '@aws-sdk/client-s3'
+import {
+  S3Client,
+  CopyObjectCommand,
+  PutObjectCommand,
+} from '@aws-sdk/client-s3'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import {} from '@aws-sdk/s3-request-presigner'
 import { STORAGE_ENDPOINT } from './constants'
@@ -34,42 +36,48 @@ export const copyObject = ({
 }
 
 const oneMB = 1024 * 1024
-export const _upload = ({
-  getKey,
-  type,
-  acl = 'private',
-}: {
-  getKey: (file: Express.Multer.File, req: Express.Request) => string
-  type: 'image' | 'video'
-  acl?: 'private' | 'public-read'
-}) =>
-  multer({
-    storage: multerS3({
-      s3,
-      bucket: 'hairsap',
-      // metadata: function (req, file, cb) {
-      //   cb(null, { fieldName: file.fieldname })
-      // },
-      acl,
-      key: (_req, file, cb) => {
-        cb(null, getKey(file, _req))
-      },
-    }),
-    limits: {
-      fileSize: type === 'image' ? 10 * oneMB : 30 * oneMB,
-    },
-    fileFilter: (_req, file, cb) => {
-      if (type === 'image') {
-        const filetypes = /jpeg|jpg|png|gif/
-        if (!filetypes.test(path.extname(file.originalname).toLowerCase()))
-          return cb(new ValidationError('file must be an image'))
-        if (!filetypes.test(file.mimetype))
-          return cb(new ValidationError('file must be an image'))
-      }
 
-      cb(null, true)
-    },
-  })
+export const upload = async (opts: {
+  file: Express.Request['files']
+  acl?: 'private' | 'public-read'
+  prefix: string
+  type: 'image' | 'video'
+  fieldName: string
+}) => {
+  const { file, acl, prefix, type, fieldName } = opts
+
+  if (!file?.name) throw new ValidationError(fieldName + ' does not exist')
+  if (type === 'image') {
+    const filetypes = /jpeg|jpg|png|gif/
+    if (!filetypes.test(path.extname(file.name as any).toLowerCase()))
+      throw new ValidationError('file must be an image')
+    if (!filetypes.test(file.mimetype as any))
+      throw new ValidationError('file must be an image')
+  }
+
+  if (type === 'image' && (file.size as any) > oneMB * 10)
+    throw new ValidationError('file size should not be more than 10mb')
+  if (type === 'video' && (file.size as any) > oneMB * 30)
+    throw new ValidationError('file size should not be more than 30mb')
+
+  const originalName = file.name as unknown as string
+  const fileContent = Buffer.from(file.data as any, 'binary')
+  const key = prefix + '/' + originalName
+
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: 'hairsap',
+      Key: key,
+      ACL: acl || 'private',
+      Body: fileContent,
+    }),
+  )
+
+  return {
+    key,
+    originalName,
+  }
+}
 
 export const getChatImageSignedUrl = ({ userId }: { userId: number }) => {
   const key = `chatphoto/${userId}/${nanoid()}/`

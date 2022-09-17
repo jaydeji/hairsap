@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
 import logger from './logger'
-import { MulterError } from 'multer'
 
 const ErrorType = {
   VALIDATION_ERROR: 'Validation Error',
@@ -102,13 +101,13 @@ const handleError = (
     err = new ValidationError(err.issues)
   }
 
-  if (err instanceof MulterError) {
-    err = new ValidationError(err.message)
-  }
+  // if (err instanceof MulterError) {
+  //   err = new ValidationError(err.message)
+  // }
 
   if (err instanceof InternalError || !(err instanceof HsapError)) {
     //TODO: send to sentry or email
-    logger.err(err.message, err.stack)
+    logger.err(err)
   }
 
   if (!(err instanceof HsapError)) {

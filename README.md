@@ -57,7 +57,7 @@ Edit `docs/asyncapi.yml` and run `npm run docs:sock:gen`
 
 ## Logging
 
-Avoid using console. Use the npm package debug logger instead
+Avoid using console. Use the npm package pino logger instead
 
 ## CI / CD
 
