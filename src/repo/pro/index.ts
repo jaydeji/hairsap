@@ -142,7 +142,7 @@ const getProSubscribers =
         proId,
       },
       include: {
-        users: {
+        user: {
           select: {
             userId: true,
             profilePhotoUrl: true,

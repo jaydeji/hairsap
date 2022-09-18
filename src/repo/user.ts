@@ -128,7 +128,7 @@ const getUserSubscriptions =
         userId,
       },
       include: {
-        pros: {
+        pro: {
           select: {
             userId: true,
             profilePhotoUrl: true,
@@ -230,7 +230,18 @@ const getUserData =
         userId,
       },
       include: {
-        card: true,
+        card: {
+          select: {
+            bank: true,
+            brand: true,
+            cardId: true,
+            createdAt: true,
+            expiryMonth: true,
+            email: true,
+            expiryYear: true,
+            last4: true,
+          },
+        },
       },
     })
   }
@@ -238,17 +249,22 @@ const getUserData =
 const getCard =
   ({ db }: { db: PrismaClient }) =>
   async ({ userId }: { userId: number }) => {
-    const card = await db.user.findUnique({
+    const card = await db.card.findUnique({
       where: {
         userId,
       },
       select: {
-        userId: true,
-        card: true,
+        bank: true,
+        brand: true,
+        cardId: true,
+        createdAt: true,
+        expiryMonth: true,
+        email: true,
+        expiryYear: true,
+        last4: true,
       },
     })
-    if (!card) return card
-    return card.card
+    return card
   }
 
 const deleteCard =

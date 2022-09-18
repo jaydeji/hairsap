@@ -54,7 +54,7 @@ const getNearestPro =
   }) => {
     PostGetProReqSchema.parse(data)
     const pro = await repo.pro.getNearestPro(data)
-    if (!pro) return
+    if (!pro) return {}
     //TODO: get status
     //TODO: get reviews count
 

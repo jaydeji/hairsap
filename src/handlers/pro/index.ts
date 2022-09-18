@@ -18,8 +18,8 @@ const makeProRouter = ({
     '/',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
-      const data = await service.pro.updatePro(req.tokenData!.userId!, req.body)
-      res.status(200).send({ data })
+      await service.pro.updatePro(req.tokenData!.userId!, req.body)
+      res.status(201).send()
     }),
   )
 
@@ -38,17 +38,17 @@ const makeProRouter = ({
   )
 
   // TODO: REMOve
-  router.post(
-    '/verify:id',
-    allowOnly([ROLES.ADMIN]),
-    ah(async (req, res) => {
-      await service.pro.verifyPro({
-        userId: +req.params.userId as number,
-        role: req.tokenData?.role as Role,
-      })
-      res.status(201).send()
-    }),
-  )
+  // router.post(
+  //   '/verify:id',
+  //   allowOnly([ROLES.ADMIN]),
+  //   ah(async (req, res) => {
+  //     await service.pro.verifyPro({
+  //       userId: +req.params.userId as number,
+  //       role: req.tokenData?.role as Role,
+  //     })
+  //     res.status(201).send()
+  //   }),
+  // )
 
   router.post(
     '/reactivate/request',

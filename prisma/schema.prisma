@@ -19,9 +19,9 @@ model Available {
 }
 
 model Subscription {
-  pros   User @relation("pro_sub", fields: [proId], references: [userId])
+  pro    User @relation("pro_sub", fields: [proId], references: [userId])
   proId  Int
-  users  User @relation("user_sub", fields: [userId], references: [userId])
+  user   User @relation("user_sub", fields: [userId], references: [userId])
   userId Int
 
   createdAt DateTime @default(now())

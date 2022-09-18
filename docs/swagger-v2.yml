@@ -7,6 +7,7 @@ info:
     NOTES
     - Amounts should be sent as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
     - Dates should be sent in ISO format e.g `2022-09-09T07:52:39.407Z`
+    - When uploading multipart/form-data make sure to stringify the req body into the `payload` field. The only exception is for file fields
 
   # termsOfService: http://swagger.io/terms/
   contact:
@@ -1015,7 +1016,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /profilephoto:
+  /users/profilephoto:
     post:
       tags:
         - User
@@ -1026,7 +1027,7 @@ paths:
       requestBody:
         description: profile photo
         content:
-          application/json:
+          mutltipart/form-data:
             schema:
               $ref: '#/components/schemas/UserProfilePhotoRequest'
         required: true
@@ -1050,7 +1051,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /subscribe:
+  /users/subscribe:
     post:
       tags:
         - User
@@ -1085,7 +1086,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /subscriptions:
+  /users/subscriptions:
     post:
       tags:
         - User
@@ -1120,7 +1121,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /me:
+  /users/me:
     get:
       tags:
         - User
@@ -1148,7 +1149,7 @@ paths:
       security:
         - BearerAuth: []
 
-  /card:
+  /users/card:
     get:
       tags:
         - User
@@ -1176,6 +1177,176 @@ paths:
       security:
         - BearerAuth: []
 
+  /pros:
+      patch:
+        tags:
+          - Pro
+        summary: pro patch 
+        description: pro patch 
+        operationId: propatch 
+        parameters: []
+        requestBody:
+          description: pro patch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProPatchRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/auto:
+      post:
+        tags:
+          - Pro
+        operationId: proauto 
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProAutoRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                   - $ref: '#/components/schemas/ProAutoResponse'
+                   - type: object
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+          
+  /pros/reactivate/request:
+      post:
+        tags:
+          - Pro
+        operationId: proreactivaterequest
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/subscribers:
+      post:
+        tags:
+          - Pro
+        operationId: prosubscribers
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProSubscribersResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/services/{proId}:
+      get:
+        tags:
+          - Pro
+        operationId: proservicesproid
+        parameters: 
+          - name: proId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProServicesProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/me:
+      get:
+        tags:
+          - Pro
+        operationId: prome
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProMeResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
 
   /webhook/paystack:
     post:
@@ -1438,6 +1609,70 @@ components:
           type: boolean
         businessName:
           type: boolean
+    Card:
+      type: object
+      properties:
+        bank:
+          type: string
+        brand:
+          type: string
+        cardId:
+          type: number
+        createdAt:
+          type: string
+        expiryMonth:
+          type: string
+        email:
+          type: string
+        expiryYear:
+          type: string
+        last4:
+          type: string
+    Service:
+      type: object
+      properties:
+        name:
+          type: string
+        serviceId:
+          type: number
+        photoUrl:
+          type: string
+        createdAt:
+          type: string
+
+    SubService:
+      type: object
+      properties:
+        name:
+          type: string
+        subServiceId:
+          type: number
+        serviceId:
+          type: number
+        photoUrl:
+          type: string
+        createdAt:
+          type: string
+        price:
+          type: number
+
+    Account:
+      type: object
+      properties:
+          accountId: 
+            type: number
+          accountNumber: 
+            type: string
+          accountName: 
+            type: string
+          bankName: 
+            type: string
+          userId: 
+            type: number
+          createdAt: 
+            type: string
+      
+       
     AuthLoginRequest:
       type: object
       required:
@@ -2306,154 +2541,42 @@ components:
     UserfaceIdRequest:
       type: object
       required:
-        - userId
         - faceId
-        - proId
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        proId:
-          type: number
-          description: proId
-          example: 1
-        file:
-            type: array
-            items:
-              type: string
-              format: binary
-        faceId:
+       faceId:
           type: string
           format: binary #base64
       
 
     UserfaceIdResponse:
       type: object
-      required:
-        - userId
-        - role
-        - proId
-        - faceIdPhotoKey
-        - faceIdPhotoOriginalFileName
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        role:
-          type: string
-          description: role
-          example: 'user'
-        proId:
-          type: number
-          description: proId
-          example: 1
-        faceIdPhotoKey:
-          type: string
-          description: faceIdPhotoKey
-          example: 'photo key'
-        faceIdPhotoOriginalFileName:
-          type: number
-          description: faceIdPhotoOriginalFileName
-          example: 'Photo Original File Name'
-
+     
     UserProfilePhotoRequest:
       type: object
       required:
-        - userId
-        - proId
-        - profilePhotoKey
-        - profilePhotoOriginalFileName
-        - profilePhotoUrl
+        - profilephoto
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        proId:
-          type: number
-          description: proId
-          example: 1
-        profilePhotoKey:
+        profilephoto:
           type: string
-          description: profilePhotoKey
-          example: 'profile Photo Key'
-        profilePhotoOriginalFileName:
-          type: number
-          description: profilePhotoOriginalFileName
-          example: 'Profile Photo Original FileName'
-        profilePhotoUrl:
-          type: number
-          description: profilePhotoUrl
-          example: 'profile Photo Url'
+          format: binary
+    
     UserProfilePhotoResponse:
       type: object
-      required:
-        - userId
-        - profilePhotoKey
-        - faceIdPhotoKey
-        - profilePhotoUrl
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        profilePhotoKey:
-          type: string
-          description: profilePhotoKey
-          example: 'profilePhotoKey'
-        faceIdPhotoKey:
-          type: string
-          description: faceIdPhotoKey
-          example: 'photo key'
-        profilePhotoOriginalFileName:
-          type: number
-          description: profilePhotoOriginalFileName
-          example: 'Photo Original File Name'
-        profilePhotoUrl:
-          type: number
-          description: profilePhotoUrl
-          example: 'Profile Photo Url'
-
+      
     UserSubscribeRequest:
       type: object
       required:
-        - userId
         - proId
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
         proId:
           type: number
           description: proId
           example: 1
     UserSubscribeResponse:
       type: object
-      required:
-        - userId
-        - proId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        proId:
-          type: number
-          description: proId
-          example: 1
-
+      
     UserSubscriptionsRequest:
       type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
     UserSubscriptionsResponse:
       type: object
       required:
@@ -2463,26 +2586,133 @@ components:
           type: number
           description: userId
           example: 1
+        proId:
+          type: number
+          example: 1
+        createdAt:
+          type: string
+        pro:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            photoUrl:
+              type: string
+            name:
+              type: string
 
     UserMeResponse:
       type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
+      allOf:
+      - $ref: '#/components/schemas/User'
+      - type: object
+        properties:
+          card:
+            $ref: '#/components/schemas/Card'
 
     UserCardResponse:
       type: object
-      required:
-        - userId
+      $ref: '#/components/schemas/Card'
+
+    ProPatchRequest:
+      type: object
       properties:
+          userId:
+            type: number
+          address:
+            type: string
+          available:
+            type: boolean
+          accountNumber:
+            type: string
+          accountName:
+            type: string
+          bankName:
+            type: string
+
+    ProAutoRequest:
+      type: object
+      properties:
+          latitude:
+            type: number
+          longitude:
+            type: number
+          subServiceId:
+            type: number
+          distance:
+            type: number
+          userId:
+            type: number
+    ProAutoResponse:
+      type: object
+      properties:
+          transportation:
+            type: number
+          total:
+            type: number
+          arrivalAt:
+            type: string
+          pro:
+            type: object
+            properties:
+              userId: 
+                type: number
+              businessName: 
+                type: string
+              proName: 
+                type: string
+              address: 
+                type: string
+              available: 
+                type: boolean
+              serviceName: 
+                type: string
+              price: 
+                type: number
+              distance: 
+                type: number
+          
+    ProSubscribersResponse:
+      type: object
+      properties:
+        proId:
+          type: string
         userId:
+          type: string
+        createdAt:
           type: number
-          description: userId
-          example: 1
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+
+    ProServicesProIdResponse:
+      type: array 
+      items:
+        allOf:
+          - $ref: '#/components/schemas/Service'
+          - type: object
+            properties:
+              subServices:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubService'
+
+    ProMeResponse:
+      type: object 
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            account:
+              $ref: '#/components/schemas/Account'
 
 
     WebhookPaystackRequest:

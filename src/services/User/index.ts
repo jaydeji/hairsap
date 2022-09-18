@@ -121,14 +121,11 @@ const getCard =
     if (!data) return
 
     return {
-      userId: data.userId,
-      card: {
-        cardId: data.cardId,
-        bank: data.bank,
-        last4: data.last4,
-        brand: data.brand,
-        createdAt: data.createdAt,
-      },
+      cardId: data.cardId,
+      bank: data.bank,
+      last4: data.last4,
+      brand: data.brand,
+      createdAt: data.createdAt,
     }
   }
 

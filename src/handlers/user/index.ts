@@ -29,14 +29,14 @@ const makeUserRouter = ({
         }/${nanoid()}`,
         fieldName: 'faceid',
       })
-      const data = await service.auth.uploadFaceId({
+      await service.auth.uploadFaceId({
         userId: req.tokenData?.userId,
         role: req.tokenData!.role,
         proId: req.tokenData?.userId,
         faceIdPhotoKey: result.key,
         faceIdPhotoOriginalFileName: result.originalName,
       })
-      res.status(200).send({ data })
+      res.status(201).send()
     }),
   )
 
