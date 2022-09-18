@@ -43,10 +43,13 @@ export const upload = async (opts: {
   prefix: string
   type: 'image' | 'video'
   fieldName: string
+  optional?: boolean
 }) => {
-  const { file, acl, prefix, type, fieldName } = opts
+  const { file, acl, prefix, type, fieldName, optional } = opts
 
-  if (!file?.name) throw new ValidationError(fieldName + ' does not exist')
+  if (!file?.name && !optional)
+    throw new ValidationError(fieldName + ' does not exist')
+  if (!file?.name) return {}
   if (type === 'image') {
     const filetypes = /jpeg|jpg|png|gif/
     if (!filetypes.test(path.extname(file.name as any).toLowerCase()))

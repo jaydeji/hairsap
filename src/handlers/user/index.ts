@@ -33,8 +33,8 @@ const makeUserRouter = ({
         userId: req.tokenData?.userId,
         role: req.tokenData!.role,
         proId: req.tokenData?.userId,
-        faceIdPhotoKey: result.key,
-        faceIdPhotoOriginalFileName: result.originalName,
+        faceIdPhotoKey: result.key as string,
+        faceIdPhotoOriginalFileName: result.originalName as string,
       })
       res.status(201).send()
     }),
@@ -54,8 +54,8 @@ const makeUserRouter = ({
 
       const data = await service.user.uploadProfilePhoto({
         userId: req.tokenData!.userId!,
-        profilePhotoKey: result.key,
-        profilePhotoOriginalFileName: result.originalName,
+        profilePhotoKey: result.key as string,
+        profilePhotoOriginalFileName: result.originalName as string,
         profilePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
       })
       res.status(200).send({ data })

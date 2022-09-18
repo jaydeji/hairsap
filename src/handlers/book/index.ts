@@ -32,6 +32,7 @@ const makeBookingRouter = ({
         prefix: `samplephoto/user/${req.tokenData?.userId}/${nanoid()}`,
         fieldName: 'samplephoto',
         acl: 'public-read',
+        optional: true,
       })
 
       const data = await service.book.bookPro({
@@ -52,6 +53,7 @@ const makeBookingRouter = ({
 
   router.get(
     '/accepted',
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.book.getAcceptedProBookings({
         userId: req.tokenData?.userId as number,
@@ -61,7 +63,8 @@ const makeBookingRouter = ({
   )
 
   router.patch(
-    '/:id/add',
+    '/service/add',
+    allowOnly([ROLES.USER]),
     ah(async (req, res) => {
       await service.book.addServiceToBooking({
         subServiceId: req.body.subServiceId,
@@ -74,6 +77,7 @@ const makeBookingRouter = ({
 
   router.post(
     '/:id/accept',
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       await service.book.acceptBooking({
         bookingId: +req.params.id,
@@ -86,6 +90,7 @@ const makeBookingRouter = ({
 
   router.post(
     '/:id/cancel',
+    allowOnly([ROLES.USER]),
     ah(async (req, res) => {
       await service.book.cancelBooking({
         bookingId: +req.params.id,
@@ -159,12 +164,12 @@ const makeBookingRouter = ({
     '/:id/rate',
     allowOnly([ROLES.USER]),
     ah(async (req, res) => {
-      const data = await service.book.rateAndReviewBooking({
+      await service.book.rateAndReviewBooking({
         bookingId: +req.params.id as number,
         userId: +req.params.userId as number,
         ...req.body,
       })
-      res.status(200).send({ data })
+      res.status(201).send()
     }),
   )
 

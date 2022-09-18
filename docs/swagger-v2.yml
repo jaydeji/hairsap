@@ -1507,6 +1507,360 @@ paths:
         security:
           - BearerAuth: []
 
+  /bookings:
+      post:
+        tags:
+          - Book
+        summary: book pro 
+        description: book a pro 
+        operationId: bookpro
+        parameters: []
+        requestBody:
+          description: book pro
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/BookProRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/accepted:
+      get:
+        tags:
+          - Book
+        description: get accepted pro bookings
+        operationId: bookingaccepted
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BookingAccepted'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/service/add:
+      patch:
+        tags:
+          - Book
+        description: add service to booking
+        operationId: addservice
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingAddServiceRequest'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/accept:
+      post:
+        tags:
+          - Book
+        description: allow pro accept booking
+        operationId: proacceptbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/cancel:
+      post:
+        tags:
+          - Book
+        description: allow user cancel booking
+        operationId: usercancelbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/reject:
+      post:
+        tags:
+          - Book
+        description: allow pro reject booking
+        operationId: prorejectbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/completed:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as completed
+        operationId: procompletebooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/arrived:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as arrived
+        operationId: proarrivebooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/intransit:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as intransit
+        operationId: prointransitbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{userId}/activity:
+      get:
+        tags:
+          - Book
+        description: get user uncompleted bookings
+        operationId: bookinguseractivity
+        parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BookingGetUserActivityResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/rate:
+      post:
+        tags:
+          - Book
+        description: rate and revew a booking
+        operationId: bookingrate
+        parameters: 
+          - name: bookingId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingRateRequest'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/transactions:
+      get:
+        tags:
+          - Book
+        operationId: transactions
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Transactions'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+
   /verify_transaction:
     get:
       tags:
@@ -1852,7 +2206,6 @@ components:
           type: string
         price:
           type: number
-
     Account:
       type: object
       properties:
@@ -2308,7 +2661,6 @@ components:
     AdminProApplicationUserIdActionResponse:
       type: object
     
-
     AdminProApplicationProIdResponse:
       type: object
       required:
@@ -2744,7 +3096,6 @@ components:
           type: string
           format: binary #base64
       
-
     UserfaceIdResponse:
       type: object
      
@@ -3026,6 +3377,90 @@ components:
                 returned:
                   type: number
     
+
+    BookProRequest:
+      type: object 
+      properties:
+        samplephoto:
+          type: string
+          format: binary
+        payload: 
+          type: object
+          properties:
+            proId: 
+              type: number
+            subServiceId: 
+              type: number
+            latitude: 
+              type: number
+            longitude: 
+              type: number
+            address: 
+              type: string
+            channel: 
+              type: string
+              enum: [cash,card]
+
+    BookingAccepted:
+      type: array 
+      items:
+        $ref: '#/components/schemas/Booking'
+
+    BookingAddServiceRequest:
+      type: object 
+      properties:
+        serviceId:
+          type: number
+        bookingId:
+          type: number
+
+    BookingGetUserActivityResponse:
+      type: object 
+      $ref: '#/components/schemas/Booking'
+
+    BookingRateRequest:
+      type: object 
+      properties:
+        rating:
+          type: number
+        review:
+          type: string
+
+    Transactions:
+      type: array
+      items:
+        type: object
+        properties:
+            feeId:
+              type: number
+            name:
+              type: string
+            price:
+              type: number
+            invoiceId:
+              type: number
+            createdAt:
+              type: string
+            invoice:
+              type: object
+              properties:
+                booking:
+                  type: object
+                  properties: 
+                    user:
+                      type: object
+                      properties:
+                        name: 
+                          type: string
+                    pro:
+                      type: object
+                      properties:
+                        name: 
+                          type: string
+                        businessName:  
+                          type: string
+
+
     WebhookPaystackRequest:
       type: object
       required:
@@ -3129,7 +3564,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Notification'
-
 
   responses:
     InternalError:

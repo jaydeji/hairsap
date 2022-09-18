@@ -520,12 +520,10 @@ const rateAndReviewBooking =
     if (typeof booking.rating === 'number')
       throw new NotFoundError('Booking has already been rated')
 
-    const data = await repo.book.updateBooking(bookingId, {
+    await repo.book.updateBooking(bookingId, {
       rating,
       review,
     })
-
-    return data
   }
 
 const getTransactions =
