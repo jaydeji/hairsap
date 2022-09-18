@@ -22,9 +22,9 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   const app = express()
 
   app.use(compression())
-  const cspDefaults = helmet.contentSecurityPolicy.getDefaultDirectives()
-  delete cspDefaults['upgrade-insecure-requests']
-  app.use(helmet({ contentSecurityPolicy: { directives: cspDefaults } }))
+  // const cspDefaults = helmet.contentSecurityPolicy.getDefaultDirectives()
+  // delete cspDefaults['upgrade-insecure-requests']
+  // app.use(helmet({ contentSecurityPolicy: { directives: cspDefaults } }))
   app.use(express.json())
   app.use(fileUpload())
   //TODO: tighten cors
