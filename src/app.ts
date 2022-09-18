@@ -22,19 +22,10 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   const app = express()
 
   app.use(compression())
-  // const cspDefaults = helmet.contentSecurityPolicy.getDefaultDirectives()
-  // delete cspDefaults['upgrade-insecure-requests']
   app.use(
     helmet({
-      // contentSecurityPolicy: { directives: cspDefaults }
-      // crossOriginEmbedderPolicy: false,
-      // crossOriginResourcePolicy: false,
-      contentSecurityPolicy: false,
-      // crossOriginOpenerPolicy: false,
-      // originAgentCluster: false,
-      // hsts: false,
-      // permittedCrossDomainPolicies: false,
-      // referrerPolicy: false,
+      contentSecurityPolicy:
+        process.env.NODE_ENV === 'production' ? true : false,
     }),
   )
   app.use(express.json())
