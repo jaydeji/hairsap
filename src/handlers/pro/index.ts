@@ -119,8 +119,8 @@ const makeProRouter = ({
       await service.pro.uploadApplicationVideo({
         proId: req.tokenData!.userId!,
         workVideoUrl: STORAGE_ENDPOINT_CDN + result.key,
-        workVideoKey: result.key,
-        workVideoOriginalFileName: result.originalName,
+        workVideoKey: result.key as string,
+        workVideoOriginalFileName: result.originalName as string,
       })
       res.status(201).send()
     }),
@@ -140,8 +140,8 @@ const makeProRouter = ({
 
       const data = await service.pro.uploadProfilePhoto({
         proId: req.tokenData!.userId!,
-        tempProfilePhotoKey: result.key,
-        tempProfilePhotoOriginalFileName: result.originalName,
+        tempProfilePhotoKey: result.key as string,
+        tempProfilePhotoOriginalFileName: result.originalName as string,
         tempProfilePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
       })
 
