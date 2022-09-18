@@ -1507,49 +1507,21 @@ paths:
         security:
           - BearerAuth: []
 
-  /webhook/paystack:
-    post:
-      tags:
-        - Others
-      summary: Webhook Paystack Integration
-      description: Webhook Paystack Integration
-      operationId: webhookpaystack
-      parameters: []
-      requestBody:
-        description: Webhook Paystack Integration
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WebhookPaystackRequest'
-        required: true
-      responses:
-        '200':
-          description: Status 200 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookPaystackResponse'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalError'
-      security:
-        - BearerAuth: []
-
   /verify_transaction:
     get:
       tags:
-        - Others
+        - Other
       summary: verify transaction
-      description: verify transaction
+      description: verify paystack transaction
       operationId: verifytransaction
-      parameters: []
+      parameters: 
+        - name: reference
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'b361531f-6727-4ac7-a283-a50bd759ed1f'
       
       responses:
         '200':
@@ -1574,7 +1546,7 @@ paths:
   /services:
     get:
       tags:
-        - Others
+        - Other
       summary: Get all services and sub services
       description: Get all services and sub services
       operationId: services
@@ -1598,6 +1570,62 @@ paths:
           $ref: '#/components/responses/InternalError'
       security:
         - BearerAuth: []
+
+  /notifications:
+      get:
+        tags:
+          - Other
+        operationId: notifications
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationsResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pushtoken/{token}:
+      get:
+        tags:
+          - Other
+        operationId: pushtoken
+        description: expo push token 
+        parameters: 
+        - name: token
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'Expotoken-****'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
 
 components:
   schemas:
@@ -1798,7 +1826,17 @@ components:
           type: string
         createdAt:
           type: string
-
+    Notification:
+      type: object
+      properties:
+          notificationId:
+            type: number 
+          body:
+            type: string     
+          title:
+            type: string         
+          userId:
+            type: number       
     SubService:
       type: object
       properties:
@@ -3021,20 +3059,9 @@ components:
           type: string
           description: reason
           example: 'reason'
-
     
     verifyTransactionResponse:
       type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
-        
-       
-
 
     ServicesResponse:
       type: array
@@ -3063,7 +3090,7 @@ components:
           updatedAt:
             type: number
             example: '2022-08-26T15:28:13.528Z'
-          subServcies:
+          subServices:
             type: array
             items:
               type: object
@@ -3097,6 +3124,12 @@ components:
                 updatedAt:
                   type: number
                   example: '2022-08-26T15:28:13.528Z'
+
+    NotificationsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Notification'
+
 
   responses:
     InternalError:
