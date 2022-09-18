@@ -26,7 +26,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(express.json())
   app.use(fileUpload())
   //TODO: tighten cors
-  app.use(cors({ origin: '*' }))
+  app.use(cors({ origin: '*', methods: '*', allowedHeaders: '*' }))
   app.use('/sockets', express.static(process.cwd() + '/docs/asyncapi'))
   app.use(
     '/reference',
