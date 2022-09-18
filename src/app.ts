@@ -29,12 +29,12 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
       // contentSecurityPolicy: { directives: cspDefaults }
       // crossOriginEmbedderPolicy: false,
       // crossOriginResourcePolicy: false,
-      // contentSecurityPolicy: false,
-      // crossOriginOpenerPolicy: false,
-      originAgentCluster: false,
-      hsts: false,
-      permittedCrossDomainPolicies: false,
-      referrerPolicy: false,
+      contentSecurityPolicy: false,
+      crossOriginOpenerPolicy: false,
+      // originAgentCluster: false,
+      // hsts: false,
+      // permittedCrossDomainPolicies: false,
+      // referrerPolicy: false,
     }),
   )
   app.use(express.json())
