@@ -116,13 +116,13 @@ const makeProRouter = ({
         acl: 'public-read',
       })
 
-      const data = await service.pro.uploadApplicationVideo({
+      await service.pro.uploadApplicationVideo({
         proId: req.tokenData!.userId!,
         workVideoUrl: STORAGE_ENDPOINT_CDN + result.key,
         workVideoKey: result.key,
         workVideoOriginalFileName: result.originalName,
       })
-      res.status(200).send({ data })
+      res.status(201).send()
     }),
   )
 

@@ -992,7 +992,7 @@ paths:
       requestBody:
         description: user faceid
         content:
-          mutltipart/form-data:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/UserfaceIdRequest'
         required: true
@@ -1027,7 +1027,7 @@ paths:
       requestBody:
         description: profile photo
         content:
-          mutltipart/form-data:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/UserProfilePhotoRequest'
         required: true
@@ -1335,6 +1335,165 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/ProMeResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/search:
+      post:
+        tags:
+          - Pro
+        operationId: prosearch
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProSearchRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProSearchResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/applicationvideo:
+      post:
+        tags:
+          - Pro
+        operationId: proapplicationvideo
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ProApplicationVideoRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/profilephoto:
+      post:
+        tags:
+          - Pro
+        operationId: proprofilephoto
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ProProfilePhotoRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/stats/{proId}:
+      get:
+        tags:
+          - Pro
+        operationId: prostatsproid
+        parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProStatsProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/booking/ratio/{proId}/{period}:
+      get:
+        tags:
+          - Pro
+        operationId: probookingratioproid
+        parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        - name: period
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            enum: [day,week]
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProBookingRatioResponse'
           '400':
             $ref: '#/components/responses/ValidationError'
           '401':
@@ -2714,7 +2873,121 @@ components:
             account:
               $ref: '#/components/schemas/Account'
 
+    ProSearchRequest:
+      type: object 
+      properties:
+        name:
+          type: string
+    ProSearchResponse:
+      type: array
+      items: 
+          $ref: '#/components/schemas/User'
 
+    ProApplicationVideoRequest:
+      type: object 
+      properties:
+        applicationvideo:
+          type: string
+          format: binary
+
+    ProProfilePhotoRequest:
+      type: object 
+      properties:
+        profilephoto:
+          type: string
+          format: binary
+
+    ProStatsProIdResponse:
+      type: object 
+      properties:
+          ratings:
+            type: number
+          earnings:
+            type: number
+          dailyTarget:
+            type: number
+          weeklyTarget:
+            type: number
+          monthlyTarget:
+            type: number
+
+    ProBookingRatioResponse:
+      type: object 
+      oneOf:
+      - type: object
+        properties:
+            day:
+              type: object
+              properties:
+                returnedCount:
+                  type: number
+                newCount:
+                  type: number
+      - type: object
+        properties:
+            mon:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            tue:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            wed:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            thur:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            fri:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            sat:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            sun:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+            total:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
     WebhookPaystackRequest:
       type: object
       required:
