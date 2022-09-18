@@ -27,7 +27,8 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(
     helmet({
       // contentSecurityPolicy: { directives: cspDefaults }
-      crossOriginEmbedderPolicy: false,
+      // crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: false,
     }),
   )
   app.use(express.json())
