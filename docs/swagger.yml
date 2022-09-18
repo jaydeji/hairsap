@@ -1,14 +1,2001 @@
-openapi: 3.0.0
+openapi: 3.0.3
+info:
+  title: Hairsap Api
+  description: |-
+    **This is the documentation for hairsap api.**
+
+    NOTES
+    - Amounts should be sent as `integers` not `floats`, so $100.95 would be held as `10095` in any transaction amount or balance fields.
+    - Dates should be sent in ISO format e.g `2022-09-09T07:52:39.407Z`
+    - When uploading multipart/form-data make sure to stringify the req body into the `payload` field. The only exception is for file fields
+
+  # termsOfService: http://swagger.io/terms/
+  contact:
+    name: the Developer
+    # url:
+    email: jideadedejifirst@gmail.com
+  version: 1.0.0
+externalDocs:
+  description: Github
+  url: http://github.com/lancerdonnie/Hairsap-be
+servers:
+  - url: http://dev.hairsap.com:3000
+  - url: http://localhost:4000
+tags:
+  - name: Admin
+    description: Operations on admin
+  - name: User
+    description: Operations on user
+  - name: Pro
+    description: Operations about pro
+  - name: Other
+    description: Other operations
+  - name: Book
+    description: Operations on bookings
+  - name: Auth
+    description: Operations on authentication/authorization
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user
+      description: Login a user or admin
+      operationId: login
+      parameters: 
+        - name: role
+          in: query
+          description: start date of users to include in the response
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            enum: [user,admin,pro]
+            example: 'user'
+      requestBody:
+        description: Login an existent existing user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+  
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: signup a user
+      description: signup a user or admin
+      operationId: signup
+      parameters: 
+        - name: role
+          in: query
+          description: start date of users to include in the response
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            enum: [user,admin,pro]
+            example: 'user'
+      requestBody:
+        description: signup a new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSignupRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSignupResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+  
+  /auth/generateotp:
+    post:
+      tags:
+        - Auth
+      summary: generate user otp
+      description: generate user otp
+      operationId: generateotp
+      parameters: []
+      requestBody:
+        description: generate user otp
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthGenerateOtpRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthGenerateOtpResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+  
+  /auth/validateOtp:
+    post:
+      tags:
+        - Auth
+      summary: validate user otp
+      description: validate user otp
+      operationId: validateotp
+      parameters: []
+      requestBody:
+        description: validate user otp
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthValidateOtpRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthValidateOtpResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+  
+  /auth/resetpassword:
+    post:
+      tags:
+        - Auth
+      summary: reset password
+      description: reset password
+      operationId: resetpassword
+      parameters: []
+      requestBody:
+        description: reset password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthResetPasswordRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResetPasswordResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /auth/confirmresetpassword:
+    post:
+      tags:
+        - Auth
+      summary: confirm resetpassword
+      description: confirm resetpassword
+      operationId: confirmresetpassword
+      parameters: []
+      requestBody:
+        description: confirm resetpassword
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthConfirmResetPasswordRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthConfirmResetPasswordResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/reactivate/accept/{userId}:
+    post:
+      tags:
+        - Admin
+      summary: accept pro reactivation request
+      description: accept pro reactivation request
+      operationId: acceptreactivation
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+      requestBody:
+        description: accept reactivation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAcceptReactivationRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAcceptReactivationResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/payout/requests:
+    post:
+      tags:
+        - Admin
+      summary: allow admin view pro payout requests
+      description: allow admin view pro payout requests
+      operationId: payoutrequests
+      parameters: []
+      requestBody:
+        description: payout requests
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminPayoutRequestsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPayoutRequestsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/payout/{proId}/request:
+      post:
+        tags:
+          - Admin
+        summary: allow admin request payout from pro
+        description: allow admin request payout from pro
+        operationId: payoutproidrequest
+        parameters:
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number        
+        requestBody:
+          description: payout proId request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPayoutProIdRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AdminPayoutProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /admin/payout/{invoiceId}/confirm:
+    post:
+      tags:
+        - Admin
+      summary: allow admin confirm invoice payout
+      description: allow admin confirm invoice payout
+      operationId: payoutinvoiceidconfirmation
+      parameters:
+       - name: invoiceId
+         in: path
+         required: true
+         allowEmptyValue: false
+         schema:
+          type: number
+      requestBody:
+        description: payout invoiceId confirmation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminPayoutInvoiceIdConfirmationRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPayoutInvoiceIdConfirmationResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/proapplications:
+    get:
+      tags:
+        - Admin
+      summary: get all pro applications
+      description: get all pro applications
+      operationId: proapplications
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProApplicationsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/proapplication/{userId}/{action}:
+    post:
+      tags:
+        - Admin
+      summary: allow admin accept or reject pro application
+      description: allow admin accept or reject pro application
+      operationId: proapplicationuseridaction
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        - name: action
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'accept'
+            enum: [accept,reject]
+      requestBody:
+        description: pro application userId action
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProApplicationUserIdActionRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProApplicationUserIdActionResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/proapplication/{proId}:
+    get:
+      tags:
+        - Admin
+      summary: get details about a pro application
+      description: get details about a pro application
+      operationId: proapplicationproid
+      parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProApplicationProIdResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/pros:
+    post:
+      tags:
+        - Admin
+      summary: get all pros for admin page
+      description: get all pros for admin page
+      operationId: pros
+      parameters: []
+      requestBody:
+        description: Pros
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/users:
+    post:
+      tags:
+        - Admin
+      summary: get all users for admin page
+      description: get all users for admin page
+      operationId: users
+      parameters: []
+      requestBody:
+        description: users
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUsersRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/users/{userId}:
+    get:
+      tags:
+        - Admin
+      summary: get user by user id
+      description: get user by user id
+      operationId: usersid
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+            example: 1
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersIdResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/pros/{userId}:
+    get:
+      tags:
+        - Admin
+      summary: get pro by pro id
+      description: get pro by pro id
+      operationId: prosuserid
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+            example: 1
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProsUserIdResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+        
+  /admin/userbookings:
+    post:
+      tags:
+        - Admin
+      summary: user bookings
+      description: user bookings
+      operationId: userbookings
+      parameters: []
+      requestBody:
+        description: user bookings
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserBookingsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserBookingsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/probookings:
+    post:
+      tags:
+        - Admin
+      summary: pro bookings
+      description: pro bookings
+      operationId: probookings
+      parameters: []
+      requestBody:
+        description: pro bookings
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProBookingsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProBookingsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/bonuses:
+    get:
+      tags:
+        - Admin
+      summary: bonuses  
+      description: bonuses 
+      operationId: bonuses 
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminBonusesResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/bonuses/{bonusId}/paid:
+    post:
+      tags:
+        - Admin
+      summary: allow admin mark bonus as paid  
+      description: allow admin mark bonus as paid 
+      operationId: bonusespaid
+      parameters: 
+        - name: bonusId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+      requestBody:
+        description: bonuses paid  
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminBonusesPaidRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminBonusesPaidResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/dashboard/bookings:
+    post:
+      tags:
+        - Admin
+      summary: dashboard bookings
+      description: dashboard bookings
+      operationId: dashboardbookings
+      parameters: []
+      requestBody:
+        description: dashboard bookings
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminDashboardBookingsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboardBookingsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/dashboard:
+    get:
+      tags:
+        - Admin
+      summary: dashboard 
+      description: dashboard 
+      operationId: dashboard
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboardResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+
+  /admin/unacceptedprophotos/{proId}/accept:
+    post:
+      tags:
+        - Admin
+      summary: allow admin accept pro photo change
+      description: allow admin accept pro photo change
+      operationId: unacceptedprophotosproid 
+      parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+      requestBody:
+        description: unaccepted pro photos proId
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUnAcceptedProPhotosProIdRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUnAcceptedProPhotosProIdResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /admin/unacceptedprophotos:
+    get:
+      tags:
+        - Admin
+      summary: unaccepted pro photos 
+      description: unaccepted pro photos 
+      operationId: unacceptedprophotos 
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUnAcceptedProPhotosResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+
+  /users:
+    patch:
+      tags:
+        - User
+      summary: update user
+      description: update user
+      operationId: userpatch 
+      parameters: []
+      requestBody:
+        description: user patch
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPatchResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/faceid:
+    post:
+      tags:
+        - User
+      summary: upload user faceid
+      description: upload user faceid 
+      operationId: faceid 
+      parameters: []
+      requestBody:
+        description: user faceid
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserfaceIdRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserfaceIdResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/profilephoto:
+    post:
+      tags:
+        - User
+      summary: upload user profile photo  
+      description: upload user profile photo
+      operationId: profilephoto 
+      parameters: []
+      requestBody:
+        description: profile photo
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfilePhotoRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfilePhotoResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/subscribe:
+    post:
+      tags:
+        - User
+      summary: allow user subscribe to pro  
+      description: allow user subscribe to pro
+      operationId: subscribe 
+      parameters: []
+      requestBody:
+        description: subscribe
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSubscribeRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSubscribeResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/subscriptions:
+    post:
+      tags:
+        - User
+      summary: get user subscriptions  
+      description: get user subscriptions
+      operationId: subscriptions 
+      parameters: []
+      requestBody:
+        description: subscriptions
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSubscriptionsRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSubscriptionsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/me:
+    get:
+      tags:
+        - User
+      summary: get user profile  
+      description: get user profile
+      operationId: me 
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMeResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /users/card:
+    get:
+      tags:
+        - User
+      summary: get user card  
+      description: get user card
+      operationId: card 
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCardResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /pros:
+      patch:
+        tags:
+          - Pro
+        summary: update pro profile 
+        description: update pro profile
+        operationId: propatch 
+        parameters: []
+        requestBody:
+          description: pro patch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProPatchRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/auto:
+      post:
+        tags:
+          - Pro
+        summary: automatic pro search
+        operationId: proauto 
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProAutoRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                   - $ref: '#/components/schemas/ProAutoResponse'
+                   - type: object
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+          
+  /pros/reactivate/request:
+      post:
+        tags:
+          - Pro
+        summary: request reactivation from admin
+        operationId: proreactivaterequest
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/subscribers:
+      post:
+        tags:
+          - Pro
+        operationId: prosubscribers
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProSubscribersResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/services/{proId}:
+      get:
+        tags:
+          - Pro
+        summary: get a pro's services
+        operationId: proservicesproid
+        parameters: 
+          - name: proId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProServicesProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/me:
+      get:
+        tags:
+          - Pro
+        summary: get details about pro
+        operationId: prome
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProMeResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/search:
+      post:
+        tags:
+          - Pro
+        summary: search a pro by name
+        operationId: prosearch
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProSearchRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProSearchResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/applicationvideo:
+      post:
+        tags:
+          - Pro
+        operationId: proapplicationvideo
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ProApplicationVideoRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/profilephoto:
+      post:
+        tags:
+          - Pro
+        operationId: proprofilephoto
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ProProfilePhotoRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/stats/{proId}:
+      get:
+        tags:
+          - Pro
+        operationId: prostatsproid
+        parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProStatsProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/booking/ratio/{proId}/{period}:
+      get:
+        tags:
+          - Pro
+        operationId: probookingratioproid
+        parameters: 
+        - name: proId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        - name: period
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            enum: [day,week]
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProBookingRatioResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings:
+      post:
+        tags:
+          - Book
+        summary: book pro 
+        description: book a pro 
+        operationId: bookpro
+        parameters: []
+        requestBody:
+          description: book pro
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/BookProRequest'
+          required: true
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/accepted:
+      get:
+        tags:
+          - Book
+        description: get accepted pro bookings
+        operationId: bookingaccepted
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BookingAccepted'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/service/add:
+      patch:
+        tags:
+          - Book
+        description: add service to booking
+        operationId: addservice
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingAddServiceRequest'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/accept:
+      post:
+        tags:
+          - Book
+        description: allow pro accept booking
+        operationId: proacceptbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/cancel:
+      post:
+        tags:
+          - Book
+        description: allow user cancel booking
+        operationId: usercancelbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/reject:
+      post:
+        tags:
+          - Book
+        description: allow pro reject booking
+        operationId: prorejectbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/completed:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as completed
+        operationId: procompletebooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/arrived:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as arrived
+        operationId: proarrivebooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/intransit:
+      post:
+        tags:
+          - Book
+        description: allow pro mark booking as intransit
+        operationId: prointransitbooking
+        parameters: 
+        - name: bookingId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{userId}/activity:
+      get:
+        tags:
+          - Book
+        description: get user uncompleted bookings
+        operationId: bookinguseractivity
+        parameters: 
+        - name: userId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BookingGetUserActivityResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/{bookingId}/rate:
+      post:
+        tags:
+          - Book
+        description: rate and revew a booking
+        operationId: bookingrate
+        parameters: 
+          - name: bookingId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingRateRequest'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /bookings/transactions:
+      get:
+        tags:
+          - Book
+        operationId: transactions
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Transactions'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+
+  /verify_transaction:
+    get:
+      tags:
+        - Other
+      summary: verify transaction
+      description: verify paystack transaction
+      operationId: verifytransaction
+      parameters: 
+        - name: reference
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'b361531f-6727-4ac7-a283-a50bd759ed1f'
+      
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/verifyTransactionResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /services:
+    get:
+      tags:
+        - Other
+      summary: Get all services and sub services
+      description: Get all services and sub services
+      operationId: services
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
+  /notifications:
+      get:
+        tags:
+          - Other
+        operationId: notifications
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotificationsResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pushtoken/{token}:
+      get:
+        tags:
+          - Other
+        operationId: pushtoken
+        description: expo push token 
+        parameters: 
+        - name: token
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'Expotoken-****'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
 components:
-  responses:
-     InternalError:
+  schemas:
+    InternalError:
       required:
         - message
       properties:
         message:
           type: string
           default: Internal Error
-     ValidationError:
+    ValidationError:
       required:
         - message
       properties:
@@ -41,36 +2028,206 @@ components:
                 items:
                   type: string
                   example: example
-     ForbiddenError:
+    ForbiddenError:
       required:
         - message
       properties:
         message:
           type: string
           default: Forbidden
-     NotFoundError:
+    NotFoundError:
       required:
         - message
       properties:
         message:
           type: string
           default: Not Found
-     UnauthorizedError:
+    UnauthorizedError:
       required:
         - message
       properties:
         message:
           type: string
           default: Unauthorized
-     Success:
+    Success:
       properties:
+        message:
+          type: string
         data:
-          type: 
-            oneOf:
+          oneOf:
             - type: array
             - type: object
-          default: Ok
-  schemas:
+    Meta: 
+     type: object
+     properties:
+        total:
+          type: number
+        skipped:
+          type: number
+        perPage:
+          type: number
+        page:
+          type: number
+        pageCount:
+          type: number
+    Booking:
+      type: object
+      properties: 
+        bookingId:
+          type: number
+        arrived:
+          type: boolean
+        inTransit:
+          type: boolean
+        address:
+          type: string
+        samplePhotoUrl:
+          type: string
+        status:
+          type: string
+          enum: [cancelled,rejected,accepted,completed,pending]
+        rating:
+          type: number
+        review:
+          type: string
+        acceptedAt:
+          type: string
+        rejectedAt:
+          type: string
+        arrivalAt:
+          type: string
+        cancelledAt:
+          type: string
+        proId:
+          type: number
+        userId:
+          type: number
+        createdAt:
+          type: string
+    Bonus:
+      type: object
+      properties:
+        bonusId:
+          type: number
+        amount:
+          type: number
+        paid:
+          type: boolean
+        createdAt:
+          type: string
+        proId:
+          type: number
+    User:
+      type: object
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+        name:
+          type: string
+        profilePhotoUrl:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+        deactivated:
+          type: boolean
+        phone:
+          type: string
+        address:
+          type: string
+        role:
+          type: string
+          enum: [user,pro,admin]
+        longitude:
+          type: number
+        latitude:
+          type: number
+        terminated:
+          type: boolean
+        verified:
+          type: boolean
+        reactivationRequested:
+          type: boolean
+        available:
+          type: boolean
+        businessName:
+          type: boolean
+    Card:
+      type: object
+      properties:
+        bank:
+          type: string
+        brand:
+          type: string
+        cardId:
+          type: number
+        createdAt:
+          type: string
+        expiryMonth:
+          type: string
+        email:
+          type: string
+        expiryYear:
+          type: string
+        last4:
+          type: string
+    Service:
+      type: object
+      properties:
+        name:
+          type: string
+        serviceId:
+          type: number
+        photoUrl:
+          type: string
+        createdAt:
+          type: string
+    Notification:
+      type: object
+      properties:
+          notificationId:
+            type: number 
+          body:
+            type: string     
+          title:
+            type: string         
+          userId:
+            type: number       
+    SubService:
+      type: object
+      properties:
+        name:
+          type: string
+        subServiceId:
+          type: number
+        serviceId:
+          type: number
+        photoUrl:
+          type: string
+        createdAt:
+          type: string
+        price:
+          type: number
+    Account:
+      type: object
+      properties:
+          accountId: 
+            type: number
+          accountNumber: 
+            type: string
+          accountName: 
+            type: string
+          bankName: 
+            type: string
+          userId: 
+            type: number
+          createdAt: 
+            type: string
+      
+       
     AuthLoginRequest:
       type: object
       required:
@@ -89,56 +2246,1334 @@ components:
           maximum: 32
     AuthLoginResponse:
       type: object
-      required:
-        - token
       properties:
         token:
           type: string
-          description: a JWT token
-          example: '1592BB17-8B6E-4CA7-AAC2-8140E7BF19AC'
+        pro:
+          type: object
+          properties:
+            email:
+              type: string
+              description: unique user email
+              example: 'john@hairsap.com'
+            password:
+              type: string
+              description: card type, either virtual or physical
+              example: 'john1234'
+              minimum: 7
+              maximum: 32
+            name:
+              type: string
+              description: unique user name
+              example: 'John Doe'
+            phone:
+              type: string
+              description: user phone number
+              example: '+2348118161237'
+            deviceInfo:
+              type: string
+              description: user deviceInfo
+              example: 'John Doe'
+            address: 
+              type: string
+            userId: 
+              type: number
+            profilePhotoUrl: 
+              type: string
+            terminated: 
+              type: boolean
+            deactivated: 
+              type: boolean
+            deactivations: 
+              type: array
+              items:
+                type: object
+                properties:
+                  deactivationId:
+                    type: number
+                  reason:
+                    type: string
+                  amount:
+                    type: number
+                  paid:
+                    type: boolean
+                  proId:
+                    type: number
+                  createdAt:
+                    type: string
+            reactivationRequested: 
+              type: boolean
+            verified: 
+              type: boolean
+            available: 
+              type: boolean
+            workVideoUrl: 
+              type: string
+            businessName: 
+              type: string
+    
+    AuthSignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+        - phone
+      properties:
+        email:
+          type: string
+          description: unique user email
+          example: 'john@hairsap.com'
+        password:
+          type: string
+          description: unique user password
+          example: 'john1234'
+          minimum: 7
+          maximum: 32
+        name:
+          type: string
+          description: unique user name
+          example: 'John Doe'
+          minimum: 7
+          maximum: 32
+        phone:
+          type: string
+          description: user phone number
+          example: '+2348118161237'
+        otpType:
+          type: string
+          enum: [email,phone]
+        role:
+          type: string
+          enum: [user,pro]
+        address:
+          type: string
+        businessName: 
+          type: string
+        serviceId: 
+          type: string
+    AuthSignupResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        otp:
+          type: string
+        pro:
+          type: object
+          properties:
+            email:
+              type: string
+              description: unique user email
+              example: 'john@hairsap.com'
+            password:
+              type: string
+              description: card type, either virtual or physical
+              example: 'john1234'
+              minimum: 7
+              maximum: 32
+            name:
+              type: string
+              description: unique user name
+              example: 'John Doe'
+            phone:
+              type: string
+              description: user phone number
+              example: '+2348118161237'
+            deviceInfo:
+              type: string
+              description: user deviceInfo
+              example: 'John Doe'
+            address: 
+              type: string
+            userId: 
+              type: number
+            profilePhotoUrl: 
+              type: string
+            terminated: 
+              type: boolean
+            deactivated: 
+              type: boolean
+            deactivations: 
+              type: array
+              items:
+                type: object
+                properties:
+                  deactivationId:
+                    type: number
+                  reason:
+                    type: string
+                  amount:
+                    type: number
+                  paid:
+                    type: boolean
+                  proId:
+                    type: number
+                  createdAt:
+                    type: string
+            reactivationRequested: 
+              type: boolean
+            verified: 
+              type: boolean
+            available: 
+              type: boolean
+            workVideoUrl: 
+              type: string
+            businessName: 
+              type: string
 
+    AuthGenerateOtpRequest:
+      type: object
+      required:
+        - userId
+        - enum
+      properties:
+        userId:
+          type: number
+          description: unique user id
+          example: 1
+        otpType:
+          type: string
+          enum: [email, phone]
+    AuthGenerateOtpResponse:
+      type: object
+      required:
+        - otp
+      properties:
+        otp:
+          type: number
+          description: unique user otp
+          example: 8897283
+
+    AuthValidateOtpRequest:
+      type: object
+      required:
+        - userId
+        - otp
+      properties:
+        userId:
+          type: number
+          description: unique user id
+          example: 1
+        otp:
+          type: number
+          description: user otp
+          example: 8897283
+    AuthValidateOtpResponse:
+      type: object
+      required:
+        - otp
+      properties:
+        email:
+          type: string
+          description: unique user email
+          example: 'john@hairsap.com'
+        password:
+          type: string
+          description: card type, either virtual or physical
+          example: 'john1234'
+          minimum: 7
+          maximum: 32
+        name:
+          type: string
+          description: unique user name
+          example: 'John Doe'
+        phone:
+          type: string
+          description: user phone number
+          example: '+2348118161237'
+        deviceInfo:
+          type: string
+          description: user deviceInfo
+          example: 'John Doe'
+        address: 
+          type: string
+        userId: 
+          type: number
+        profilePhotoUrl: 
+          type: string
+        terminated: 
+          type: boolean
+        deactivated: 
+          type: boolean
+        deactivations: 
+          type: array
+          items:
+            type: object
+            properties:
+              deactivationId:
+                type: number
+              reason:
+                type: string
+              amount:
+                type: number
+              paid:
+                type: boolean
+              proId:
+                type: number
+              createdAt:
+                type: string
+        reactivationRequested: 
+          type: boolean
+        verified: 
+          type: boolean
+        available: 
+          type: boolean
+        workVideoUrl: 
+          type: string
+        businessName: 
+          type: string
+
+    AuthResetPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        role:
+          type: string
+          enum: [user,pro,admin]
+        email:
+          type: string
+    AuthResetPasswordResponse:
+      type: object
+
+    AuthConfirmResetPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: user email
+          example: 'john@hairsap.com'
+        token:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [user,pro,admin]
+    AuthConfirmResetPasswordResponse:
+      type: object
+     
+    AdminAcceptReactivationRequest:
+      type: object
+    AdminAcceptReactivationResponse:
+      type: object
+
+    AdminPayoutRequestsRequest:
+      type: object
+      properties:
+        page:
+          type: number
+          description: page
+          example: 1
+        perPage:
+          type: number
+          description: perPage
+          example: 10
+    AdminPayoutRequestsResponse:
+      type: object
+      required:
+        - meta
+        - data
+      properties:
+        meta: 
+          $ref: '#/components/schemas/Meta'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              invoice:
+                type: object
+                properties:
+                  invoiceId:
+                    type: number  
+                  transportFee:
+                    type: number 
+                  distance:
+                    type: number    
+                  bookingId:
+                    type: number  
+                  createdAt:
+                    type: string  
+                  paid:
+                    type: boolean        
+                  amountPaid:
+                    type: number   
+                  reference:
+                    type: string    
+                  channel:
+                    type: string 
+                    enum: [cash,card]     
+                  invoiceFees:
+                    type: object
+                    properties:
+                        feeId:
+                          type: number
+                        name:
+                          type: string
+                        price:
+                          type: number
+                        invoiceId:
+                          type: number
+                        createdAt:
+                          type: string
+
+    AdminPayoutProIdRequest:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: pro id
+          example: 1
+    AdminPayoutProIdResponse:
+      type: object
+
+    AdminPayoutInvoiceIdConfirmationRequest:
+      type: object
+      required:
+        - invoiceId
+      properties:
+        invoiceId:
+          type: number
+    AdminPayoutInvoiceIdConfirmationResponse:
+      type: object
+
+    AdminProApplicationsResponse:
+      type: array
+      required:
+        - userId
+        - name
+      items:
+        type: object
+        properties:
+          userId:
+            type: number
+            description: user id
+            example: 1
+          name:
+            type: string
+          service:
+            type: string
+
+    AdminProApplicationUserIdActionRequest:
+      type: object
+      
+    AdminProApplicationUserIdActionResponse:
+      type: object
+    
+    AdminProApplicationProIdResponse:
+      type: object
+      required:
+        - userId
+        - role
+      properties:
+        userId:
+          type: number
+          description: user id
+          example: 1
+        role:
+          type: string
+          description: user role
+          example: 'admin'
+
+    AdminProsRequest:
+      type: object
+      required:
+        - name
+        - serviceId
+        - page
+        - perPage
+      properties:
+        name:
+          type: string
+          description: name
+          example: 'pro'
+        serviceId:
+          type: number
+          description: serviceId
+          example: 1
+        page:
+          type: number
+          description: page
+          example: 1
+        perPage:
+          type: number
+          description: perPage
+          example: 10
+    AdminProsResponse:
+      type: object
+      properties:
+        meta: 
+          $ref: '#/components/schemas/Meta'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: number
+              businessName:
+                type: string 
+              name:
+                type: string 
+              email:
+                type: string    
+              deactivated:
+                type: boolean  
+              createdAt:
+                type: string  
+              profilePhotoUrl:
+                type: string  
+                 
+    AdminUsersRequest:
+      type: object
+      required:
+        - name
+        - page
+        - perPage
+      properties:
+        name:
+          type: string
+          description: name
+          example: 'james'
+        page:
+          type: number
+          description: page
+          example: 1
+        perPage:
+          type: number
+          description: perPage
+          example: 10
+    AdminUsersResponse:
+      type: object
+      required:
+        - name
+        - userId
+        - createdAt
+      properties:
+        name:
+          type: string
+          description: name
+          example: 'pro'
+        address:
+          type: string
+          description: address
+          example: 'No `, Ikeja Street, Lagos'
+        userId:
+          type: number
+          description: id of user
+          example: 1
+        createdAt:
+          type: string
+          example: '2022-08-26T15:28:13.528Z'
+        email:
+          type: string
+        phone:
+          type: string
+        profilePhotoUrl:
+          type: string
+        verified:
+          type: boolean
+
+    AdminUsersIdResponse:
+      type: object
+      required:
+        - userId
+      properties:
+        amountSpent:
+          type: number
+        averageRatings:
+          type: number
+        subscriptions:
+          type: number
+        totalBookings:
+          type: number
+        user:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+            email:
+              type: string
+            createdAt:
+              type: string
+            verified:
+              type: boolean
+            phone:
+              type: string
+            address:
+              type: string
+
+    AdminProsUserIdResponse:
+      type: object
+      properties:
+        dailyBookingCount:
+          type: number
+        dailyBookingSum:
+          type: number
+        weeklyBookingCount:
+          type: number
+        weeklyBookingSum:
+          type: number
+        monthlyBookingCount:
+          type: number
+        monthlyBookingSum:
+          type: number
+        allBookingCount:
+          type: number
+        allBookingSum:
+          type: number
+        subscriptions:
+          type: number
+        averageRatings:
+          type: number
+        ratings:
+          type: number
+        taskTarget:
+          type: object
+          properties:
+            day:
+              type: number
+            week:
+              type: number
+            month:
+              type: number
+        earnings:
+          type: object
+          properties:
+            day:
+              type: number
+            week:
+              type: number
+            month:
+              type: number
+        user:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+            email:
+              type: string
+            createdAt:
+              type: string
+            deactivated:
+              type: boolean
+            phone:
+              type: string
+            address:
+              type: string
+            service:
+              type: string
+            account:
+              type: object
+              properties:
+                accountId:
+                  type: number
+                accountNumber:
+                  type: string
+                accountName:
+                  type: string
+                bankName:
+                  type: string
+        latestBookings:
+          type: array
+          items:
+            type: object
+            properties:
+              bookingId:
+                type: number
+              createdAt:
+                type: string
+              bookedSubServices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    subServiceId:
+                      type: number
+                    serviceId:
+                      type: number
+                    name:
+                      type: string
+                    photoUrl:
+                      type: string
+                    price:
+                      type: number
+                    createdAt:
+                      type: string
+                      
+    AdminUserBookingsRequest:
+      type: object
+      required:
+        - userId
+        - page
+        - perPage
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+        page:
+          type: number
+          description: page
+          example: 1
+        perPage:
+          type: number
+          description: perPage
+          example: 10
+    AdminUserBookingsResponse:
+      type: object
+      required:
+        - meta
+        - data
+      properties:
+       meta: 
+        $ref: '#/components/schemas/Meta'
+       data:
+        type: array
+        items:
+          allOf: 
+            - $ref: '#/components/schemas/Booking'
+            - type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                    profilePhotoUrl: 
+                      type: string
+
+    AdminProBookingsRequest:
+      type: object
+      required:
+        - proId
+        - page
+        - perPage
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+        page:
+          type: number
+          description: page
+          example: 1
+        perPage:
+          type: number
+          description: perPage
+          example: 10
+
+    AdminProBookingsResponse:
+      type: object
+      required:
+        - proId
+        - page
+        - perPage
+      properties:
+        count:
+          type: number
+        total:
+          type: number
+        bookings:
+          type: array
+          items:
+            type: object
+            properties:
+              name: 
+                type: string
+              total: 
+                type: number
+    AdminBonusesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Bonus'
+
+    AdminBonusesPaidRequest:
+      type: object
+      required:
+        - bonusId
+      properties:
+        bonusId:
+          type: number
+          description: bonusId
+          example: 1
+    AdminBonusesPaidResponse:
+      type: object
+      required:
+        - bonusId
+      properties:
+        bonusId:
+          type: number
+          description: bonusId
+          example: 1
+
+    AdminDashboardBookingsRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+    AdminDashboardBookingsResponse:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+
+    AdminDashboardResponse:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+
+    AdminUnAcceptedProPhotosProIdRequest:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+    AdminUnAcceptedProPhotosProIdResponse:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+
+    AdminUnAcceptedProPhotosResponse:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+
+
+    UserPatchRequest:
+      type: object
+      properties:
+        address:
+          type: string
+    UserPatchResponse:
+      type: object
+
+    UserfaceIdRequest:
+      type: object
+      required:
+        - faceId
+      properties:
+       faceId:
+          type: string
+          format: binary #base64
+      
+    UserfaceIdResponse:
+      type: object
+     
+    UserProfilePhotoRequest:
+      type: object
+      required:
+        - profilephoto
+      properties:
+        profilephoto:
+          type: string
+          format: binary
+    
+    UserProfilePhotoResponse:
+      type: object
+      
+    UserSubscribeRequest:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+    UserSubscribeResponse:
+      type: object
+      
+    UserSubscriptionsRequest:
+      type: object
+    UserSubscriptionsResponse:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: number
+          description: userId
+          example: 1
+        proId:
+          type: number
+          example: 1
+        createdAt:
+          type: string
+        pro:
+          type: object
+          properties:
+            userId:
+              type: number
+              description: userId
+              example: 1
+            photoUrl:
+              type: string
+            name:
+              type: string
+
+    UserMeResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/User'
+      - type: object
+        properties:
+          card:
+            $ref: '#/components/schemas/Card'
+
+    UserCardResponse:
+      type: object
+      $ref: '#/components/schemas/Card'
+
+    ProPatchRequest:
+      type: object
+      properties:
+          userId:
+            type: number
+          address:
+            type: string
+          available:
+            type: boolean
+          accountNumber:
+            type: string
+          accountName:
+            type: string
+          bankName:
+            type: string
+
+    ProAutoRequest:
+      type: object
+      properties:
+          latitude:
+            type: number
+          longitude:
+            type: number
+          subServiceId:
+            type: number
+          distance:
+            type: number
+          userId:
+            type: number
+    ProAutoResponse:
+      type: object
+      properties:
+          transportation:
+            type: number
+          total:
+            type: number
+          arrivalAt:
+            type: string
+          pro:
+            type: object
+            properties:
+              userId: 
+                type: number
+              businessName: 
+                type: string
+              proName: 
+                type: string
+              address: 
+                type: string
+              available: 
+                type: boolean
+              serviceName: 
+                type: string
+              price: 
+                type: number
+              distance: 
+                type: number
+          
+    ProSubscribersResponse:
+      type: object
+      properties:
+        proId:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: number
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+            name:
+              type: string
+            profilePhotoUrl:
+              type: string
+
+    ProServicesProIdResponse:
+      type: array 
+      items:
+        allOf:
+          - $ref: '#/components/schemas/Service'
+          - type: object
+            properties:
+              subServices:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubService'
+
+    ProMeResponse:
+      type: object 
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            account:
+              $ref: '#/components/schemas/Account'
+
+    ProSearchRequest:
+      type: object 
+      properties:
+        name:
+          type: string
+    ProSearchResponse:
+      type: array
+      items: 
+          $ref: '#/components/schemas/User'
+
+    ProApplicationVideoRequest:
+      type: object 
+      properties:
+        applicationvideo:
+          type: string
+          format: binary
+
+    ProProfilePhotoRequest:
+      type: object 
+      properties:
+        profilephoto:
+          type: string
+          format: binary
+
+    ProStatsProIdResponse:
+      type: object 
+      properties:
+          ratings:
+            type: number
+          earnings:
+            type: number
+          dailyTarget:
+            type: number
+          weeklyTarget:
+            type: number
+          monthlyTarget:
+            type: number
+
+    ProBookingRatioResponse:
+      type: object 
+      oneOf:
+      - type: object
+        properties:
+            day:
+              type: object
+              properties:
+                returnedCount:
+                  type: number
+                newCount:
+                  type: number
+      - type: object
+        properties:
+            mon:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            tue:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            wed:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            thur:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            fri:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            sat:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+            sun:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+            total:
+              type: object
+              properties:
+                new:
+                  type: number
+                returned:
+                  type: number
+    
+
+    BookProRequest:
+      type: object 
+      properties:
+        samplephoto:
+          type: string
+          format: binary
+        payload: 
+          type: object
+          properties:
+            proId: 
+              type: number
+            subServiceId: 
+              type: number
+            latitude: 
+              type: number
+            longitude: 
+              type: number
+            address: 
+              type: string
+            channel: 
+              type: string
+              enum: [cash,card]
+
+    BookingAccepted:
+      type: array 
+      items:
+        $ref: '#/components/schemas/Booking'
+
+    BookingAddServiceRequest:
+      type: object 
+      properties:
+        serviceId:
+          type: number
+        bookingId:
+          type: number
+
+    BookingGetUserActivityResponse:
+      type: object 
+      $ref: '#/components/schemas/Booking'
+
+    BookingRateRequest:
+      type: object 
+      properties:
+        rating:
+          type: number
+        review:
+          type: string
+
+    Transactions:
+      type: array
+      items:
+        type: object
+        properties:
+            feeId:
+              type: number
+            name:
+              type: string
+            price:
+              type: number
+            invoiceId:
+              type: number
+            createdAt:
+              type: string
+            invoice:
+              type: object
+              properties:
+                booking:
+                  type: object
+                  properties: 
+                    user:
+                      type: object
+                      properties:
+                        name: 
+                          type: string
+                    pro:
+                      type: object
+                      properties:
+                        name: 
+                          type: string
+                        businessName:  
+                          type: string
+    
+    verifyTransactionResponse:
+      type: object
+
+    ServicesResponse:
+      type: array
+      items:
+        type: object
+        required:
+          - serviceId
+          - name
+          - photoUrl
+          - price
+          - createdAt
+          - updatedAt
+        properties:
+          serviceId:
+            type: number
+            example: 1
+          name:
+            type: string
+            example: 'Braiding'
+          photoUrl:
+            type: string
+            example: 'https://google.com/image_png'
+          createdAt:
+            type: number
+            example: '2022-08-26T15:28:13.528Z'
+          updatedAt:
+            type: number
+            example: '2022-08-26T15:28:13.528Z'
+          subServices:
+            type: array
+            items:
+              type: object
+              required:
+                - subServiceId
+                - name
+                - photoUrl
+                - price
+                - serviceId
+                - createdAt
+                - updatedAt
+              properties:
+                subServiceId:
+                  type: number
+                  example: 1
+                name:
+                  type: string
+                  example: 'Test Services'
+                photoUrl:
+                  type: string
+                  example: 'https://google.com/image_png'
+                price:
+                  type: number
+                  example: 2000000
+                serviceId:
+                  type: number
+                  example: 1
+                createdAt:
+                  type: number
+                  example: '2022-08-26T15:28:13.528Z'
+                updatedAt:
+                  type: number
+                  example: '2022-08-26T15:28:13.528Z'
+
+    NotificationsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Notification'
+
+  responses:
+    InternalError:
+      description: Status 500 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalError'
+    ValidationError:
+      description: Status 400 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    ForbiddenError:
+      description: Status 403 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+    NotFoundError:
+      description: Status 404 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+    UnauthorizedError:
+      description: Status 401 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+    Success:
+      description: Status 200/201 Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Success'
+  # requestBodies:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
-  
-
-info:
-  title: Hairsap-api
-  description: Hairsap API
-  version: v1.0.0
-servers:
-  - url: 'http://localhost:4000'
-    description: development
-paths:
-  /auth/login:
-    post:
-      operationId: postAuthLogin
-      description: allows a user to login
-      tags:
-        - Auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthLoginRequest'
-      parameters: []
-      responses:
-        '201':
-          description: Status 201 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthLoginResponse'
-        '400':
-          description: Status 400 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ValidationError'
-        '500':
-          description: Status 500 Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InternalError'
