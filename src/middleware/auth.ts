@@ -23,7 +23,7 @@ const auth = ({ repo }: { repo: Repo }) =>
     if (!user) throw new UnauthorizedError()
 
     if ([ROLES.PRO, ROLES.USER].includes(decodedToken?.role as any)) {
-      if (!user.verified && req.baseUrl + req.path !== '/auth/validatetoken')
+      if (!user.verified && req.baseUrl + req.path !== '/auth/validateotp')
         throw new ForbiddenError('user not verified')
     }
     if (decodedToken?.role === ROLES.PRO) {
