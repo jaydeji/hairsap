@@ -25,11 +25,18 @@ const setPushToken =
     repo.other.setPushToken({ userId, pushToken })
   }
 
+const healthCheck =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    await repo.other.dbHealthCheck()
+  }
+
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
     getNotifications: getNotifications({ repo }),
     setPushToken: setPushToken({ repo }),
+    healthCheck: healthCheck({ repo }),
   }
 }
 

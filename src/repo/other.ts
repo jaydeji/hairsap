@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 import { dayjs } from '../utils'
 
+const dbHealthCheck =
+  ({ db }: { db: PrismaClient }) =>
+  () =>
+    db.$queryRaw`SELECT 1`
+
 const getServices =
   ({ db }: { db: PrismaClient }) =>
   () =>
@@ -104,6 +109,7 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     createNotification: createNotification({ db }),
     setPushToken: setPushToken({ db }),
     getPushToken: getPushToken({ db }),
+    dbHealthCheck: dbHealthCheck({ db }),
   }
 }
 

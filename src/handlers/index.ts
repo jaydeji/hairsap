@@ -24,6 +24,13 @@ const makeRouter = ({
       res.send('welcome to hairsap')
     }),
   )
+  router.get(
+    '/health',
+    ah(async (_req, res) => {
+      await service.other.healthCheck()
+      res.status(200).send()
+    }),
+  )
   router.post(
     '/webhook/paystack',
     ah((req, res) => {
