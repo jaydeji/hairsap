@@ -544,6 +544,17 @@ async function main() {
   logger.info(`Start seeding ...`)
 
   let x: PrismaPromise<any>[] = [
+    prisma.user.create({
+      data: {
+        address: 'no 1',
+        email: 'admin@gmail.com',
+        name: 'Admin',
+        role: 'admin',
+        userId: 1,
+        password: 'scribd',
+        phone: '',
+      },
+    }),
     prisma.service.createMany({
       data: serviceData,
     }),

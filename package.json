@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "NODE_ENV=production && npm run prisma:gen && tsup src/index.ts",
+    "build": "npm run prisma:gen && tsup src/index.ts",
     "start": "node dist/index.js",
-    "mig:start": "node dist/index.js",
+    "mig:start": "npx --yes prisma migrate deploy && node dist/index.js",
     "dev": "tsup src/index.ts --watch --onSuccess \"node dist/index.js\"",
     "prisma:gen": "prisma generate",
     "prisma:mig": "prisma migrate dev",
