@@ -30,6 +30,10 @@ export const BOOKING_STATUS = {
   PENDING: 'pending',
 } as const
 
+export const FROM = {
+  NOTIFICATION: 'notification',
+} as const
+
 export const OTP_TYPE = {
   EMAIL: 'email',
   PHONE: 'phone',

@@ -8,6 +8,7 @@ import { dayjs } from '../../utils'
 import { resetPasswordTemplate } from '../../config/email/templates/resetPassword'
 import { Queue } from '../Queue'
 import { NotFoundError } from '../../utils/Error'
+import { FROM } from '../../config/constants'
 
 export const resetPassword =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -26,5 +27,11 @@ export const resetPassword =
       token,
     })
 
-    queue.emailQueue.add(resetPasswordTemplate({ email: body.email, token }))
+    queue.emailQueue.add(
+      resetPasswordTemplate({
+        email: body.email,
+        token,
+        from: FROM.NOTIFICATION,
+      }),
+    )
   }

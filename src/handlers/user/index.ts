@@ -73,7 +73,7 @@ const makeUserRouter = ({
       res.sendStatus(201)
     }),
   )
-  router.post(
+  router.get(
     '/subscriptions',
     allowOnly([ROLES.USER]),
     ah(async (req, res) => {

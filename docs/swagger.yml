@@ -1087,7 +1087,7 @@ paths:
         - BearerAuth: []
 
   /users/subscriptions:
-    post:
+    get:
       tags:
         - User
       summary: get user subscriptions  

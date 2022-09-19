@@ -13,13 +13,15 @@ export const otpEmailTemplate = ({
   email,
   name,
   otp,
+  from,
 }: {
   email: string
   name: string
   otp: string
+  from: string
 }) => {
   return {
-    from: '"Hairsap" <notify@hairsap.com>',
+    from: `"Hairsap" <${from}>`,
     to: email,
     subject: `${getEmailStagePrefix()}Your OTP Code`,
     text: `Dear ${name},\n Please use the OTP code: ${otp} to complete your login.`,

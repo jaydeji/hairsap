@@ -1,4 +1,4 @@
-import { ADMIN_ID, OTP_TYPE, ROLES } from '../../config/constants'
+import { ADMIN_ID, FROM, OTP_TYPE, ROLES } from '../../config/constants'
 import {
   otpEmailTemplate,
   signUpEmailTemplate,
@@ -57,9 +57,9 @@ const signupUser = async (
   const token = generateJwt(
     { email: user.email, role: user.role, userId: user.userId },
     false,
-    {
-      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
-    },
+    // {
+    //   expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
+    // },
   )
 
   if (otp) {
@@ -71,7 +71,12 @@ const signupUser = async (
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
       queue.emailQueue.add(
-        otpEmailTemplate({ name: user.name, email: user.email, otp }),
+        otpEmailTemplate({
+          name: user.name,
+          email: user.email,
+          otp,
+          from: FROM.NOTIFICATION,
+        }),
       )
     }
   }
@@ -123,9 +128,9 @@ const signupPro = async (
   const token = generateJwt(
     { email: pro.email, role: pro.role, userId: pro.userId },
     false,
-    {
-      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
-    },
+    // {
+    //   expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
+    // },
   )
 
   if (otp) {
@@ -137,7 +142,12 @@ const signupPro = async (
     }
     if (body.otpType === OTP_TYPE.EMAIL) {
       queue.emailQueue.add(
-        otpEmailTemplate({ name: pro.name, email: pro.email, otp }),
+        otpEmailTemplate({
+          name: pro.name,
+          email: pro.email,
+          otp,
+          from: FROM.NOTIFICATION,
+        }),
       )
     }
   }

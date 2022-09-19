@@ -1,7 +1,7 @@
 import { Repo } from '../../types'
 import { generateLoginOtp } from '../../utils/otp'
 import { dayjs } from '../../utils'
-import { OTP_TYPE } from '../../config/constants'
+import { FROM, OTP_TYPE } from '../../config/constants'
 import { otpEmailTemplate } from '../../config/email/templates/signup'
 import { ForbiddenError } from '../../utils/Error'
 import {
@@ -37,7 +37,12 @@ export const generateOtp =
       })
     } else if (body.otpType === OTP_TYPE.EMAIL) {
       queue.emailQueue.add(
-        otpEmailTemplate({ name: user.name, email: user.email, otp }),
+        otpEmailTemplate({
+          name: user.name,
+          email: user.email,
+          otp,
+          from: FROM.NOTIFICATION,
+        }),
       )
     } else {
       throw new ForbiddenError()

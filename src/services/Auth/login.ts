@@ -41,9 +41,9 @@ const loginAdmin = async ({
   const token = generateJwt(
     { email: admin.email, role: admin.role, userId: admin.userId },
     true,
-    {
-      expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
-    },
+    // {
+    //   expiresIn: String(dayjs.duration({ days: 7 }).as('ms')),
+    // },
   )
 
   return { admin: PostLoginResponseSchema.parse(admin), token }
@@ -78,9 +78,9 @@ const loginUser = async ({
   const token = generateJwt(
     { email: user.email, role: user.role, userId: user.userId },
     false,
-    {
-      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
-    },
+    // {
+    //   expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
+    // },
   )
 
   return { user: PostLoginResponseSchema.parse(user), token }
@@ -115,9 +115,9 @@ const loginPro = async ({
   const token = generateJwt(
     { email: pro.email, role: pro.role, userId: pro.userId },
     false,
-    {
-      expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
-    },
+    // {
+    //   expiresIn: String(dayjs.duration({ days: 30 }).as('ms')),
+    // },
   )
 
   return { pro: PostLoginResponseSchema.parse(pro), token }

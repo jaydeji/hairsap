@@ -4,12 +4,12 @@ import jwt from 'jsonwebtoken'
 const generateJwt = (
   data: Record<string, unknown>,
   admin: boolean,
-  expiresIn?: { expiresIn: string },
+  // expiresIn?: { expiresIn: string },
 ): string | undefined => {
   const secret =
     (admin ? process.env.JWT_ADMIN_SECRET : process.env.JWT_SECRET) || ''
   if (!secret || secret === '') return
-  return jwt.sign(data, secret, expiresIn)
+  return jwt.sign(data, secret)
 }
 
 const decodeJwt = (token: string) => {
