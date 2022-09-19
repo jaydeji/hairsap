@@ -3,7 +3,6 @@ import { ROLES } from '../../config/constants'
 
 const PostLoginResponseSchema = z
   .object({
-    address: z.string().min(2),
     email: z.string().email(),
     name: z.string(),
     userId: z.number(),

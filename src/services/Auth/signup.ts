@@ -39,8 +39,10 @@ const signupUser = async (
   let otp
   if (body.otpType) otp = await generateLoginOtp()
 
+  const { otpType, ...createBody } = body
+
   const user = await repo.user.createUser({
-    ...body,
+    ...createBody,
     password: hashedPassword,
     otp: otp
       ? {
@@ -110,8 +112,10 @@ const signupPro = async (
   let otp
   if (body.otpType) otp = await generateLoginOtp()
 
+  const { otpType, ...createBody } = body
+
   const pro = await repo.user.createUser({
-    ...body,
+    ...createBody,
     password: hashedPassword,
     otp: otp
       ? {
