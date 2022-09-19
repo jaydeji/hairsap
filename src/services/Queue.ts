@@ -117,7 +117,9 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   emailQueue.process(async (job, done) => {
-    if (process.env.NODE_ENV !== 'production') return done()
+    if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
+      return done()
+
     sendMail(job.data).catch((error) => {
       logger.err(error)
     })

@@ -69,6 +69,14 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
 
   app.use(handleError)
 
+  service.queue.emailQueue.add({
+    from: '"Hairsap" <jide@hairsap.com>',
+    to: 'jideadedejifirst@gmail.com',
+    subject: 'Test New SignUp',
+    text: `A password reset has been initiated. Please use this token  which expires in 1 hour`,
+    html: `A password reset has been initiated. Please use this token  which expires in 1 hour`,
+  })
+
   return app
 }
 
