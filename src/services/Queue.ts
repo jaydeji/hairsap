@@ -4,7 +4,7 @@ import { SendMailOptions } from 'nodemailer'
 import { logger } from '../utils'
 import db from '../config/db'
 import { ChatMessageType } from '../schemas/models/Message'
-import got from 'got-cjs'
+import got, { HTTPError } from 'got-cjs'
 import { PAYSTACK_URL } from '../config/constants'
 import {
   deactivateProByStarRating,
@@ -35,7 +35,10 @@ type Payment = {
 
 const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
-  const phoneQueue = new Queue('phone', redisUrl)
+  const phoneQueue = new Queue<{ phone: string; body: string }>(
+    'phone',
+    redisUrl,
+  )
   const paymentQueue = new Queue<Payment>('payment', redisUrl)
   const chatQueue = new Queue<ChatMessageType>('chat', redisUrl)
   const notifyQueue = new Queue<{
@@ -127,8 +130,23 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   phoneQueue.process(async (job, done) => {
-    if (process.env.NODE_ENV !== 'production') return done()
-    //  TODO send test message
+    if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
+      return done()
+
+    const SMS_URL = 'https://www.bulksmsnigeria.com/api/v1/sms/create'
+
+    try {
+      await got.post(SMS_URL, {
+        searchParams: {
+          api_token: process.env.SMS_API_TOKEN,
+          from: 'Hairsap',
+          to: job.data.phone,
+          body: job.data.body,
+        },
+      })
+    } catch (error) {
+      console.log((error as HTTPError).response.body)
+    }
   })
 
   chatQueue.process(async (job, done) => {
