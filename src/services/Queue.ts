@@ -133,6 +133,8 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
       return done()
 
+    return done()
+
     const SMS_URL = 'https://www.bulksmsnigeria.com/api/v1/sms/create'
 
     try {

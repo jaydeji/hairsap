@@ -9,6 +9,7 @@ info:
     - Dates should be sent in ISO format e.g `2022-09-09T07:52:39.407Z`
     - When uploading multipart/form-data make sure to stringify the req body into the `payload` field. The only exception is for file fields
     - We do cursor and offset based pagination. Check the `Cursor` Schema for more info. 
+    - Phone OTP is temporarily disabled. 
 
   # termsOfService: http://swagger.io/terms/
   contact:
