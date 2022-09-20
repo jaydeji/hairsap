@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
-import { CHANNEL, ROLES } from '../../config/constants'
+import { BOOKING_STATUS, CHANNEL, ROLES } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
 import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
@@ -286,6 +286,64 @@ const getApplicationVideo =
       },
     })
 
+const getProInfo =
+  ({ db }: { db: PrismaClient }) =>
+  async (proId: number) => {
+    const [user, rating, bookings, subscribers] = await db.$transaction([
+      db.user.findFirst({
+        where: {
+          userId: proId,
+          role: ROLES.PRO,
+        },
+        select: {
+          name: true,
+          profilePhotoUrl: true,
+          proServices: true,
+        },
+      }),
+      db.booking.aggregate({
+        where: {
+          pro: {
+            userId: proId,
+            role: ROLES.PRO,
+          },
+        },
+        _avg: {
+          rating: true,
+        },
+      }),
+      db.booking.count({
+        where: {
+          pro: {
+            userId: proId,
+            role: ROLES.PRO,
+          },
+          status: BOOKING_STATUS.COMPLETED,
+        },
+      }),
+      db.subscription.count({
+        where: {
+          pro: {
+            userId: proId,
+            role: ROLES.PRO,
+          },
+        },
+      }),
+    ])
+    if (!user) return
+
+    return {
+      user: {
+        name: user.name,
+        profilePhotoUrl: user.profilePhotoUrl,
+        service: user.proServices[0],
+      },
+      bookings,
+      rating: rating._avg.rating,
+      subscribers,
+    }
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -303,6 +361,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getApplicationVideo: getApplicationVideo({ db }),
     getProStats: getProStats({ db }),
     getProBookingRatio: getProBookingRatio({ db }),
+    getProInfo: getProInfo({ db }),
   }
 }
 

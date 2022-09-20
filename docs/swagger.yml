@@ -1094,13 +1094,6 @@ paths:
       description: get user subscriptions
       operationId: subscriptions 
       parameters: []
-      requestBody:
-        description: subscriptions
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserSubscriptionsRequest'
-        required: true
       responses:
         '200':
           description: Status 200 Response
@@ -1312,6 +1305,39 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/ProServicesProIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/{proId}:
+      get:
+        tags:
+          - Pro
+        summary: get a pro's info
+        operationId: proinfoproid
+        parameters: 
+          - name: proId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProInfoProIdResponse'
           '400':
             $ref: '#/components/responses/ValidationError'
           '401':
@@ -3257,6 +3283,24 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/SubService'
+
+    ProInfoProIdResponse:
+      type: object 
+      properties:
+        user:
+         allOf:
+          - $ref: '#/components/schemas/User' 
+          - type: object 
+            properties:
+              service:
+                $ref: '#/components/schemas/Service' 
+              
+        bookings:
+          type: number
+        rating:
+          type: number
+        subscribers:
+          type: number
 
     ProMeResponse:
       type: object 

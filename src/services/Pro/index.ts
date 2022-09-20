@@ -157,6 +157,18 @@ const getProDetails =
     return data
   }
 
+const getProInfo =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { proId: number }) => {
+    z.object({ proId: z.number() }).strict().parse(body)
+
+    const data = await repo.pro.getProInfo(body.proId)
+
+    if (!data) throw new NotFoundError('pro not found')
+
+    return data
+  }
+
 const getProData =
   ({ repo }: { repo: Repo }) =>
   async (body: { proId: number }) => {
@@ -240,6 +252,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getProStats: getProStats({ repo }),
     getProBookingRatio: getProBookingRatio({ repo }),
+    getProInfo: getProInfo({ repo }),
   }
 }
 
