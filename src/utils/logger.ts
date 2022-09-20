@@ -1,15 +1,10 @@
 import pino from 'pino'
 
 const logger = pino({
-  transport: {
-    targets: [
-      // {
-      //   target: './transport.ts',
-      //   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-      //   options: {},
-      // },
-      ...(process.env.NODE_ENV === 'development'
-        ? [
+  transport:
+    process.env.NODE_ENV === 'development'
+      ? {
+          targets: [
             {
               target: 'pino-pretty',
               level: 'debug',
@@ -17,10 +12,9 @@ const logger = pino({
                 colorize: true,
               },
             },
-          ]
-        : []),
-    ],
-  },
+          ],
+        }
+      : undefined,
 })
 
 export default {
