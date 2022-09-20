@@ -73,6 +73,18 @@ const makeUserRouter = ({
       res.sendStatus(201)
     }),
   )
+
+  router.post(
+    '/unsubscribe',
+    allowOnly([ROLES.USER]),
+    ah(async (req, res) => {
+      await service.user.unsubscribe({
+        userId: req.tokenData?.userId as number,
+        proId: req.body.proId,
+      })
+      res.sendStatus(201)
+    }),
+  )
   router.get(
     '/subscriptions',
     allowOnly([ROLES.USER]),

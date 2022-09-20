@@ -119,6 +119,18 @@ const subscribe =
       },
     })
 
+const unsubscribe =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, proId }: PostSubscribeReq) =>
+    db.subscription.delete({
+      where: {
+        userId_proId: {
+          proId,
+          userId,
+        },
+      },
+    })
+
 // TODO: add review count and ratings
 const getUserSubscriptions =
   ({ db }: { db: PrismaClient }) =>
@@ -289,6 +301,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     updateUser: updateUser({ db }),
     deleteUser: deleteUser({ db }),
     subscribe: subscribe({ db }),
+    unsubscribe: unsubscribe({ db }),
     getUserSubscriptions: getUserSubscriptions({ db }),
     getAllUsers: getAllUsers({ db }),
     getUserDetails: getUserDetails({ db }),

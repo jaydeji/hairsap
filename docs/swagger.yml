@@ -1090,6 +1090,41 @@ paths:
       security:
         - BearerAuth: []
 
+  /users/unsubscribe:
+    post:
+      tags:
+        - User
+      summary: allow user unsubscribe to pro  
+      description: allow user unsubscribe to pro
+      operationId: unsubscribe 
+      parameters: []
+      requestBody:
+        description: unsubscribe
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUnSubscribeRequest'
+        required: true
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUnSubscribeResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
   /users/subscriptions:
     get:
       tags:
@@ -3211,6 +3246,19 @@ components:
           description: proId
           example: 1
     UserSubscribeResponse:
+      type: object
+      
+      
+    UserUnSubscribeRequest:
+      type: object
+      required:
+        - proId
+      properties:
+        proId:
+          type: number
+          description: proId
+          example: 1
+    UserUnSubscribeResponse:
       type: object
       
     UserSubscriptionsRequest:

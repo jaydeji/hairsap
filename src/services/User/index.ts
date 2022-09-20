@@ -44,6 +44,14 @@ const subscribe =
     return
   }
 
+const unsubscribe =
+  ({ repo }: { repo: Repo }) =>
+  async (body: PostSubscribeReq) => {
+    PostSubscribeReqSchema.parse(body)
+    await repo.user.unsubscribe(body)
+    return
+  }
+
 const getUserSubscriptions =
   ({ repo }: { repo: Repo }) =>
   async (body: GetUserSubscriptionsReq) => {
@@ -133,6 +141,7 @@ const makeUser = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     updateUser: updateUser({ repo }),
     subscribe: subscribe({ repo, queue }),
+    unsubscribe: unsubscribe({ repo }),
     getUserSubscriptions: getUserSubscriptions({ repo }),
     uploadProfilePhoto: uploadProfilePhoto({ repo }),
     getAllUsers: getAllUsers({ repo }),
