@@ -221,8 +221,8 @@ const getProData =
 
 const searchPro =
   ({ db }: { db: PrismaClient }) =>
-  ({ name }: { name: string }) => {
-    return db.user.findMany({
+  async ({ name }: { name: string }) => {
+    const users = await db.user.findMany({
       where: {
         OR: [
           {
@@ -236,8 +236,34 @@ const searchPro =
             },
           },
         ],
+        role: ROLES.PRO,
+      },
+      select: {
+        name: true,
+        businessName: true,
+        userId: true,
+        profilePhotoUrl: true,
+        proServices: {
+          select: {
+            service: {
+              select: {
+                name: true,
+                photoUrl: true,
+                serviceId: true,
+              },
+            },
+          },
+        },
       },
     })
+
+    return users.map((user) => ({
+      name: user.name,
+      businessName: user.businessName,
+      userId: user.userId,
+      profilePhotoUrl: user.profilePhotoUrl,
+      service: user.proServices?.[0].service,
+    }))
   }
 
 const getProApplications =

@@ -3559,7 +3559,26 @@ components:
     ProSearchResponse:
       type: array
       items: 
-          $ref: '#/components/schemas/User'
+         type: object
+         properties:
+          name: 
+            type: string
+          businessName: 
+            type: string
+          profilePhotoUrl: 
+            type: string
+          userId:
+            type: number
+          service:
+            type: object
+            properties:
+              name: 
+                type: string
+              serviceId: 
+                type: number
+              photoUrl: 
+                type: string
+
 
     ProApplicationVideoRequest:
       type: object 
