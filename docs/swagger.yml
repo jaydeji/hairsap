@@ -21,7 +21,7 @@ externalDocs:
   description: Github
   url: http://github.com/lancerdonnie/Hairsap-be
 servers:
-  - url: http://dev.hairsap.com:3000
+  - url: https://staging.hairsap.com
   - url: http://localhost:4000
 tags:
   - name: Admin

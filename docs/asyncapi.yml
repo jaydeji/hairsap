@@ -8,8 +8,8 @@ info:
 
 servers:
   prod:
-    url: dev.hairsap.com:3000/socket.io
-    protocol: ws
+    url: staging.hairsap.com/socket.io
+    protocol: wss
   dev:
     url: localhost:4000/socket.io
     protocol: ws
