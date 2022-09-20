@@ -1969,6 +1969,97 @@ paths:
         security:
           - BearerAuth: []
 
+  /chats:
+      get:
+        tags:
+          - Chat
+        operationId: getchatlist
+        description: get chat list
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ChatListResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+      post:
+        tags:
+          - Chat
+        operationId: getchatsbyid
+        description: get chats by id
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatsByIdRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ChatsByIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /photo:
+      post:
+        tags:
+          - Chat
+        operationId: uploadchatphoto
+        description: upload chat photo
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ChatUploadPhotoRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ChatUploadPhotoResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
 
   /verify_transaction:
     get:
@@ -2346,7 +2437,24 @@ components:
             type: number
           createdAt: 
             type: string
-      
+    Chat:
+      type: object
+      properties:
+            chatId:
+              type: number
+            messageType:
+              type: string
+              enum: [text,photo]
+            message:
+              type: string
+            photo:
+              type: string
+            senderId:
+              type: number
+            receiverId:
+              type: number
+            createdAt:
+              type: string
        
     AuthLoginRequest:
       type: object
@@ -3605,6 +3713,42 @@ components:
         rating:
           type: number
         review:
+          type: string
+    
+    ChatListResponse:
+      type: array
+      items: 
+        type: object 
+        properties:
+          name:
+            type: string
+          userId:
+            type: number
+          photoUrlprofilePhotoUrl:
+            type: string
+    
+    ChatsByIdRequest:
+      allOf:
+        - $ref: '#/components/schemas/Cursor'
+        - type: object
+          properties:
+            userId:
+              type: number
+    ChatsByIdResponse:
+      type: array
+      items: 
+        $ref: '#/components/schemas/Chat'
+    
+    ChatUploadPhotoRequest:
+       type: object
+       properties:
+        chatphoto:
+          type: string
+          format: binary
+    ChatUploadPhotoResponse:
+      type: object
+      properties: 
+        url:
           type: string
 
     Transactions:

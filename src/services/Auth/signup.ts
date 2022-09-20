@@ -170,9 +170,7 @@ export const signUp =
   (body: PostSignupProRequest | PostSignupUserRequest) => {
     if (body.role === ROLES.USER) {
       return signupUser(repo, queue, body)
-    }
-    if (body.role === ROLES.PRO) {
+    } else {
       return signupPro(repo, queue, body)
     }
-    throw new ForbiddenError()
   }

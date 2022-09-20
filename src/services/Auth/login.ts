@@ -12,7 +12,6 @@ import type { Repo } from '../../types'
 import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 import { generateJwt } from '../../utils/jwtLib'
-import { dayjs } from '../../utils'
 
 const error = 'email or phone number or password incorrect'
 
@@ -129,7 +128,6 @@ export const login =
     body: PostLoginProRequest | PostLoginUserRequest | PostLoginAdminRequest,
   ) => {
     const isAdmin = body.role === ROLES.ADMIN
-    const isUser = body.role === ROLES.USER
     const isPro = body.role === ROLES.PRO
 
     if (isAdmin) {

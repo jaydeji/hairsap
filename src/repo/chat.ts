@@ -8,10 +8,10 @@ const getChatList =
       {
         name: User['name']
         userId: User['userId']
-        photoUrl: User['profilePhotoUrl']
+        profilePhotoUrl: User['profilePhotoUrl']
       }[]
     >`
-  SELECT userId,name,photoUrl FROM (SELECT DISTINCT 
+  SELECT userId,name,profilePhotoUrl FROM (SELECT DISTINCT 
     CASE 
     WHEN senderId = ${userId} THEN receiverId 
     WHEN receiverId = ${userId} THEN senderId
