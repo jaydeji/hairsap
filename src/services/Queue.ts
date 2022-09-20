@@ -244,7 +244,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
           }
         }
       } else {
-        logger.info(job.data)
+        logger.info(job.data, 'payment queue not charge.success')
       }
     } catch (error) {
       logger.err(error)

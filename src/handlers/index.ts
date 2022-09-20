@@ -40,7 +40,7 @@ const makeRouter = ({
         .update(JSON.stringify(req.body))
         .digest('hex')
       if (hash !== req.headers['x-paystack-signature']) {
-        logger.info(req.body)
+        logger.info(req.body, 'paystack webhook')
         throw new ForbiddenError()
       }
       //TODO backend should add "custom_fields" with invoiceitems to metadata

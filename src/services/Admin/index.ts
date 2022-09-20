@@ -172,7 +172,7 @@ const acceptUnacceptedProPhotos =
     if (!pro) throw new ForbiddenError('pro not found')
 
     if (!pro.tempProfilePhotoUrl) {
-      logger.info({ pro })
+      logger.info({ pro }, 'unaccepted pro photo')
       throw new ForbiddenError('photo url does not exist')
     }
 
