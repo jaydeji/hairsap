@@ -34,6 +34,8 @@ tags:
     description: Operations on bookings
   - name: Auth
     description: Operations on authentication/authorization
+  - name: Chat
+    description: Operations on chats
 
 paths:
   /auth/login:
@@ -1351,6 +1353,45 @@ paths:
         security:
           - BearerAuth: []
 
+  /pros/{proId}/reviews:
+      post:
+        tags:
+          - Pro
+        summary: get a pro's reviews
+        operationId: proreviews
+        parameters: 
+          - name: proId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProReviewsRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProReviewsResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
   /pros/me:
       get:
         tags:
@@ -1835,7 +1876,7 @@ paths:
       post:
         tags:
           - Book
-        description: rate and revew a booking
+        description: rate and review a booking
         operationId: bookingrate
         parameters: 
           - name: bookingId
@@ -2096,6 +2137,22 @@ components:
           type: number
         pageCount:
           type: number
+    Cursor: 
+     type: object
+     properties:
+        cursor:
+          oneOf: 
+            - type: number
+            - type: string
+          description: the id of the last fetched item
+        take:
+          description: how many items to take next
+          type: number
+          default: 20
+        desc:
+          description: order by desc or asc
+          type: boolean
+          default: false
     Booking:
       type: object
       properties: 
@@ -3294,13 +3351,38 @@ components:
             properties:
               service:
                 $ref: '#/components/schemas/Service' 
-              
         bookings:
           type: number
         rating:
           type: number
         subscribers:
           type: number
+
+    ProReviewsRequest:
+      allOf:
+        - $ref: '#/components/schemas/Cursor'
+        - type: object
+          properties:
+            proId:
+              type: number
+    ProReviewsResponse:
+      type: array 
+      items:
+        type: object
+        properties:
+          bookingId:
+            type: number
+          rating:
+            type: number
+          review:
+            type: string
+          createdAt:
+            type: string
+          user:
+            type: object
+            properties:
+              name:
+                type: string
 
     ProMeResponse:
       type: object 

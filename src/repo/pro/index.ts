@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient, SubService, User } from '@prisma/client'
 import { BOOKING_STATUS, CHANNEL, ROLES } from '../../config/constants'
+import { Cursor } from '../../schemas/models/Cursor'
 import { PageReq } from '../../schemas/request/Page'
 import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
@@ -344,6 +345,47 @@ const getProInfo =
     }
   }
 
+const getProReviews =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    proId,
+    cursor,
+    take = 20,
+    desc = false,
+  }: {
+    proId: number
+  } & Cursor) =>
+    db.booking.findMany({
+      take: desc ? -take : take,
+      skip: 1,
+      cursor: cursor
+        ? {
+            bookingId: cursor,
+          }
+        : undefined,
+      where: {
+        proId,
+        status: BOOKING_STATUS.COMPLETED,
+        rating: {
+          not: null,
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        bookingId: true,
+        rating: true,
+        review: true,
+        createdAt: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -362,6 +404,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProStats: getProStats({ db }),
     getProBookingRatio: getProBookingRatio({ db }),
     getProInfo: getProInfo({ db }),
+    getProReviews: getProReviews({ db }),
   }
 }
 

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { ADMIN_ID, ROLES } from '../../config/constants'
+import { CursorSchema } from '../../schemas/models/Cursor'
 import {
   GetAllProsReq,
   GetAllProsReqSchema,
@@ -8,6 +9,10 @@ import {
   GetProBookingRatioReq,
   GetProBookingRatioReqSchema,
 } from '../../schemas/request/getProBookingRatio'
+import {
+  GetProReviewsReq,
+  GetProReviewsReqSchema,
+} from '../../schemas/request/getProReviews'
 import { PageReq } from '../../schemas/request/Page'
 import {
   PatchProRequestSchema,
@@ -236,6 +241,13 @@ const getProBookingRatio =
     return await repo.pro.getProBookingRatio(body)
   }
 
+const getProReviews =
+  ({ repo }: { repo: Repo }) =>
+  async (body: GetProReviewsReq) => {
+    GetProReviewsReqSchema.parse(body)
+    return await repo.pro.getProReviews(body)
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -253,6 +265,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getProStats: getProStats({ repo }),
     getProBookingRatio: getProBookingRatio({ repo }),
     getProInfo: getProInfo({ repo }),
+    getProReviews: getProReviews({ repo }),
   }
 }
 

@@ -82,6 +82,17 @@ const makeProRouter = ({
     }),
   )
 
+  router.post(
+    '/:proId/reviews',
+    ah(async (req, res) => {
+      const data = await service.pro.getProReviews({
+        proId: +req.params.proId as number,
+        ...req.body,
+      })
+      res.status(200).send({ data })
+    }),
+  )
+
   router.get(
     '/:proId',
     ah(async (req, res) => {
