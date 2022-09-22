@@ -16,6 +16,7 @@ const s3 = new S3Client({
     accessKeyId: process.env.STORAGE_KEY as string,
     secretAccessKey: process.env.STORAGE_SECRET as string,
   },
+  region: process.env.STORAGE_REGION,
 })
 
 export const copyObject = ({
