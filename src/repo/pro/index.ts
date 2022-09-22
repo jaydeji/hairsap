@@ -262,7 +262,7 @@ const searchPro =
       businessName: user.businessName,
       userId: user.userId,
       profilePhotoUrl: user.profilePhotoUrl,
-      service: user.proServices?.[0].service,
+      service: user.proServices?.[0]?.service,
     }))
   }
 
