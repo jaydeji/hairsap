@@ -52,7 +52,7 @@ export const deactivateProByTaskTargetEveryWeek = async ({
           }, 0) || 0)
         )
       }, 0)
-      if (e.proBookings.length < 24) return false
+      if (e.proBookings.length < 25) return false
       if (sumOfBookings >= PERIODIC_CASH_AMOUNTS.WEEKLY_TASK_TARGET)
         return false
       return true

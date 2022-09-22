@@ -87,7 +87,7 @@ class UnauthorizedError extends HsapError {
 
 const handleError = (
   _err: HsapError,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) => {
@@ -101,13 +101,20 @@ const handleError = (
     err = new ValidationError(err.issues)
   }
 
-  // if (err instanceof MulterError) {
-  //   err = new ValidationError(err.message)
-  // }
-
   if (err instanceof InternalError || !(err instanceof HsapError)) {
-    //TODO: send to sentry or email
-    logger.err(err)
+    //TODO: send to sentry|logdna|newrelic or email
+    logger.err(
+      {
+        err,
+        req: {
+          path: req.path,
+          params: req.params,
+          baseUrl: req.baseUrl,
+          body: req.body,
+        },
+      },
+      'Internal Error',
+    )
   }
 
   if (!(err instanceof HsapError)) {

@@ -23,9 +23,15 @@ export const generateOtp =
 
     await repo.user.updateUser(body.userId, {
       otp: {
-        create: {
-          value: otp,
-          expiredAt: dayjs().add(10, 'm').toDate(),
+        upsert: {
+          create: {
+            value: otp,
+            expiredAt: dayjs().add(10, 'm').toDate(),
+          },
+          update: {
+            value: otp,
+            expiredAt: dayjs().add(10, 'm').toDate(),
+          },
         },
       },
     })

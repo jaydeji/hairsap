@@ -61,7 +61,7 @@ Authorization: Bearer {{utoken}}
 
 {
     "userId": 1,
-    "role":"user"
+    "otpType":"email"
 }
 
 ###
