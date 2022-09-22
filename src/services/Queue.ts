@@ -51,7 +51,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     'deactivate_redeem',
     redisUrl,
   )
-  deactivateQueue.add(undefined, { repeat: { cron: '59 59 23 * * 7' } }) //every sunday night by 23:59:59
+  deactivateQueue.add(undefined, { repeat: { cron: '00 00 21 * * 7' } }) //every sunday night by 23:59:59
 
   // paymentThreshold.add(
   //   { email: req.body.email },
