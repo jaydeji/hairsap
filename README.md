@@ -1,4 +1,4 @@
-# Hairsap :haircut:
+# Hairsap API :haircut:
 
 ## Running for the first time
 
