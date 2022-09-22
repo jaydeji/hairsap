@@ -195,6 +195,14 @@ model Deactivation {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+model DeactivatedUser {
+  deactivatedUserId Int  @id @default(autoincrement())
+  data              Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model User {
   userId                           Int      @id @default(autoincrement())
   email                            String
