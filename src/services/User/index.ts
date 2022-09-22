@@ -22,6 +22,7 @@ import {
 } from '../../schemas/request/postUploadProfilePhoto'
 import type { Repo } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
+import { ForbiddenError } from '../../utils/Error'
 import { Queue } from '../Queue'
 
 const updateUser =
@@ -35,6 +36,8 @@ const subscribe =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async (body: PostSubscribeReq) => {
     PostSubscribeReqSchema.parse(body)
+    const subscription = await repo.user.getSubscription(body)
+    if (subscription) throw new ForbiddenError('user already subscribed')
     await repo.user.subscribe(body)
     queue.notifyQueue.add({
       userId: body.proId,
@@ -48,6 +51,8 @@ const unsubscribe =
   ({ repo }: { repo: Repo }) =>
   async (body: PostSubscribeReq) => {
     PostSubscribeReqSchema.parse(body)
+    const subscription = await repo.user.getSubscription(body)
+    if (!subscription) throw new ForbiddenError('user not subscribed')
     await repo.user.unsubscribe(body)
     return
   }

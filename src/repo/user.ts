@@ -109,6 +109,18 @@ const updateUser =
       },
     })
 
+const getSubscription =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, proId }: PostSubscribeReq) =>
+    db.subscription.findUnique({
+      where: {
+        userId_proId: {
+          proId,
+          userId,
+        },
+      },
+    })
+
 const subscribe =
   ({ db }: { db: PrismaClient }) =>
   ({ userId, proId }: PostSubscribeReq) =>
@@ -300,6 +312,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     createUser: (user: Prisma.UserCreateInput) => createUser({ user, db }),
     updateUser: updateUser({ db }),
     deleteUser: deleteUser({ db }),
+    getSubscription: getSubscription({ db }),
     subscribe: subscribe({ db }),
     unsubscribe: unsubscribe({ db }),
     getUserSubscriptions: getUserSubscriptions({ db }),
