@@ -85,6 +85,15 @@ Authorization: Bearer {{utoken}}
 }
 
 ###
+PATCH {{base}}/pros HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{ptoken}}
+
+{
+    "userId":3,
+}
+
+###
 GET {{base}}/chats HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}

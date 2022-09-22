@@ -412,6 +412,15 @@ const getProReviews =
       },
     })
 
+const getProAccount =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number) =>
+    db.account.findUnique({
+      where: {
+        userId,
+      },
+    })
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -431,6 +440,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProBookingRatio: getProBookingRatio({ db }),
     getProInfo: getProInfo({ db }),
     getProReviews: getProReviews({ db }),
+    getProAccount: getProAccount({ db }),
   }
 }
 

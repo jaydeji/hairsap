@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { ADMIN_ID, ROLES } from '../../config/constants'
-import { CursorSchema } from '../../schemas/models/Cursor'
 import {
   GetAllProsReq,
   GetAllProsReqSchema,
@@ -45,7 +44,18 @@ const updatePro =
       await repo.pro.updateAvailability(userId, body.available)
     }
 
-    await repo.user.updateUser(userId, body)
+    await repo.user.updateUser(userId, {
+      address: body.address,
+      available: body.available,
+      account: body.account
+        ? {
+            upsert: {
+              create: body.account,
+              update: body.account,
+            },
+          }
+        : undefined,
+    })
   }
 
 const getNearestPro =

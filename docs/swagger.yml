@@ -3412,19 +3412,24 @@ components:
 
     ProPatchRequest:
       type: object
+      required: [userId]
       properties:
-          userId:
-            type: number
-          address:
-            type: string
-          available:
-            type: boolean
-          accountNumber:
-            type: string
-          accountName:
-            type: string
-          bankName:
-            type: string
+        userId:
+          type: number
+        address:
+          type: string
+        available:
+          type: boolean
+        account:
+          type: object
+          required: [accountNumber,accountName,bankName]
+          properties:
+            accountNumber:
+              type: string
+            accountName:
+              type: string
+            bankName:
+              type: string
 
     ProAutoRequest:
       type: object

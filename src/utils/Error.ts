@@ -111,6 +111,7 @@ const handleError = (
           params: req.params,
           baseUrl: req.baseUrl,
           body: req.body,
+          method: req.method,
         },
       },
       'Internal Error',
