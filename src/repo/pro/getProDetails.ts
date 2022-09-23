@@ -37,6 +37,7 @@ const getTotalEarnings = async ({
     totalDayInvoiceFees,
     totalWeekTransport,
     totalMonthInvoiceFees,
+    totalDeactivations,
   ] = await db.$transaction([
     db.invoice.aggregate({
       where: {
@@ -68,6 +69,7 @@ const getTotalEarnings = async ({
         price: true,
       },
     }),
+
     db.invoice.aggregate({
       where: {
         booking: {
@@ -128,18 +130,32 @@ const getTotalEarnings = async ({
         price: true,
       },
     }),
+    db.deactivation.aggregate({
+      where: {
+        proId,
+        createdAt: {
+          gte: dayjs().startOf('week').toDate(),
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    }),
   ])
 
   return {
     day:
       (totalDayTransport._sum.transportFee || 0) +
-      (totalDayInvoiceFees._sum.price || 0),
+      (totalDayInvoiceFees._sum.price || 0) / 2 -
+      (totalDeactivations._sum.amount || 0),
     week:
       (totalWeekTransport._sum.transportFee || 0) +
-      (totalWeekInvoiceFees._sum.price || 0),
+      (totalWeekInvoiceFees._sum.price || 0) -
+      (totalDeactivations._sum.amount || 0),
     month:
       (totalMonthTransport._sum.transportFee || 0) +
-      (totalMonthInvoiceFees._sum.price || 0),
+      (totalMonthInvoiceFees._sum.price || 0) / 2 -
+      (totalDeactivations._sum.amount || 0),
   }
 }
 

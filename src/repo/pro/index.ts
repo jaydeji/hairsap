@@ -129,6 +129,9 @@ const getPayoutRequestsWP =
           not: true,
         },
         channel: CHANNEL.CASH,
+        booking: {
+          status: BOOKING_STATUS.COMPLETED,
+        },
       },
       include: {
         invoiceFees: true,

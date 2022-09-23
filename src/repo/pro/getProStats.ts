@@ -30,41 +30,76 @@ export const getProStats =
   async ({ proId }: { proId: number }) => {
     const week = dayjs().startOf('week').toDate()
 
-    const [_ratings, earnings, dailyTarget, weeklyTarget, monthlyTarget] =
-      await db.$transaction([
-        db.booking.count({
-          where: {
+    const [
+      _ratings,
+      deactivations,
+      transport,
+      earnings,
+      dailyTarget,
+      weeklyTarget,
+      monthlyTarget,
+    ] = await db.$transaction([
+      db.booking.count({
+        where: {
+          proId,
+          createdAt: {
+            gte: week,
+          },
+          rating: 5,
+        },
+      }),
+      db.deactivation.aggregate({
+        where: {
+          proId,
+          createdAt: {
+            gte: week,
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+      db.invoice.aggregate({
+        where: {
+          booking: {
             proId,
+            status: BOOKING_STATUS.COMPLETED,
             createdAt: {
               gte: week,
             },
-            rating: 5,
           },
-        }),
-        db.invoiceFees.aggregate({
-          where: {
-            invoice: {
-              booking: {
-                proId,
-                createdAt: {
-                  gte: week,
-                },
-                status: BOOKING_STATUS.COMPLETED,
+        },
+        _sum: {
+          transportFee: true,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        where: {
+          invoice: {
+            booking: {
+              proId,
+              createdAt: {
+                gte: week,
               },
+              status: BOOKING_STATUS.COMPLETED,
             },
           },
-          _sum: {
-            price: true,
-          },
-        }),
-        getTargetByPeriod(db, proId, 'day'),
-        getTargetByPeriod(db, proId, 'week'),
-        getTargetByPeriod(db, proId, 'month'),
-      ])
+        },
+        _sum: {
+          price: true,
+        },
+      }),
+      getTargetByPeriod(db, proId, 'day'),
+      getTargetByPeriod(db, proId, 'week'),
+      getTargetByPeriod(db, proId, 'month'),
+    ])
 
     return {
       ratings: _ratings > 5 ? 5 : _ratings,
-      earnings: earnings._sum.price,
+      earnings:
+        (earnings._sum.price || 0) / 2 +
+        (transport._sum.transportFee || 0) -
+        (deactivations._sum.amount || 0),
       dailyTarget:
         ((dailyTarget._sum.price || 0) /
           PERIODIC_CASH_AMOUNTS.DAILY_TASK_TARGET) *
