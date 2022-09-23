@@ -120,8 +120,8 @@ const getPayoutRequests =
 
 const getPayoutRequestsWP =
   ({ db }: { db: PrismaClient }) =>
-  (page: PageReq & { skip: number }) =>
-    db.invoice.findMany({
+  async (page: PageReq & { skip: number }) => {
+    const pr = await db.invoice.findMany({
       take: page.perPage,
       skip: page.skip,
       where: {
@@ -134,6 +134,12 @@ const getPayoutRequestsWP =
         invoiceFees: true,
       },
     })
+
+    return pr.map((e) => ({
+      ...e,
+      invoiceFees: e.invoiceFees.map((i) => ({ ...i, price: i.price / 2 })),
+    }))
+  }
 
 const getProSubscribers =
   ({ db }: { db: PrismaClient }) =>
