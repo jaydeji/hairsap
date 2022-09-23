@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
-import { ROLES } from '../config/constants'
+import { BOOKING_STATUS, ROLES } from '../config/constants'
 import { PageReq } from '../schemas/request/Page'
 import { PostSubscribeReq } from '../schemas/request/postSubscribe'
 import { Role } from '../types'
@@ -143,24 +143,47 @@ const unsubscribe =
       },
     })
 
-// TODO: add review count and ratings
 const getUserSubscriptions =
   ({ db }: { db: PrismaClient }) =>
   (userId: number) =>
-    db.subscription.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        pro: {
-          select: {
-            userId: true,
-            profilePhotoUrl: true,
-            name: true,
+    db.subscription
+      .findMany({
+        where: {
+          userId,
+        },
+        include: {
+          pro: {
+            select: {
+              userId: true,
+              profilePhotoUrl: true,
+              name: true,
+              _count: {
+                select: {
+                  proBookings: {
+                    where: {
+                      status: BOOKING_STATUS.COMPLETED,
+                      rating: {
+                        not: null,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
-      },
-    })
+      })
+      .then((e) =>
+        e.map((sub) => ({
+          ...sub,
+          pro: {
+            userId: sub.pro.userId,
+            profilePhotoUrl: sub.pro.profilePhotoUrl,
+            name: sub.pro.name,
+            count: sub.pro._count.proBookings,
+          },
+        })),
+      )
 
 const getAllUsers =
   ({ db }: { db: PrismaClient }) =>

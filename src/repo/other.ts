@@ -15,6 +15,15 @@ const getServices =
       },
     })
 
+const getSubServiceById =
+  ({ db }: { db: PrismaClient }) =>
+  (subServiceId: number) =>
+    db.subService.findUnique({
+      where: {
+        subServiceId,
+      },
+    })
+
 const getNotifications =
   ({ db }: { db: PrismaClient }) =>
   (userId: number) =>
@@ -103,6 +112,7 @@ const getPushToken =
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
+    getSubServiceById: getSubServiceById({ db }),
     getNotifications: getNotifications({ db }),
     getNotificationStatus: getNotificationStatus({ db }),
     addNotificationStatus: addNotificationStatus({ db }),

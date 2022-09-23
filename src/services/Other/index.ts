@@ -7,6 +7,11 @@ const getServices =
   () =>
     repo.other.getServices()
 
+const getSubServiceById =
+  ({ repo }: { repo: Repo }) =>
+  (subServiceId: number) =>
+    repo.other.getSubServiceById(subServiceId)
+
 const getNotifications =
   ({ repo }: { repo: Repo }) =>
   (userId: number) =>
@@ -34,6 +39,7 @@ const healthCheck =
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
+    getSubServiceById: getSubServiceById({ repo }),
     getNotifications: getNotifications({ repo }),
     setPushToken: setPushToken({ repo }),
     healthCheck: healthCheck({ repo }),

@@ -125,7 +125,7 @@ Authorization: Bearer {{atoken}}
     "serviceId":2
 }
 
-###
+###uto
 POST {{base}}/admin/userbookings HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{atoken}}
@@ -159,6 +159,20 @@ Authorization: Bearer {{utoken}}
 GET {{base}}/bookings/transactions HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}
+
+###
+GET {{base}}/users/subscriptions HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+###
+POST {{base}}/users/subscribe HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+{
+    "proId":3
+}
 
 ###
 GET {{base}}/admin/dashboard HTTP/1.1

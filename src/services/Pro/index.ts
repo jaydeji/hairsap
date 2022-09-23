@@ -68,6 +68,10 @@ const getNearestPro =
     userId?: number
   }) => {
     PostGetProReqSchema.parse(data)
+
+    const subService = await repo.other.getSubServiceById(data.subServiceId)
+    if (!subService) throw new NotFoundError('subService not found')
+
     const pro = await repo.pro.getNearestPro(data)
     if (!pro) return {}
     //TODO: get status
