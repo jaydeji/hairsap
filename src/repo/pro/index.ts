@@ -77,7 +77,7 @@ const getNearestPro =
     ) AS distance
 FROM User as u
     INNER JOIN ProService us ON u.userId = us.proId
-    INNER JOIN subService ss ON us.serviceId = ss.serviceId) as sub
+    INNER JOIN SubService ss ON us.serviceId = ss.serviceId) as sub
 WHERE
     subServiceId = ${subServiceId}
     ${
