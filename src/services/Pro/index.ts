@@ -194,6 +194,8 @@ const getProData =
     z.object({ proId: z.number() }).strict().parse(body)
 
     const data = await repo.pro.getProData(body)
+    // @ts-ignore
+    if (data?.password) delete data.password
 
     return data
   }

@@ -276,7 +276,15 @@ const getUserData =
       where: {
         userId,
       },
-      include: {
+      select: {
+        userId: true,
+        email: true,
+        address: true,
+        name: true,
+        phone: true,
+        role: true,
+        profilePhotoUrl: true,
+        verified: true,
         card: {
           select: {
             bank: true,

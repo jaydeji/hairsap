@@ -216,7 +216,21 @@ const getProData =
       where: {
         userId: proId,
       },
-      include: {
+      select: {
+        userId: true,
+        email: true,
+        address: true,
+        name: true,
+        phone: true,
+        role: true,
+        profilePhotoUrl: true,
+        deactivated: true,
+        deactivationCount: true,
+        reactivationCount: true,
+        reactivationRequested: true,
+        terminated: true,
+        available: true,
+        businessName: true,
         account: true,
       },
     })
