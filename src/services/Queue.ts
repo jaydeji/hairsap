@@ -33,23 +33,29 @@ type Payment = {
   }
 }
 
+const options = {
+  defaultJobOptions: { removeOnComplete: true },
+}
+
 const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
-  const emailQueue = new Queue<SendMailOptions>('email', redisUrl)
+  const emailQueue = new Queue<SendMailOptions>('email', redisUrl, options)
   const phoneQueue = new Queue<{ phone: string; body: string }>(
     'phone',
     redisUrl,
+    options,
   )
-  const paymentQueue = new Queue<Payment>('payment', redisUrl)
-  const chatQueue = new Queue<ChatMessageType>('chat', redisUrl)
+  const paymentQueue = new Queue<Payment>('payment', redisUrl, options)
+  const chatQueue = new Queue<ChatMessageType>('chat', redisUrl, options)
   const notifyQueue = new Queue<{
     title?: string
     body?: string
     userId: number
-  }>('notifications', redisUrl)
-  const deactivateQueue = new Queue('deactivate', redisUrl)
+  }>('notifications', redisUrl, options)
+  const deactivateQueue = new Queue('deactivate', redisUrl, options)
   const deactivateRedeem = new Queue<{ proId: number }>(
     'deactivate_redeem',
     redisUrl,
+    options,
   )
   deactivateQueue.add(undefined, { repeat: { cron: '00 00 21 * * 7' } }) //every sunday night by 23:59:59
 
