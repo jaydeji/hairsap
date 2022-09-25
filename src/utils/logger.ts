@@ -1,4 +1,6 @@
 import pino from 'pino'
+//@ts-ignore
+import nrPino from '@newrelic/pino-enricher'
 
 const logger = pino({
   transport:
@@ -15,6 +17,7 @@ const logger = pino({
           ],
         }
       : undefined,
+  ...(process.env.NODE_ENV === 'production' ? nrPino() : {}),
 })
 
 export default {

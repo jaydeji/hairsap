@@ -5,3 +5,4 @@ redis_data
 .DS_Store
 dist
 .vscode
+newrelic_agent.log

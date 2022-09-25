@@ -102,7 +102,6 @@ const handleError = (
   }
 
   if (err instanceof InternalError || !(err instanceof HsapError)) {
-    //TODO: send to sentry|logdna|newrelic or email
     logger.err(
       {
         err,
