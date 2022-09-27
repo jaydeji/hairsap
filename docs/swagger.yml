@@ -1274,6 +1274,41 @@ paths:
             $ref: '#/components/responses/InternalError'
         security:
           - BearerAuth: []
+
+  /pros/manual:
+      post:
+        tags:
+          - Pro
+        summary: manual pro search
+        operationId: promanual
+        parameters: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProManualRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                   - $ref: '#/components/schemas/ProManualResponse'
+                   - type: object
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
           
   /pros/reactivate/request:
       post:
@@ -1880,7 +1915,7 @@ paths:
       get:
         tags:
           - Book
-        description: get user uncompleted bookings
+        description: get user or pro uncompleted bookings
         operationId: bookinguseractivity
         parameters: 
         - name: userId
@@ -3323,9 +3358,9 @@ components:
     UserfaceIdRequest:
       type: object
       required:
-        - faceId
+        - faceid
       properties:
-       faceId:
+       faceid:
           type: string
           format: binary #base64
       
@@ -3379,6 +3414,14 @@ components:
         userId:
           type: number
           description: userId
+          example: 1
+        count:
+          type: number
+          description: review count
+          example: 1
+        rating:
+          type: number
+          description: rating
           example: 1
         proId:
           type: number
@@ -3473,6 +3516,47 @@ components:
               distance: 
                 type: number
           
+    ProManualRequest:
+      type: object
+      required: [userId]
+      properties:
+          latitude:
+            type: number
+          longitude:
+            type: number
+          subServiceId:
+            type: number
+          userId:
+            type: number
+    ProManualResponse:
+      type: object
+      properties:
+          transportation:
+            type: number
+          total:
+            type: number
+          arrivalAt:
+            type: string
+          pro:
+            type: object
+            properties:
+              userId: 
+                type: number
+              businessName: 
+                type: string
+              proName: 
+                type: string
+              address: 
+                type: string
+              available: 
+                type: boolean
+              serviceName: 
+                type: string
+              price: 
+                type: number
+              distance: 
+                type: number
+          
     ProSubscribersResponse:
       type: object
       properties:
@@ -3524,10 +3608,7 @@ components:
     ProReviewsRequest:
       allOf:
         - $ref: '#/components/schemas/Cursor'
-        - type: object
-          properties:
-            proId:
-              type: number
+       
     ProReviewsResponse:
       type: array 
       items:
@@ -3728,8 +3809,48 @@ components:
           type: number
 
     BookingGetUserActivityResponse:
-      type: object 
-      $ref: '#/components/schemas/Booking'
+      type: array
+      items:
+        allOf:
+        - $ref: '#/components/schemas/Booking'
+        - type: object
+          properties:
+            pro:
+              $ref: '#/components/schemas/User'
+            user:
+              $ref: '#/components/schemas/User'
+            proId:
+              type: number
+            userId:
+              type: number
+            invoice:
+              type: object
+              properties:
+                transportFee:
+                  type: number
+                distance:
+                  type: number
+                invoiceFees:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      price:
+                        type: number
+                      createdAt:
+                        type: string
+                      feeId:
+                        type: number
+                bookedSubServices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      subService:
+                        type: object
+                        $ref: '#/components/schemas/User'
 
     BookingRateRequest:
       type: object 

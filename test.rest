@@ -219,10 +219,12 @@ Authorization: Bearer {{utoken}}
 }
 
 ###
-POST {{base}}/users/test HTTP/1.1
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+POST {{base}}/bookings/1/cancel HTTP/1.1
+Content-Type: application/json
 Authorization: Bearer {{utoken}}
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; faceid="text"
+{
+
+}
+
 

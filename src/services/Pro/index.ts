@@ -21,6 +21,7 @@ import {
   PostApplicationVideoReq,
   PostApplicationVideoReqSchema,
 } from '../../schemas/request/postGetApplicationVideo'
+import { PostGetManualProReqSchema } from '../../schemas/request/postGetManualPro'
 import { PostGetProReqSchema } from '../../schemas/request/postGetPro'
 import {
   PostUploadProProfilePhotoReq,
@@ -81,7 +82,6 @@ const getNearestPro =
     const arrivalAt = getArrivalTime(pro.distance!)
     const price = pro.price!
 
-    delete pro.distance
     delete pro.price
 
     return {
@@ -92,20 +92,34 @@ const getNearestPro =
     }
   }
 
-const verifyPro =
+const getManualPro =
   ({ repo }: { repo: Repo }) =>
-  async ({ userId, role }: { userId: number; role: Role }) => {
-    if (role !== ROLES.ADMIN) throw new ForbiddenError()
+  async (data: {
+    longitude: number
+    latitude: number
+    subServiceId: number
+    userId: number
+  }) => {
+    PostGetManualProReqSchema.parse(data)
 
-    const pro = await repo.user.getUserById(userId)
+    const subService = await repo.other.getSubServiceById(data.subServiceId)
+    if (!subService) throw new NotFoundError('subService not found')
 
-    if (!pro) throw new NotFoundError('pro not found')
+    const pro = await repo.pro.getManualPro(data)
+    if (!pro) return {}
 
-    if (pro.verified) throw new ForbiddenError('pro is already verified')
+    const transportation = getTransportPrice(pro.distance!)
+    const arrivalAt = getArrivalTime(pro.distance!)
+    const price = pro.price!
 
-    await repo.user.updateUser(userId, {
-      verified: true,
-    })
+    delete pro.price
+
+    return {
+      pro,
+      transportation,
+      total: price + transportation,
+      arrivalAt,
+    }
   }
 
 const requestReactivation =
@@ -267,7 +281,7 @@ const getProReviews =
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
-    verifyPro: verifyPro({ repo }),
+    getManualPro: getManualPro({ repo }),
     requestReactivation: requestReactivation({ repo }),
     getProSubscribers: getProSubscribers({ repo }),
     getProServices: getProServices({ repo }),

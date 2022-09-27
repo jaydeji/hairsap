@@ -151,9 +151,9 @@ const makeBookingRouter = ({
 
   router.get(
     '/:userId/activity',
-    allowOnly([ROLES.PRO]),
+    allowOnly([ROLES.PRO, ROLES.USER]),
     ah(async (req, res) => {
-      const data = await service.book.getUncompletedBookings({
+      const data = await service.book.getBookingActivity({
         userId: +req.params.userId as number,
       })
       res.status(200).send({ data })

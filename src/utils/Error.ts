@@ -119,7 +119,9 @@ const handleError = (
 
   if (!(err instanceof HsapError)) {
     //Don't send error to user
-    err = new InternalError()
+    err = new InternalError(
+      process.env.NODE_ENV !== 'production' ? err : undefined,
+    )
   }
 
   res

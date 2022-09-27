@@ -32,6 +32,7 @@ const getDistBtwLoctions =
       }[]
     )?.[0]?.distance
   }
+
 const getNearestPro =
   ({ db }: { db: PrismaClient }) =>
   async ({
@@ -91,6 +92,8 @@ WHERE
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
     AND available = 1
+    AND deactivated != 1
+    AND terminated != 1
 ORDER BY distance, userId ASC LIMIT 1;`
 
     if (result.length) {
@@ -109,6 +112,65 @@ ORDER BY distance, userId ASC LIMIT 1;`
 // MULTI-CURSOR PAGINATION POSTGRES
 // and ((`Month` >= 10 AND `Year` = 2012)
 // OR (`Month` <= 2 AND `Year` = 2013))
+
+const getManualPro =
+  ({ db }: { db: PrismaClient }) =>
+  async ({
+    latitude,
+    longitude,
+    subServiceId,
+    userId,
+  }: {
+    longitude: number
+    latitude: number
+    subServiceId: number
+    userId: number
+  }) => {
+    const result: {
+      userId: User['userId']
+      businessName: User['businessName']
+      proName: User['name']
+      address: User['address']
+      available: User['available']
+      serviceName: SubService['name']
+      price?: SubService['price']
+      distance?: number
+    }[] = await db.$queryRaw`
+SELECT
+    u.userId,
+    u.businessName,
+    u.name proName,
+    u.available,
+    ss.name serviceName,
+    u.address,
+    ss.price,
+    ss.subServiceId,
+            u.role,
+            longitude,
+            latitude, (
+        ST_distance_sphere(
+            POINT(longitude, latitude),
+            POINT(${longitude}, ${latitude})
+        )
+    ) AS distance
+FROM User as u
+    INNER JOIN ProService us ON u.userId = us.proId
+    INNER JOIN SubService ss ON us.serviceId = ss.serviceId
+WHERE u.userId = ${userId}
+    AND ss.subServiceId = ${subServiceId}
+    AND longitude IS NOT NULL
+    AND latitude IS NOT NULL
+    AND available = 1
+    AND deactivated != 1
+    AND terminated != 1
+    `
+
+    if (result.length) {
+      result[0].available = !!result[0].available
+    }
+
+    return result?.[0]
+  }
 
 const getPayoutRequests =
   ({ db }: { db: PrismaClient }) =>
@@ -441,6 +503,7 @@ const getProAccount =
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
+    getManualPro: getManualPro({ db }),
     getDistBtwLoctions: getDistBtwLoctions({ db }),
     getPayoutRequests: getPayoutRequests({ db }),
     getPayoutRequestsWP: getPayoutRequestsWP({ db }),

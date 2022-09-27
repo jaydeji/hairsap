@@ -50,15 +50,88 @@ const getProBookingsByStatus =
       },
     })
 
-const getProBookingsByStatuses =
+const getBookingActivity =
   ({ db }: { db: PrismaClient }) =>
-  (proId: number, statuses: BookingStatus[]) =>
+  (proId: number) =>
     db.booking.findMany({
       where: {
         proId,
         status: {
-          in: statuses,
+          in: [BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.PENDING],
         },
+        createdAt: {
+          gte: dayjs().subtract(1, 'w').toDate(),
+        },
+      },
+      select: {
+        bookingId: true,
+        arrived: true,
+        inTransit: true,
+        address: true,
+        samplePhotoUrl: true,
+        status: true,
+        acceptedAt: true,
+        rejectedAt: true,
+        arrivalAt: true,
+        cancelledAt: true,
+        pro: {
+          select: {
+            address: true,
+            available: true,
+            businessName: true,
+            createdAt: true,
+            userId: true,
+            longitude: true,
+            latitude: true,
+            profilePhotoUrl: true,
+            email: true,
+            name: true,
+            phone: true,
+          },
+        },
+        proId: true,
+        user: {
+          select: {
+            address: true,
+            available: true,
+            createdAt: true,
+            userId: true,
+            longitude: true,
+            latitude: true,
+            profilePhotoUrl: true,
+            email: true,
+            name: true,
+            phone: true,
+          },
+        },
+        userId: true,
+        invoice: {
+          select: {
+            transportFee: true,
+            distance: true,
+            invoiceFees: {
+              select: {
+                name: true,
+                price: true,
+                createdAt: true,
+                feeId: true,
+              },
+            },
+          },
+        },
+        bookedSubServices: {
+          select: {
+            subService: {
+              select: {
+                name: true,
+                photoUrl: true,
+                subServiceId: true,
+              },
+            },
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
       },
     })
 
@@ -295,7 +368,7 @@ const getTotalOfWeeklyCompletedBookings =
       where: {
         invoice: {
           booking: { proId, status: BOOKING_STATUS.COMPLETED },
-          createdAt: { gte: dayjs().startOf('week').toDate() },
+          createdAt: { gte: dayjs().subtract(2, 'w').toDate() },
         },
       },
       _sum: {
@@ -386,7 +459,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getBookingAndInvoiceById: getBookingAndInvoiceById({ db }),
     updateBooking: updateBooking({ db }),
     getProBookingsByStatus: getProBookingsByStatus({ db }),
-    getProBookingsByStatuses: getProBookingsByStatuses({ db }),
+    getBookingActivity: getBookingActivity({ db }),
     getProBookingsByProIdAndUserId: getProBookingsByProIdAndUserId({ db }),
     getUserBookingsBySubService: getUserBookingsBySubService({ db }),
     getUserBookings: getUserBookings({ db }),

@@ -37,18 +37,18 @@ const makeProRouter = ({
     }),
   )
 
-  // TODO: REMOve
-  // router.post(
-  //   '/verify:id',
-  //   allowOnly([ROLES.ADMIN]),
-  //   ah(async (req, res) => {
-  //     await service.pro.verifyPro({
-  //       userId: +req.params.userId as number,
-  //       role: req.tokenData?.role as Role,
-  //     })
-  //     res.status(201).send()
-  //   }),
-  // )
+  router.post(
+    '/manual',
+    ah(async (req, res) => {
+      const data = await service.pro.getManualPro({
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+        subServiceId: req.body.subServiceId,
+        userId: req.body.userId,
+      })
+      res.status(200).send({ data })
+    }),
+  )
 
   router.post(
     '/reactivate/request',

@@ -145,26 +145,24 @@ const unsubscribe =
 
 const getUserSubscriptions =
   ({ db }: { db: PrismaClient }) =>
-  (userId: number) =>
-    db.subscription
-      .findMany({
-        where: {
-          userId,
-        },
-        include: {
-          pro: {
-            select: {
-              userId: true,
-              profilePhotoUrl: true,
-              name: true,
-              _count: {
-                select: {
-                  proBookings: {
-                    where: {
-                      status: BOOKING_STATUS.COMPLETED,
-                      rating: {
-                        not: null,
-                      },
+  async (userId: number) => {
+    const subscriptions = await db.subscription.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        pro: {
+          select: {
+            userId: true,
+            profilePhotoUrl: true,
+            name: true,
+            _count: {
+              select: {
+                proBookings: {
+                  where: {
+                    status: BOOKING_STATUS.COMPLETED,
+                    rating: {
+                      not: null,
                     },
                   },
                 },
@@ -172,18 +170,31 @@ const getUserSubscriptions =
             },
           },
         },
-      })
-      .then((e) =>
-        e.map((sub) => ({
-          ...sub,
-          pro: {
-            userId: sub.pro.userId,
-            profilePhotoUrl: sub.pro.profilePhotoUrl,
-            name: sub.pro.name,
-            count: sub.pro._count.proBookings,
-          },
-        })),
-      )
+      },
+    })
+
+    const ratings = await db.booking.groupBy({
+      by: ['proId'],
+      _avg: {
+        rating: true,
+      },
+      where: {
+        proId: { in: subscriptions.map((e) => e.proId) },
+        rating: { not: null },
+      },
+    })
+
+    return subscriptions.map((sub) => ({
+      ...sub,
+      pro: {
+        userId: sub.pro.userId,
+        profilePhotoUrl: sub.pro.profilePhotoUrl,
+        name: sub.pro.name,
+        count: sub.pro._count.proBookings,
+        rating: ratings.find((e) => e.proId === sub.pro.userId)?._avg || 0,
+      },
+    }))
+  }
 
 const getAllUsers =
   ({ db }: { db: PrismaClient }) =>

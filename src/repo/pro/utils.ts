@@ -156,7 +156,7 @@ FROM (
                     userId,
                     COUNT(userId) cnt
                 FROM
-                    booking
+                    Booking
                 WHERE
                     status = 'completed'
                 GROUP BY
@@ -164,7 +164,7 @@ FROM (
                 HAVING
                     cnt > 1
             ) _b
-            JOIN booking b on _b.userId = b.userId
+            JOIN Booking b on _b.userId = b.userId
             JOIN Invoice i on b.bookingId = i.bookingId
             JOIN InvoiceFees ifees on i.invoiceId = ifees.invoiceId
         WHERE
@@ -186,7 +186,7 @@ FROM (
                     userId,
                     COUNT(userId) cnt
                 FROM
-                    booking
+                    Booking
                 WHERE
                     status = 'completed'
                 GROUP BY
@@ -194,7 +194,7 @@ FROM (
                 HAVING
                     cnt = 1
             ) _b
-            JOIN booking b on _b.userId = b.userId
+            JOIN Booking b on _b.userId = b.userId
             JOIN Invoice i on b.bookingId = i.bookingId
             JOIN InvoiceFees ifees on i.invoiceId = ifees.invoiceId
         WHERE
