@@ -239,14 +239,14 @@ const rejectBooking =
 
     const booking = await repo.book.getBookingById(bookingId)
 
-    if (!booking || booking.userId !== userId)
+    if (!booking || booking.proId !== userId)
       throw new NotFoundError('booking not found')
 
     if (
       booking.status !== BOOKING_STATUS.PENDING &&
       booking.status !== BOOKING_STATUS.ACCEPTED
     )
-      throw new NotFoundError('Booking cannot be rejected')
+      throw new ForbiddenError('Booking cannot be rejected')
 
     await repo.book.updateBooking(bookingId, {
       status: BOOKING_STATUS.REJECTED,
@@ -558,6 +558,13 @@ const markBonusAsPaid =
     })
   }
 
+const getBookingById =
+  ({ repo }: { repo: Repo }) =>
+  ({ bookingId }: { bookingId: number }) => {
+    z.object({ bookingId: z.number() }).strict().parse({ bookingId })
+    return repo.book.getBookingById(bookingId)
+  }
+
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     bookPro: bookPro({ repo, queue }),
@@ -576,6 +583,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getTransactions: getTransactions({ repo }),
     getUnpaidBonuses: getUnpaidBonuses({ repo }),
     markBonusAsPaid: markBonusAsPaid({ repo }),
+    getBookingById: getBookingById({ repo }),
   }
 }
 

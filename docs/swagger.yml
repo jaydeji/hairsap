@@ -1682,6 +1682,41 @@ paths:
         security:
           - BearerAuth: []
 
+  /bookings/{bookingId}:
+      get:
+        tags:
+          - Book
+        summary: get booking by id
+        description: get booking by id
+        operationId: bookid
+        parameters: 
+          - name: bookingId
+            in: path
+            required: true
+            allowEmptyValue: false
+            schema:
+              type: number
+              example: 1
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/BookByIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
   /bookings/accepted:
       get:
         tags:
@@ -3794,7 +3829,9 @@ components:
             channel: 
               type: string
               enum: [cash,card]
-
+    
+    BookByIdResponse:
+      $ref: '#/components/schemas/Booking'
     BookingAccepted:
       type: array 
       items:
