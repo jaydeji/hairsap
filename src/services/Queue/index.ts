@@ -1,29 +1,25 @@
 import Queue from 'bull'
-import { sendMail } from '../config/email'
+import { sendMail } from '../../config/email'
 import { SendMailOptions } from 'nodemailer'
-import { logger } from '../utils'
-import db from '../config/db'
-import { ChatMessageType } from '../schemas/models/Message'
-import got, { HTTPError } from 'got-cjs'
-import { PAYSTACK_URL } from '../config/constants'
+import { logger } from '../../utils'
+import db from '../../config/db'
+import { ChatMessageType } from '../../schemas/models/Message'
+import got from 'got-cjs'
+import { PAYSTACK_URL } from '../../config/constants'
 import {
   deactivateProByStarRating,
   deactivateProByTaskTargetEveryWeek,
   deactivateProByWeeklyReturningRatio,
   deactivateProNonRedeems,
   terminateDeactivatedUsers,
-} from '../repo/pro/utils'
-import { socket } from '../index'
-import { Repo } from '../types'
-import { Push } from './Push'
-
-import { createBullBoard } from '@bull-board/api'
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
-import { ExpressAdapter } from '@bull-board/express'
+} from '../../repo/pro/utils'
+import { socket } from '../../index'
+import { Repo } from '../../types'
+import { Push } from '../Push'
 
 const redisUrl = process.env.REDIS_URL as string
 
-type Payment = {
+export type Payment = {
   userId?: number
   email?: string
   event?: string
@@ -88,6 +84,8 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       await deactivateProNonRedeems({ db, repo, proId: job.data.proId })
     } catch (error) {
       logger.err(error)
+      done(error as Error)
+      return
     }
     done()
   })
@@ -100,6 +98,8 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       await terminateDeactivatedUsers({ db })
     } catch (error) {
       logger.err(error)
+      done(error as Error)
+      return
     }
     done()
   })
@@ -128,40 +128,44 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       })
     } catch (error) {
       logger.err(error)
+      done(error as Error)
+      return
     }
     done()
   })
 
-  emailQueue.process(async (job, done) => {
+  emailQueue.process(async (job) => {
     if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
-      return done()
+      return Promise.resolve()
 
     sendMail(job.data).catch((error) => {
       logger.err(error)
+      return Promise.reject(error)
     })
-    done()
+    return Promise.resolve()
   })
 
   phoneQueue.process(async (job, done) => {
-    if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
-      return done()
+    // if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
+    //   return done()
 
-    return done()
+    done()
+    return
 
-    const SMS_URL = 'https://www.bulksmsnigeria.com/api/v1/sms/create'
+    // const SMS_URL = 'https://www.bulksmsnigeria.com/api/v1/sms/create'
 
-    try {
-      await got.post(SMS_URL, {
-        searchParams: {
-          api_token: process.env.SMS_API_TOKEN,
-          from: 'Hairsap',
-          to: job.data.phone,
-          body: job.data.body,
-        },
-      })
-    } catch (error) {
-      console.log((error as HTTPError).response.body)
-    }
+    // try {
+    //   await got.post(SMS_URL, {
+    //     searchParams: {
+    //       api_token: process.env.SMS_API_TOKEN,
+    //       from: 'Hairsap',
+    //       to: job.data.phone,
+    //       body: job.data.body,
+    //     },
+    //   })
+    // } catch (error) {
+    //   console.log((error as HTTPError).response.body)
+    // }
   })
 
   chatQueue.process(async (job, done) => {
@@ -171,6 +175,8 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       })
     } catch (error) {
       logger.err(error)
+      done(error as Error)
+      return
     }
     done()
   })
@@ -261,6 +267,8 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       }
     } catch (error) {
       logger.err(error)
+      done(error as Error)
+      return
     }
 
     done()
