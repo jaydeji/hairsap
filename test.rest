@@ -149,10 +149,11 @@ Content-Type: application/json
 Authorization: Bearer {{utoken}}
 
 {
-    "userId":1,
     "subServiceId":1,
     "latitude":10,
-    "longitude":10
+    "longitude":10,
+    "userId":3,
+    "distance":825544.0818356347
 }
 
 ###

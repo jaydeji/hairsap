@@ -92,8 +92,8 @@ WHERE
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
     AND available = 1
-    AND deactivated != 1
-    AND terminated != 1
+    AND "terminated" != 1
+    AND "deactivated" != 1
 ORDER BY distance, userId ASC LIMIT 1;`
 
     if (result.length) {
@@ -161,8 +161,8 @@ WHERE u.userId = ${userId}
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
     AND available = 1
-    AND deactivated != 1
-    AND terminated != 1
+    AND "deactivated" != 1
+    AND "terminated" != 1
     `
 
     if (result.length) {
