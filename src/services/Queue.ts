@@ -57,7 +57,19 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     redisUrl,
     options,
   )
-  deactivateQueue.add(undefined, { repeat: { cron: '00 00 21 * * 7' } }) //every sunday night by 23:59:59
+  Promise.all([
+    emailQueue.clean(0, 'completed'),
+    phoneQueue.clean(0, 'completed'),
+    chatQueue.clean(0, 'completed'),
+    notifyQueue.clean(0, 'completed'),
+    deactivateQueue.empty(),
+    deactivateQueue.obliterate(),
+    deactivateRedeem.clean(0, 'completed'),
+  ])
+
+  deactivateQueue.add('deactivate-task', undefined, {
+    repeat: { cron: '00 00 21 * * 7' },
+  }) //every sunday night by 9pm
 
   // paymentThreshold.add(
   //   { email: req.body.email },
