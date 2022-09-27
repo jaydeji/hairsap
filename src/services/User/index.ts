@@ -29,6 +29,11 @@ const updateUser =
   ({ repo }: { repo: Repo }) =>
   async (userId: number, body: PatchUserRequest) => {
     PatchUserRequestSchema.parse({ ...body, userId: userId })
+    if (body.phone) {
+      const userWithPhone = await repo.user.getUserByPhone(body.phone)
+      if (userWithPhone && userWithPhone.userId !== userId)
+        throw new ForbiddenError('user with phone number already exists')
+    }
     await repo.user.updateUser(userId, body)
   }
 

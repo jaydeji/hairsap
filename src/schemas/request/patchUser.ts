@@ -3,7 +3,8 @@ import { z } from 'zod'
 export const PatchUserRequestSchema = z
   .object({
     userId: z.number(),
-    address: z.string().min(1),
+    address: z.string().min(1).optional(),
+    phone: z.string().min(1).optional(),
   })
   .strict()
 

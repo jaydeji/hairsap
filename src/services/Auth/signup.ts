@@ -12,7 +12,7 @@ import {
 import { hashPassword, dayjs } from '../../utils'
 
 import type { Repo } from '../../types'
-import { ForbiddenError, ValidationError } from '../../utils/Error'
+import { ValidationError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 
 import { generateLoginOtp } from '../../utils/otp'

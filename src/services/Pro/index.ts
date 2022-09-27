@@ -41,8 +41,10 @@ const updatePro =
   async (userId: number, body: PatchProRequest) => {
     PatchProRequestSchema.parse({ ...body, userId: userId })
 
-    if (typeof body.available === 'boolean') {
-      await repo.pro.updateAvailability(userId, body.available)
+    if (body.phone) {
+      const proWithPhone = await repo.user.getUserByPhone(body.phone)
+      if (proWithPhone && proWithPhone.userId !== userId)
+        throw new ForbiddenError('pro with phone number already exists')
     }
 
     await repo.user.updateUser(userId, {
@@ -57,6 +59,10 @@ const updatePro =
           }
         : undefined,
     })
+
+    if (typeof body.available === 'boolean') {
+      await repo.pro.updateAvailability(userId, body.available)
+    }
   }
 
 const getNearestPro =

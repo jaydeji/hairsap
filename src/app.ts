@@ -9,6 +9,10 @@ import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import { ROLES } from './config/constants'
 import { Repo, Service } from './types'
+import { createBullBoard } from '@bull-board/api'
+import { BullAdapter } from '@bull-board/api/bullAdapter'
+import { ExpressAdapter } from '@bull-board/express'
+import expressBasicAuth from 'express-basic-auth'
 
 import makeRouter from './handlers'
 import makeAuthRouter from './handlers/auth'
@@ -32,6 +36,23 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   app.use(fileUpload())
   //TODO: tighten cors
   app.use(cors({ origin: '*', methods: '*', allowedHeaders: '*' }))
+
+  const serverAdapter = new ExpressAdapter().setBasePath('/bull')
+  createBullBoard({
+    queues: Object.values(service.queue).map((q) => new BullAdapter(q)),
+    serverAdapter,
+  })
+  app.use(
+    '/bull',
+    expressBasicAuth({
+      users: {
+        user: process.env.BULL_PASSWORD as string,
+      },
+      challenge: true,
+    }),
+    serverAdapter.getRouter(),
+  )
+
   app.use('/sockets', express.static(process.cwd() + '/docs/asyncapi'))
   app.use(
     '/reference',

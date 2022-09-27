@@ -17,6 +17,10 @@ import { socket } from '../index'
 import { Repo } from '../types'
 import { Push } from './Push'
 
+import { createBullBoard } from '@bull-board/api'
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
+import { ExpressAdapter } from '@bull-board/express'
+
 const redisUrl = process.env.REDIS_URL as string
 
 type Payment = {
@@ -269,6 +273,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     chatQueue,
     notifyQueue,
     deactivateRedeem,
+    deactivateQueue,
   }
 }
 

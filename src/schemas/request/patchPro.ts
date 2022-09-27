@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const PatchProRequestSchema = z.object({
   userId: z.number(),
   address: z.string().min(1).optional(),
+  phone: z.string().min(1).optional(),
   available: z.boolean().optional(),
   account: z
     .object({
