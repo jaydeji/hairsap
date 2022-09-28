@@ -455,7 +455,7 @@ const getAcceptedProBookings =
   async ({ userId }: { userId: number }) => {
     GetAcceptedBookingsReqSchema.parse({ userId })
 
-    const acceptedBookings = await repo.book.getProBookingsByStatus(
+    const acceptedBookings = await repo.book.getProBookingsByStatusAndMore(
       userId,
       BOOKING_STATUS.ACCEPTED,
     )
@@ -562,7 +562,7 @@ const getBookingById =
   ({ repo }: { repo: Repo }) =>
   ({ bookingId }: { bookingId: number }) => {
     z.object({ bookingId: z.number() }).strict().parse({ bookingId })
-    return repo.book.getBookingById(bookingId)
+    return repo.book.getBookingByIdAndMore(bookingId)
   }
 
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
