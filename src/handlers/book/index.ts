@@ -52,16 +52,6 @@ const makeBookingRouter = ({
   )
 
   router.get(
-    '/:id',
-    ah(async (req, res) => {
-      const data = await service.book.getBookingById({
-        bookingId: +req.params.id as number,
-      })
-      res.status(200).send({ data })
-    }),
-  )
-
-  router.get(
     '/accepted',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
@@ -82,6 +72,16 @@ const makeBookingRouter = ({
         userId: req.tokenData?.userId as number,
       })
       res.status(201).send()
+    }),
+  )
+
+  router.get(
+    '/:id',
+    ah(async (req, res) => {
+      const data = await service.book.getBookingById({
+        bookingId: +req.params.id as number,
+      })
+      res.status(200).send({ data })
     }),
   )
 
