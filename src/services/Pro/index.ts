@@ -50,6 +50,7 @@ const updatePro =
     await repo.user.updateUser(userId, {
       address: body.address,
       available: body.available,
+      bio: body.bio,
       account: body.account
         ? {
             upsert: {

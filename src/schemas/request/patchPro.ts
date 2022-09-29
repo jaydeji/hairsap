@@ -5,6 +5,7 @@ export const PatchProRequestSchema = z.object({
   address: z.string().min(1).optional(),
   phone: z.string().min(1).optional(),
   available: z.boolean().optional(),
+  bio: z.string().optional(),
   account: z
     .object({
       accountNumber: z.string(),

@@ -235,6 +235,7 @@ model User {
   workVideoOriginalFileName        String?
   businessName                     String?
   pushToken                        String?
+  bio                              String?  @db.Text()
 
   otp                  Otp?
   notifications        Notification[]
