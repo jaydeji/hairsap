@@ -3496,6 +3496,8 @@ components:
           type: number
         address:
           type: string
+        bio:
+          type: string
         available:
           type: boolean
         account:
