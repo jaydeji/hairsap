@@ -91,6 +91,7 @@ Authorization: Bearer {{ptoken}}
 
 {
     "userId":3,
+    "address":"updated address"
 }
 
 ###

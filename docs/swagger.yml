@@ -3490,10 +3490,7 @@ components:
 
     ProPatchRequest:
       type: object
-      required: [userId]
       properties:
-        userId:
-          type: number
         address:
           type: string
         bio:

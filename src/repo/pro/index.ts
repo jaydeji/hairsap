@@ -294,6 +294,7 @@ const getProData =
         available: true,
         businessName: true,
         account: true,
+        bio: true,
       },
     })
   }
@@ -322,6 +323,7 @@ const searchPro =
         businessName: true,
         userId: true,
         profilePhotoUrl: true,
+        bio: true,
         proServices: {
           select: {
             service: {
@@ -404,6 +406,7 @@ const getProInfo =
         select: {
           name: true,
           profilePhotoUrl: true,
+          bio: true,
           proServices: true,
         },
       }),
