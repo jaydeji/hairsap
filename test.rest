@@ -221,12 +221,19 @@ Authorization: Bearer {{utoken}}
 }
 
 ###
-POST {{base}}/bookings/1/cancel HTTP/1.1
+POST {{base}}/auth/signup HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}
 
 {
-
+    "role":"pro",
+    "serviceId":1,
+    "email":"jideadedejifirst@gmail.com",
+    "name":"pro 10",
+    "password":"jide1234",
+    "phone":"08118161237",
+    "address":"no 10",
+    "businessName":"Jide services"
 }
 
 

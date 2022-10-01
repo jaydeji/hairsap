@@ -112,7 +112,7 @@ const signupPro = async (
   let otp
   if (body.otpType) otp = await generateLoginOtp()
 
-  const { otpType, ...createBody } = body
+  const { otpType, serviceId, ...createBody } = body
 
   const pro = await repo.user.createUser({
     ...createBody,
@@ -125,6 +125,11 @@ const signupPro = async (
           },
         }
       : undefined,
+    proServices: {
+      create: {
+        serviceId,
+      },
+    },
   })
 
   queue.emailQueue.add(signUpEmailTemplate(pro.name))
