@@ -4,9 +4,9 @@ import type { Repo, Service } from '../types'
 import crypto from 'crypto'
 import { logger } from '../utils'
 import { ForbiddenError, NotFoundError } from '../utils/Error'
-import { auth } from '../middleware/auth'
+import { allowOnly, auth } from '../middleware/auth'
 import { z } from 'zod'
-import { PAYSTACK_URL } from '../config/constants'
+import { PAYSTACK_URL, ROLES } from '../config/constants'
 import got from 'got-cjs'
 
 const makeRouter = ({
@@ -31,31 +31,7 @@ const makeRouter = ({
       res.status(200).send()
     }),
   )
-  router.post(
-    '/webhook/paystack',
-    ah((req, res) => {
-      const secret = process.env.PAYMENT_SECRET as string
-      const hash = crypto
-        .createHmac('sha512', secret)
-        .update(JSON.stringify(req.body))
-        .digest('hex')
-      if (hash !== req.headers['x-paystack-signature']) {
-        logger.info(req.body, 'paystack webhook')
-        throw new ForbiddenError()
-      }
-      //TODO backend should add "custom_fields" with invoiceitems to metadata
-      const userId = req.body?.data?.metadata?.userId
-      service.queue.paymentQueue.add({
-        userId: userId ? +userId : undefined,
-        email: req.body?.data?.customer?.email,
-        event: req.body?.event,
-        reason: req.body?.data?.reason,
-        data: req.body,
-      })
 
-      res.sendStatus(200)
-    }),
-  )
   router.get(
     '/verify_transaction',
     auth({ repo }),
@@ -94,6 +70,43 @@ const makeRouter = ({
         req.tokenData?.userId as number,
       )
       res.status(200).send({ data })
+    }),
+  )
+  router.post(
+    '/deactivate',
+    auth({ repo }),
+    allowOnly([ROLES.USER, ROLES.PRO]),
+    ah(async (req, res) => {
+      await service.other.deactivateUserOrPro({
+        userId: req.tokenData?.userId as number,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
+    '/webhook/paystack',
+    ah((req, res) => {
+      const secret = process.env.PAYMENT_SECRET as string
+      const hash = crypto
+        .createHmac('sha512', secret)
+        .update(JSON.stringify(req.body))
+        .digest('hex')
+      if (hash !== req.headers['x-paystack-signature']) {
+        logger.info(req.body, 'paystack webhook')
+        throw new ForbiddenError()
+      }
+      //TODO backend should add "custom_fields" with invoiceitems to metadata
+      const userId = req.body?.data?.metadata?.userId
+      service.queue.paymentQueue.add({
+        userId: userId ? +userId : undefined,
+        email: req.body?.data?.customer?.email,
+        event: req.body?.event,
+        reason: req.body?.data?.reason,
+        data: req.body,
+      })
+
+      res.sendStatus(200)
     }),
   )
 

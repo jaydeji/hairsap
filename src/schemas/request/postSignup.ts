@@ -1,12 +1,13 @@
 import { OTP_TYPE, ROLES } from '../../config/constants'
 import { z } from 'zod'
+import { isValidPhone } from '../../utils'
 
 export const PostSignupRequestSchema = z
   .object({
     email: z.string().email(),
     name: z.string(),
     password: z.string().min(6).max(32),
-    phone: z.string().min(8),
+    phone: z.string().refine((e) => isValidPhone(e)),
     otpType: z.nativeEnum(OTP_TYPE).optional(),
   })
   .strict()

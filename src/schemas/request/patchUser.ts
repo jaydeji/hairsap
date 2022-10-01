@@ -1,10 +1,14 @@
 import { z } from 'zod'
+import { isValidPhone } from '../../utils'
 
 export const PatchUserRequestSchema = z
   .object({
     userId: z.number(),
     address: z.string().min(1).optional(),
-    phone: z.string().min(1).optional(),
+    phone: z
+      .string()
+      .optional()
+      .refine((e) => isValidPhone(e)),
   })
   .strict()
 

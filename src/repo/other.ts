@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
+import { Role } from '../types'
 import { dayjs } from '../utils'
 
 const dbHealthCheck =
@@ -109,6 +110,37 @@ const getPushToken =
       },
     })
 
+const deactivateUserOrPro =
+  ({ db }: { db: PrismaClient }) =>
+  async (body: { userId: number }) => {
+    const proOpt = { where: { proId: body.userId } }
+    const userOpt = { where: { userId: body.userId } }
+    const user = await db.user.findFirst({
+      where: userOpt.where,
+      include: {
+        account: true,
+        card: true,
+        deactivations: true,
+        paymentEvents: true,
+      },
+    })
+    if (!user) return
+    return db.$transaction([
+      db.deactivatedUser.create({ data: { data: user as any } }),
+      db.available.deleteMany(proOpt),
+      db.subscription.deleteMany(proOpt),
+      db.proService.deleteMany(proOpt),
+      db.otp.deleteMany(userOpt),
+      db.passwordReset.deleteMany(userOpt),
+      db.notification.deleteMany(userOpt),
+      db.notificationTracker.deleteMany(userOpt),
+      db.bonus.deleteMany(proOpt),
+      db.account.deleteMany(userOpt),
+      db.card.deleteMany(userOpt),
+      db.user.delete(userOpt),
+    ])
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -120,6 +152,7 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     setPushToken: setPushToken({ db }),
     getPushToken: getPushToken({ db }),
     dbHealthCheck: dbHealthCheck({ db }),
+    deactivateUserOrPro: deactivateUserOrPro({ db }),
   }
 }
 

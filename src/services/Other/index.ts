@@ -1,6 +1,7 @@
 import { Expo } from 'expo-server-sdk'
 import { z } from 'zod'
-import type { Repo } from '../../types'
+import { ROLES } from '../../config/constants'
+import type { Repo, Role } from '../../types'
 
 const getServices =
   ({ repo }: { repo: Repo }) =>
@@ -36,6 +37,13 @@ const healthCheck =
     await repo.other.dbHealthCheck()
   }
 
+const deactivateUserOrPro =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { userId: number }) => {
+    z.object({ userId: z.number() }).strict().parse(body)
+    await repo.other.deactivateUserOrPro(body)
+  }
+
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
@@ -43,6 +51,7 @@ const makeOther = ({ repo }: { repo: Repo }) => {
     getNotifications: getNotifications({ repo }),
     setPushToken: setPushToken({ repo }),
     healthCheck: healthCheck({ repo }),
+    deactivateUserOrPro: deactivateUserOrPro({ repo }),
   }
 }
 
