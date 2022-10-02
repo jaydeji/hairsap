@@ -1,10 +1,10 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { nanoid } from 'nanoid'
 import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
 import type { Service } from '../../types'
+import { uniqueId } from '../../utils'
 import { patchUser } from './patchUser'
 
 const makeUserRouter = ({
@@ -26,7 +26,7 @@ const makeUserRouter = ({
         type: 'image',
         prefix: `faceid/${req.tokenData!.role}/${
           req.tokenData?.userId
-        }/${nanoid()}`,
+        }/${uniqueId()}`,
         fieldName: 'faceid',
       })
       await service.auth.uploadFaceId({
@@ -47,7 +47,7 @@ const makeUserRouter = ({
       const result = await upload({
         file: req.files?.['profilephoto'] as any,
         type: 'image',
-        prefix: `profilephoto/user/${req.tokenData?.userId}/${nanoid()}`,
+        prefix: `profilephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
         fieldName: 'profilephoto',
         acl: 'public-read',
       })

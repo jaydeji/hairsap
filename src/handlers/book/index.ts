@@ -5,7 +5,7 @@ import type { Role, Service } from '../../types'
 import { ValidationError } from '../../utils/Error'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
-import { nanoid } from 'nanoid'
+import { uniqueId } from '../../utils'
 
 const makeBookingRouter = ({
   router,
@@ -29,7 +29,7 @@ const makeBookingRouter = ({
       const result = await upload({
         file: req.files?.['samplephoto'] as any,
         type: 'image',
-        prefix: `samplephoto/user/${req.tokenData?.userId}/${nanoid()}`,
+        prefix: `samplephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
         fieldName: 'samplephoto',
         acl: 'public-read',
         optional: true,

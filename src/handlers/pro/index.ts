@@ -1,11 +1,11 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { nanoid } from 'nanoid'
 import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import type { Role, Service } from '../../types'
+import { uniqueId } from '../../utils'
 
 const makeProRouter = ({
   router,
@@ -122,7 +122,7 @@ const makeProRouter = ({
       const result = await upload({
         file: req.files?.['applicationvideo'] as any,
         type: 'video',
-        prefix: `applicationvideo/pro/${req.tokenData?.userId}/${nanoid()}`,
+        prefix: `applicationvideo/pro/${req.tokenData?.userId}/${uniqueId()}`,
         fieldName: 'applicationvideo',
         acl: 'public-read',
       })
@@ -144,7 +144,7 @@ const makeProRouter = ({
       const result = await upload({
         file: req.files?.['profilephoto'] as any,
         type: 'image',
-        prefix: `profilephoto/pro/${req.tokenData?.userId}/${nanoid()}`,
+        prefix: `profilephoto/pro/${req.tokenData?.userId}/${uniqueId()}`,
         fieldName: 'profilephoto',
         acl: 'public-read',
       })

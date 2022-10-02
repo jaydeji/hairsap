@@ -1,7 +1,6 @@
-import { nanoid } from 'nanoid'
-import { z } from 'zod'
 import { copyObject } from '../../config/multer-cloud'
 import type { Repo, Role } from '../../types'
+import { uniqueId } from '../../utils'
 
 const uploadFaceIdUser = async ({
   repo,
@@ -35,7 +34,7 @@ const uploadFaceIdPro = async ({
 }) => {
   await copyObject({
     source: '/hairsap/' + faceIdPhotoKey,
-    key: `profilephoto/pro/${proId}/${nanoid()}/${faceIdPhotoOriginalFileName}`,
+    key: `profilephoto/pro/${proId}/${uniqueId()}/${faceIdPhotoOriginalFileName}`,
   })
 
   await repo.user.updateUser(proId, {

@@ -48,6 +48,7 @@ const makeRouter = ({
         }).json()
       } catch (error) {
         logger.err(error)
+        logger.err((error as any).response)
         throw new NotFoundError()
       }
 

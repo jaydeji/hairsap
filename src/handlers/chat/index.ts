@@ -1,9 +1,9 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { nanoid } from 'nanoid'
 import { STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import type { Service } from '../../types'
+import { uniqueId } from '../../utils'
 
 const makeChatRouter = ({
   router,
@@ -41,7 +41,7 @@ const makeChatRouter = ({
       const result = await upload({
         file: req.files?.['chatphoto'] as any,
         type: 'image',
-        prefix: `chat/photo/${req.tokenData?.userId}/${nanoid()}`,
+        prefix: `chat/photo/${req.tokenData?.userId}/${uniqueId()}`,
         fieldName: 'chatphoto',
         acl: 'public-read',
       })

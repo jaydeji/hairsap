@@ -4,11 +4,11 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
-import {} from '@aws-sdk/s3-request-presigner'
+// import {} from '@aws-sdk/s3-request-presigner'
 import { STORAGE_ENDPOINT } from './constants'
 import path from 'path'
 import { ValidationError } from '../utils/Error'
-import { nanoid } from 'nanoid'
+import { uniqueId } from '../utils'
 
 const s3 = new S3Client({
   endpoint: STORAGE_ENDPOINT,
@@ -66,7 +66,7 @@ export const upload = async (opts: {
 
   const originalName = file.name as unknown as string
   const fileContent = Buffer.from(file.data as any, 'binary')
-  const key = prefix + '/' + originalName
+  const key = prefix + '_' + originalName
 
   await s3.send(
     new PutObjectCommand({
@@ -74,6 +74,7 @@ export const upload = async (opts: {
       Key: key,
       ACL: acl || 'private',
       Body: fileContent,
+      ContentDisposition: `attachment; filename="pic.png"`,
     }),
   )
 
@@ -84,7 +85,7 @@ export const upload = async (opts: {
 }
 
 export const getChatImageSignedUrl = ({ userId }: { userId: number }) => {
-  const key = `chatphoto/${userId}/${nanoid()}/`
+  const key = `chatphoto/${userId}/${uniqueId()}/`
   return createPresignedPost(s3, {
     Bucket: 'hairsap',
     Key: key + '${filename}',
@@ -94,7 +95,12 @@ export const getChatImageSignedUrl = ({ userId }: { userId: number }) => {
       ['content-length-range', 1, oneMB * 10],
       ['starts-with', '$Content-Type', 'image/'],
       ['starts-with', '$key', key],
+      ['starts-with', '$Content-Disposition', 'attachment'],
     ],
+    Fields: {
+      acl: 'public-read',
+      'Content-Disposition': 'attachment filename="${filename}"',
+    },
     // ContentType: 'multipart/form-data',
   })
 }
