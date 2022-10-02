@@ -87,7 +87,7 @@ const makeRouter = ({
   router.post(
     '/webhook/paystack',
     ah((req, res) => {
-      const secret = process.env.PAYMENT_SECRET as string
+      const secret = process.env.PAYMENT_SECRET
       const hash = crypto
         .createHmac('sha512', secret)
         .update(JSON.stringify(req.body))

@@ -119,12 +119,13 @@ const bookPro =
       samplePhotoUrl,
     })
 
-    queue.notifyQueue.add({
-      title: 'NewBooking',
-      body: 'New booking has been received',
-      userId: proId,
-    })
-
+    if (bookings.length === 1) {
+      queue.notifyQueue.add({
+        title: 'NewBooking',
+        body: 'New booking has been received',
+        userId: proId,
+      })
+    }
     return booking
   }
 

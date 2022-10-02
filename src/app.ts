@@ -46,7 +46,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
     '/bull',
     expressBasicAuth({
       users: {
-        user: process.env.BULL_PASSWORD as string,
+        user: process.env.BULL_PASSWORD,
       },
       challenge: true,
     }),

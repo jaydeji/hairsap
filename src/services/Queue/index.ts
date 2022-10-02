@@ -17,7 +17,7 @@ import { socket } from '../../index'
 import { Repo } from '../../types'
 import { Push } from '../Push'
 
-const redisUrl = process.env.REDIS_URL as string
+const redisUrl = process.env.REDIS_URL
 
 export type Payment = {
   userId?: number
@@ -135,7 +135,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   emailQueue.process(async (job) => {
-    if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
+    if (!['production', 'staging'].includes(process.env.NODE_ENV))
       return Promise.resolve()
 
     sendMail(job.data).catch((error) => {
@@ -146,7 +146,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   phoneQueue.process(async (job, done) => {
-    // if (!['production', 'staging'].includes(process.env.NODE_ENV as string))
+    // if (!['production', 'staging'].includes(process.env.NODE_ENV))
     //   return done()
 
     done()

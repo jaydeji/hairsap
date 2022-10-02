@@ -13,8 +13,8 @@ import { nanoid } from 'nanoid'
 const s3 = new S3Client({
   endpoint: STORAGE_ENDPOINT,
   credentials: {
-    accessKeyId: process.env.STORAGE_KEY as string,
-    secretAccessKey: process.env.STORAGE_SECRET as string,
+    accessKeyId: process.env.STORAGE_KEY,
+    secretAccessKey: process.env.STORAGE_SECRET,
   },
   region: process.env.STORAGE_REGION,
 })
