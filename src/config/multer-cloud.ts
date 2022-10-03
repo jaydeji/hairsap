@@ -8,7 +8,7 @@ import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { STORAGE_ENDPOINT } from './constants'
 import path from 'path'
 import { ValidationError } from '../utils/Error'
-import { uniqueId } from '../utils'
+import { logger, uniqueId } from '../utils'
 
 const s3 = new S3Client({
   endpoint: STORAGE_ENDPOINT,
@@ -77,6 +77,8 @@ export const upload = async (opts: {
       ContentDisposition: `attachment; filename="pic.png"`,
     }),
   )
+
+  logger.info({ key }, 'File uploaded')
 
   return {
     key,

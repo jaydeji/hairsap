@@ -8,17 +8,7 @@ const prisma = new PrismaClient({
 
 const userData: Prisma.UserCreateManyInput[] = [
   {
-    address: 'no 4',
-    email: 'admin@gmail.com',
-    name: 'Admin',
-    role: 'admin',
-    userId: 1,
-    password:
-      'e6f05048fbd74322097eb596700ce2357d9aed2db4b9772dec61f17bd4fa5a95',
-    phone: '+2348118161239',
-  },
-  {
-    address: 'no 1',
+    address: 'no 2',
     email: 'jideadedejifirst@gmail.com',
     name: 'Jide Adedeji',
     profilePhotoUrl: null,
@@ -30,7 +20,7 @@ const userData: Prisma.UserCreateManyInput[] = [
     verified: true,
   },
   {
-    address: 'no 2',
+    address: 'no 3',
     email: 'topeadedejifirst@gmail.com',
     name: 'Tope Adedeji',
     profilePhotoUrl: null,
@@ -42,7 +32,7 @@ const userData: Prisma.UserCreateManyInput[] = [
     verified: true,
   },
   {
-    address: 'no 3',
+    address: 'no 4',
     email: 'jamesadedejifirst@gmail.com',
     name: 'James Adedeji',
     profilePhotoUrl: null,

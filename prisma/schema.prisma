@@ -14,15 +14,15 @@ datasource db {
 model Available {
   availableId Int      @id @default(autoincrement())
   available   Boolean
-  pro         User     @relation(fields: [proId], references: [userId])
+  pro         User     @relation(fields: [proId], references: [userId], onDelete: Cascade)
   proId       Int
   createdAt   DateTime @default(now()) @updatedAt
 }
 
 model Subscription {
-  pro    User @relation("pro_sub", fields: [proId], references: [userId])
+  pro    User @relation("pro_sub", fields: [proId], references: [userId], onDelete: Cascade)
   proId  Int
-  user   User @relation("user_sub", fields: [userId], references: [userId])
+  user   User @relation("user_sub", fields: [userId], references: [userId], onDelete: Cascade)
   userId Int
 
   createdAt DateTime @default(now())
@@ -35,7 +35,7 @@ model Subscription {
 model ProService {
   service   Service @relation(fields: [serviceId], references: [serviceId])
   serviceId Int
-  pro       User    @relation(fields: [proId], references: [userId])
+  pro       User    @relation(fields: [proId], references: [userId], onDelete: Cascade)
   proId     Int
 
   createdAt DateTime @default(now())
@@ -74,7 +74,7 @@ model BookingSubService {
   subServiceId Int
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @default(now()) @updatedAt
-  booking      Booking    @relation(fields: [bookingId], references: [bookingId])
+  booking      Booking    @relation(fields: [bookingId], references: [bookingId], onDelete: Cascade)
   subService   SubService @relation(fields: [subServiceId], references: [subServiceId])
 
   @@id([bookingId, subServiceId])
@@ -86,7 +86,7 @@ model InvoiceFees {
   name      String
   price     Float
   invoiceId Int
-  invoice   Invoice @relation(fields: [invoiceId], references: [invoiceId])
+  invoice   Invoice @relation(fields: [invoiceId], references: [invoiceId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -101,7 +101,7 @@ model Invoice {
   bookingId    Int           @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now()) @updatedAt
-  booking      Booking       @relation(fields: [bookingId], references: [bookingId])
+  booking      Booking       @relation(fields: [bookingId], references: [bookingId], onDelete: Cascade)
   invoiceFees  InvoiceFees[]
   paid         Boolean       @default(false)
   amountPaid   Float?
@@ -112,7 +112,7 @@ model Invoice {
 model Otp {
   otpId  String @id @default(uuid())
   value  String
-  user   User   @relation(fields: [userId], references: [userId])
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId Int    @unique
 
   createdAt DateTime @default(now())
@@ -134,9 +134,9 @@ model Booking {
   rejectedAt                  DateTime?
   arrivalAt                   DateTime?
   cancelledAt                 DateTime?
-  pro                         User      @relation("pro_booking", fields: [proId], references: [userId])
+  pro                         User      @relation("pro_booking", fields: [proId], references: [userId], onDelete: Cascade)
   proId                       Int
-  user                        User      @relation("user_booking", fields: [userId], references: [userId])
+  user                        User      @relation("user_booking", fields: [userId], references: [userId], onDelete: Cascade)
   userId                      Int
 
   invoice           Invoice?
@@ -157,8 +157,8 @@ model Chat {
 
   senderId   Int
   receiverId Int
-  receiver   User @relation("message_receiver", fields: [receiverId], references: [userId])
-  sender     User @relation("message_sender", fields: [senderId], references: [userId])
+  receiver   User @relation("message_receiver", fields: [receiverId], references: [userId], onDelete: Cascade)
+  sender     User @relation("message_sender", fields: [senderId], references: [userId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -177,7 +177,7 @@ model Card {
   brand             String
   expiryYear        String
   expiryMonth       String
-  user              User   @relation(fields: [userId], references: [userId])
+  user              User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId            Int    @unique
 
   createdAt DateTime @default(now())
@@ -189,7 +189,7 @@ model Deactivation {
   reason         String
   amount         Float
   paid           Boolean? @default(false)
-  user           User     @relation(fields: [proId], references: [userId])
+  user           User     @relation(fields: [proId], references: [userId], onDelete: Cascade)
   proId          Int
 
   createdAt DateTime @default(now())
@@ -271,7 +271,7 @@ model PaymentEvents {
   event   String?
   data    Json
   reason  String?
-  User    User?   @relation(fields: [userId], references: [userId])
+  User    User?   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId  Int?
   email   String?
 
@@ -286,7 +286,7 @@ model PasswordReset {
   resetId String @id @default(uuid())
   token   String
   userId  Int
-  user    User   @relation(fields: [userId], references: [userId])
+  user    User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   expiredAt DateTime @default(now())
@@ -297,7 +297,7 @@ model PasswordReset {
 
 model NotificationTracker {
   notificationTrackerId Int    @id @default(autoincrement())
-  user                  User?  @relation(fields: [userId], references: [userId])
+  user                  User?  @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId                Int?
   type                  String
 
@@ -309,7 +309,7 @@ model Notification {
   notificationId Int     @id @default(autoincrement())
   body           String? @db.Text()
   title          String?
-  user           User    @relation(fields: [userId], references: [userId])
+  user           User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId         Int
 
   createdAt DateTime @default(now())
@@ -335,7 +335,7 @@ model Bonus {
   paid      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  pro       User     @relation(fields: [proId], references: [userId])
+  pro       User     @relation(fields: [proId], references: [userId], onDelete: Cascade)
   proId     Int
 
   @@index([proId])
@@ -346,7 +346,7 @@ model Account {
   accountNumber String
   accountName   String
   bankName      String
-  user          User   @relation(fields: [userId], references: [userId])
+  user          User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId        Int    @unique
 
   createdAt DateTime @default(now())

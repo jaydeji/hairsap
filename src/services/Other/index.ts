@@ -1,7 +1,7 @@
 import { Expo } from 'expo-server-sdk'
 import { z } from 'zod'
-import { ROLES } from '../../config/constants'
-import type { Repo, Role } from '../../types'
+import type { Repo } from '../../types'
+import { NotFoundError } from '../../utils/Error'
 
 const getServices =
   ({ repo }: { repo: Repo }) =>
@@ -41,7 +41,9 @@ const deactivateUserOrPro =
   ({ repo }: { repo: Repo }) =>
   async (body: { userId: number }) => {
     z.object({ userId: z.number() }).strict().parse(body)
-    await repo.other.deactivateUserOrPro(body)
+    const user = await repo.other.deactivateUserOrPro(body)
+    if (!user) throw new NotFoundError('user not found')
+    return user
   }
 
 const makeOther = ({ repo }: { repo: Repo }) => {

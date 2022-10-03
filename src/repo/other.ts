@@ -122,23 +122,12 @@ const deactivateUserOrPro =
         card: true,
         deactivations: true,
         paymentEvents: true,
+        proBookings: true,
+        bonuses: true,
       },
     })
     if (!user) return
-    return db.$transaction([
-      db.deactivatedUser.create({ data: { data: user as any } }),
-      db.available.deleteMany(proOpt),
-      db.subscription.deleteMany(proOpt),
-      db.proService.deleteMany(proOpt),
-      db.otp.deleteMany(userOpt),
-      db.passwordReset.deleteMany(userOpt),
-      db.notification.deleteMany(userOpt),
-      db.notificationTracker.deleteMany(userOpt),
-      db.bonus.deleteMany(proOpt),
-      db.account.deleteMany(userOpt),
-      db.card.deleteMany(userOpt),
-      db.user.delete(userOpt),
-    ])
+    return db.user.delete(userOpt)
   }
 
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {

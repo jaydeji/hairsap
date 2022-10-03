@@ -33,6 +33,7 @@ import {
   paginate,
   dayjs,
   logger,
+  filterBadWords,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -520,7 +521,7 @@ const rateAndReviewBooking =
 
     await repo.book.updateBooking(bookingId, {
       rating,
-      review,
+      review: filterBadWords(review),
     })
   }
 
