@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `Card` ADD COLUMN `bank` VARCHAR(191) NULL,
-    ADD COLUMN `last4` VARCHAR(191) NULL;
