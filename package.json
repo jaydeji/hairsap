@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run prisma:gen && tsup src/index.ts",
     "start": "node -r newrelic dist/index.js",
-    "mig:start": "npx --yes prisma migrate resolve --applied 0_squashed && prisma migrate deploy && node -r newrelic dist/index.js",
+    "mig:start": "npx --yes prisma migrate deploy && node -r newrelic dist/index.js",
     "dev": "tsup src/index.ts --watch --onSuccess \"node -r newrelic dist/index.js\"",
     "prisma:gen": "prisma generate",
     "prisma:mig": "prisma migrate dev",
