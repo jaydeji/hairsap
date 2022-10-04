@@ -25,7 +25,7 @@ exports.config = {
       /**
        * Toggles whether the agent gathers log records for sending to New Relic.
        */
-      enabled: true,
+      enabled: process.env.NODE_ENV !== 'development',
     },
   },
   attributes: {

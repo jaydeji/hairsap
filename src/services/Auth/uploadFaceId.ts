@@ -1,3 +1,5 @@
+import { z } from 'zod'
+import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { copyObject } from '../../config/multer-cloud'
 import type { Repo, Role } from '../../types'
 import { uniqueId } from '../../utils'
@@ -22,24 +24,28 @@ const uploadFaceIdUser = async ({
 
 const uploadFaceIdPro = async ({
   repo,
-  body: { proId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+  body: { userId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
 }: {
   repo: Repo
   body: {
-    proId: number
+    userId: number
     faceIdPhotoKey: string
     faceIdPhotoOriginalFileName: string
     role: Role
   }
 }) => {
+  const key = `profilephoto/pro/${userId}/${uniqueId()}_${faceIdPhotoOriginalFileName}`
   await copyObject({
     source: '/hairsap/' + faceIdPhotoKey,
-    key: `profilephoto/pro/${proId}/${uniqueId()}/${faceIdPhotoOriginalFileName}`,
+    key,
   })
 
-  await repo.user.updateUser(proId, {
+  await repo.user.updateUser(userId, {
     faceIdPhotoKey,
     faceIdPhotoOriginalFileName,
+    profilePhotoKey: key,
+    profilePhotoOriginalFileName: faceIdPhotoOriginalFileName,
+    profilePhotoUrl: STORAGE_ENDPOINT_CDN + key,
   })
 }
 
@@ -47,23 +53,27 @@ export const uploadFaceId =
   ({ repo }: { repo: Repo }) =>
   async ({
     userId,
-    proId,
     role,
     faceIdPhotoKey,
     faceIdPhotoOriginalFileName,
   }: {
-    userId?: number
-    proId?: number
+    userId: number
     role: Role
     faceIdPhotoKey: string
     faceIdPhotoOriginalFileName: string
   }) => {
-    if (proId)
+    z.object({ userId: z.number() }).strict().parse({ userId })
+    if (role === ROLES.PRO)
       return uploadFaceIdPro({
         repo,
-        body: { proId, role, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+        body: {
+          userId,
+          role,
+          faceIdPhotoKey,
+          faceIdPhotoOriginalFileName,
+        },
       })
-    if (userId)
+    if (role === ROLES.USER)
       return uploadFaceIdUser({
         repo,
         body: {

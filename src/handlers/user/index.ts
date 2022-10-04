@@ -30,9 +30,8 @@ const makeUserRouter = ({
         fieldName: 'faceid',
       })
       await service.auth.uploadFaceId({
-        userId: req.tokenData?.userId,
+        userId: req.tokenData!.userId,
         role: req.tokenData!.role,
-        proId: req.tokenData?.userId,
         faceIdPhotoKey: result.key as string,
         faceIdPhotoOriginalFileName: result.originalName as string,
       })
