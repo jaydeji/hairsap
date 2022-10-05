@@ -61,7 +61,7 @@ Avoid using console. Use the npm package pino logger instead
 
 ## CI / CD
 
-We will make use of the **Docker.prod** and **docker-compose.prod.yml** files
+We will make use of the **Docker.prod** and **docker-compose.prod.yml** files.
 
 ## Notes
 
