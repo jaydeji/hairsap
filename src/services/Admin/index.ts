@@ -60,7 +60,7 @@ const acceptOrRejectApplication =
     const { action, userId } = body
     if (action === 'accept') {
       await repo.user.updateUser(userId, {
-        verified: true,
+        approved: true,
       })
     } else {
       await repo.user.deleteUser(userId)
@@ -151,6 +151,7 @@ const getApplicationVideo =
       reactivationRequested: user?.reactivationRequested,
       terminated: user?.terminated,
       verified: user?.verified,
+      approved: user?.approved,
       available: user?.available,
       businessName: user?.businessName,
       createdAt: user?.createdAt,

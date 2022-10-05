@@ -2452,6 +2452,9 @@ components:
           type: boolean
         verified:
           type: boolean
+        approved:
+          type: boolean
+          description: "admin approved"
         reactivationRequested:
           type: boolean
         available:

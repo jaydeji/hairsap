@@ -227,7 +227,7 @@ model User {
   reactivationCount                Int      @default(0)
   reactivationRequested            Boolean? @default(false)
   terminated                       Boolean? @default(false)
-  // approved              Boolean?        @default(false)
+  approved                         Boolean? @default(false)
   verified                         Boolean? @default(false) //verify new pro account
   available                        Boolean? @default(true)
   workVideoUrl                     String?  @db.VarChar(512)

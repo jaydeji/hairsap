@@ -405,6 +405,7 @@ export const getProDetails =
         reactivationRequested: user?.reactivationRequested,
         terminated: user?.terminated,
         verified: user?.verified,
+        approved: user?.approved,
         available: user?.available,
         businessName: user?.businessName,
         createdAt: user?.createdAt,

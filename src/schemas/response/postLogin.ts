@@ -15,6 +15,7 @@ const PostLoginResponseSchema = z
     deactivations: z.array(z.any()).optional(),
     reactivationRequested: z.boolean().optional().nullable(),
     verified: z.boolean().optional().nullable(),
+    approved: z.boolean().optional().nullable(),
     available: z.boolean().optional().nullable(),
     workVideoUrl: z.string().optional().nullable(),
     businessName: z.string().optional().nullable(),

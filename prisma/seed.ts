@@ -44,6 +44,7 @@ const userData: Prisma.UserCreateManyInput[] = [
     longitude: 3.372669140201567,
     latitude: 6.518572387441918,
     verified: true,
+    approved: true,
   },
 ]
 

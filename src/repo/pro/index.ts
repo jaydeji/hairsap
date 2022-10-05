@@ -352,7 +352,7 @@ const getProApplications =
   () =>
     db.user.findMany({
       where: {
-        verified: {
+        approved: {
           not: true,
         },
         role: ROLES.PRO,

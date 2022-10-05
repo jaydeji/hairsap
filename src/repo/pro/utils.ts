@@ -20,6 +20,7 @@ export const deactivateProByTaskTargetEveryWeek = async ({
     where: {
       role: ROLES.PRO,
       verified: true,
+      approved: true,
       proBookings: {
         some: {
           status: BOOKING_STATUS.COMPLETED,

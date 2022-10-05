@@ -33,6 +33,7 @@ const auth = ({ repo }: { repo: Repo }) =>
     }
 
     if (decodedToken?.role === ROLES.PRO) {
+      if (!user.approved) throw new ForbiddenError('pro not approved')
       if (user.terminated) throw new ForbiddenError('pro terminated')
       if (
         user.deactivated &&
