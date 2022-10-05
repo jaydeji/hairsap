@@ -131,12 +131,12 @@ const getProBookingsByStatus =
       },
     })
 
-const getProBookingsByStatusAndMore =
+const getBookingsByStatusAndMore =
   ({ db }: { db: PrismaClient }) =>
-  (proId: number, status: BookingStatus) =>
+  (userId: number, status: BookingStatus) =>
     db.booking.findMany({
       where: {
-        proId,
+        OR: [{ userId }, { proId: userId }],
         status,
       },
       select: {
@@ -213,10 +213,10 @@ const getProBookingsByStatusAndMore =
 
 const getBookingActivity =
   ({ db }: { db: PrismaClient }) =>
-  (proId: number) =>
+  ({ userId }: { userId: number }) =>
     db.booking.findMany({
       where: {
-        proId,
+        OR: [{ userId }, { proId: userId }],
         status: {
           in: [BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.PENDING],
         },
@@ -621,7 +621,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getBookingAndInvoiceById: getBookingAndInvoiceById({ db }),
     updateBooking: updateBooking({ db }),
     getProBookingsByStatus: getProBookingsByStatus({ db }),
-    getProBookingsByStatusAndMore: getProBookingsByStatusAndMore({ db }),
+    getBookingsByStatusAndMore: getBookingsByStatusAndMore({ db }),
     getBookingActivity: getBookingActivity({ db }),
     getProBookingsByProIdAndUserId: getProBookingsByProIdAndUserId({ db }),
     getUserBookingsBySubService: getUserBookingsBySubService({ db }),

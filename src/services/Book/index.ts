@@ -452,12 +452,12 @@ const markBookingAsIntransit =
     })
   }
 
-const getAcceptedProBookings =
+const getAcceptedBookings =
   ({ repo }: { repo: Repo }) =>
   async ({ userId }: { userId: number }) => {
     GetAcceptedBookingsReqSchema.parse({ userId })
 
-    const acceptedBookings = await repo.book.getProBookingsByStatusAndMore(
+    const acceptedBookings = await repo.book.getBookingsByStatusAndMore(
       userId,
       BOOKING_STATUS.ACCEPTED,
     )
@@ -470,7 +470,9 @@ const getBookingActivity =
   async ({ userId }: { userId: number }) => {
     z.object({ userId: z.number() }).strict().parse({ userId })
 
-    const bookingActivities = await repo.book.getBookingActivity(userId)
+    const bookingActivities = await repo.book.getBookingActivity({
+      userId,
+    })
 
     return bookingActivities
   }
@@ -573,7 +575,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     addServiceToBooking: addServiceToBooking({ repo }),
     acceptBooking: acceptBooking({ repo, queue }),
     rejectBooking: rejectBooking({ repo, queue }),
-    getAcceptedProBookings: getAcceptedProBookings({ repo }),
+    getAcceptedBookings: getAcceptedBookings({ repo }),
     cancelBooking: cancelBooking({ repo, queue }),
     markBookingAsCompleted: markBookingAsCompleted({ repo, queue }),
     markBookingAsArrived: markBookingAsArrived({ repo }),

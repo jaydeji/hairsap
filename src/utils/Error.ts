@@ -111,6 +111,7 @@ const handleError = (
           baseUrl: req.baseUrl,
           body: req.body,
           method: req.method,
+          user: req.tokenData,
         },
       },
       'Internal Error',

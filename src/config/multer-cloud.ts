@@ -74,7 +74,7 @@ export const upload = async (opts: {
       Key: key,
       ACL: acl || 'private',
       Body: fileContent,
-      ContentDisposition: `attachment; filename="pic.png"`,
+      ContentDisposition: `attachment; filename="${originalName}"`,
     }),
   )
 

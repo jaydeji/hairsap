@@ -15,7 +15,7 @@ const makeUserRouter = ({
   service: Service
 }) => {
   router.patch('/', allowOnly([ROLES.USER]), ah(patchUser({ service })))
-  //TODO: fix validation
+
   router.post(
     '/faceid',
     allowOnly([ROLES.USER, ROLES.PRO]),
@@ -33,7 +33,7 @@ const makeUserRouter = ({
         userId: req.tokenData!.userId,
         role: req.tokenData!.role,
         faceIdPhotoKey: result.key as string,
-        faceIdPhotoOriginalFileName: result.originalName as string,
+        faceIdPhotoOriginalFileName: result.originalName as unknown as string,
       })
       res.status(201).send()
     }),

@@ -73,7 +73,7 @@ export const uploadFaceId =
           faceIdPhotoOriginalFileName,
         },
       })
-    if (role === ROLES.USER)
+    else
       return uploadFaceIdUser({
         repo,
         body: {
