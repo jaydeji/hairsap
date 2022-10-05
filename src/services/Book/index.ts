@@ -70,7 +70,7 @@ const bookPro =
       BOOKING_STATUS.ACCEPTED,
     )
 
-    if (bookings.length > 1) throw new ForbiddenError('pro currently busy')
+    if (bookings.length >= 5) throw new ForbiddenError('pro currently busy')
 
     const userBookingsBySubService =
       await repo.book.getUserBookingsBySubService({
