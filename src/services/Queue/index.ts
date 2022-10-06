@@ -45,7 +45,9 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     options,
   )
   const paymentQueue = new Queue<Payment>('payment', redisUrl, options)
-  const chatQueue = new Queue<ChatMessageType>('chat', redisUrl, options)
+  const chatQueue = new Queue<
+    ChatMessageType & { createdAt: string; senderId: number }
+  >('chat', redisUrl, options)
   const notifyQueue = new Queue<{
     title?: string
     body?: string
@@ -170,15 +172,16 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
 
   chatQueue.process(async (job, done) => {
     try {
-      await db.chat.create({
+      const chat = await db.chat.create({
         data: job.data,
       })
+      done(null, chat)
+      return
     } catch (error) {
       logger.err(error)
       done(error as Error)
       return
     }
-    done()
   })
 
   paymentQueue.process(async (job, done) => {

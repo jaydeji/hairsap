@@ -38,19 +38,14 @@ components:
             senderId: 1
             receiverId: 2
             messageType: 'text'
-            createdAt: '2022-09-09T07:52:39.407Z'
       payload:
         type: object
         required: [createdAt,senderId,receiverId,messageType]
         properties:
           message:
             type: string
-          createdAt:
-            type: string
           photoUrl:
             type: string
-          senderId:
-            type: number
           receiverId:
             type: number
           messageType:

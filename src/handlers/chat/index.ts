@@ -21,6 +21,7 @@ const makeChatRouter = ({
       res.send({ data })
     }),
   )
+
   router.post(
     '/',
     ah(async (req, res) => {

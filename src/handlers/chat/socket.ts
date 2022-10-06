@@ -57,11 +57,25 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
     //   }
     // })
 
-    socket.on('new message', async (message: ChatMessageType, callback) => {
-      const _message = MessageSchema.safeParse(message)
-      if (!_message.success) return callback?.({ error: _message.error.issues })
-      service.queue.chatQueue.add(message)
-      callback?.({ data: message })
+    socket.on('new message', async (_message: ChatMessageType, callback) => {
+      const parsedMessage = MessageSchema.safeParse(_message)
+      if (!parsedMessage.success)
+        return callback?.({ error: parsedMessage.error.issues })
+
+      const message = {
+        ...parsedMessage.data,
+        senderId: (socket as any).decodedToken.userId,
+        createdAt: new Date().toISOString(),
+      }
+
+      try {
+        const job = await service.queue.chatQueue.add(message)
+        const chat = await job.finished()
+        callback?.({ data: chat })
+      } catch (error) {
+        return callback?.({ error: (error as Error).message })
+      }
+
       const socketId = connectedUsers[message.receiverId]?.socketId
       if (socketId) {
         socket
