@@ -53,7 +53,7 @@ const getChatById =
         ],
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'asc',
       },
     })
 
