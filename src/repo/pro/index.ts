@@ -464,7 +464,7 @@ const getProReviews =
     proId: number
   } & Cursor) =>
     db.booking.findMany({
-      take: desc ? -take : take,
+      take: desc ? take : -take,
       skip: 1,
       cursor: cursor
         ? {
@@ -479,7 +479,7 @@ const getProReviews =
         },
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: desc ? 'desc' : 'asc',
       },
       select: {
         bookingId: true,

@@ -33,7 +33,7 @@ const getChatById =
     otherUserId: number
   } & Cursor) =>
     db.chat.findMany({
-      take: desc ? -take : take,
+      take: desc ? take : -take,
       skip: 1,
       cursor: cursor
         ? {
@@ -53,7 +53,7 @@ const getChatById =
         ],
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: desc ? 'desc' : 'asc',
       },
     })
 
