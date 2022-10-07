@@ -5,6 +5,8 @@ import ah from 'express-async-handler'
 import { ROLES } from '../config/constants'
 import { Repo, Role } from '../types'
 
+const otpRoutes = ['/auth/validateotp', '/auth/generateotp']
+
 const auth = ({ repo }: { repo: Repo }) =>
   ah(async (req: Request, res: Response, next: NextFunction) => {
     let token = req.headers.authorization
@@ -23,17 +25,13 @@ const auth = ({ repo }: { repo: Repo }) =>
     if (!user) throw new UnauthorizedError()
 
     if ([ROLES.PRO, ROLES.USER].includes(decodedToken?.role as any)) {
-      if (
-        !user.verified &&
-        !['/auth/validateotp', '/auth/generateotp'].includes(
-          req.baseUrl + req.path,
-        )
-      )
+      if (!user.verified && !otpRoutes.includes(req.baseUrl + req.path))
         throw new ForbiddenError('user not verified')
     }
 
     if (decodedToken?.role === ROLES.PRO) {
-      if (!user.approved) throw new ForbiddenError('pro not approved')
+      if (!user.approved && !otpRoutes.includes(req.baseUrl + req.path))
+        throw new ForbiddenError('pro not approved')
       if (user.terminated) throw new ForbiddenError('pro terminated')
       if (
         user.deactivated &&
