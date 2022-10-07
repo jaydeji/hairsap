@@ -30,7 +30,12 @@ const auth = ({ repo }: { repo: Repo }) =>
     }
 
     if (decodedToken?.role === ROLES.PRO) {
-      if (!user.approved && !otpRoutes.includes(req.baseUrl + req.path))
+      if (
+        !user.approved &&
+        !otpRoutes
+          .concat(['/users/faceid', '/pros/applicationvideo'])
+          .includes(req.baseUrl + req.path)
+      )
         throw new ForbiddenError('pro not approved')
       if (user.terminated) throw new ForbiddenError('pro terminated')
       if (

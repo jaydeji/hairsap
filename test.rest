@@ -290,8 +290,8 @@ Content-Type: application/json
 Authorization: Bearer {{utoken}}
 
 {
- "newPassword":"jide12345",
- "oldPassword":"jide1234"
+ "newPassword":"jide1234",
+ "oldPassword":"jide12345"
 }
 
 
