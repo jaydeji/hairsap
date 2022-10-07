@@ -102,23 +102,23 @@ Authorization: Bearer {{utoken}}
 ###
 POST {{base}}/chats HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJlb3RlY2gxMDVAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJ1c2VySWQiOjQ4LCJpYXQiOjE2NjUxMzE3NzZ9.yxuRuwWYgOmWDuYgSal_RbIs8qTYvs2_kD8VK61Q3K8
+Authorization: Bearer 
 
 {
     "userId": 2,
     "take":3,
-    "desc":false
+    "desc":true
 }
 
 ###
 POST {{base}}/chats HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJlb3RlY2gxMDVAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJ1c2VySWQiOjQ4LCJpYXQiOjE2NjUxMzE3NzZ9.yxuRuwWYgOmWDuYgSal_RbIs8qTYvs2_kD8VK61Q3K8
+Authorization: Bearer 
 
 {
     "userId": 2,
     "take":3,
-    "desc":false,
+    "desc":true,
     "cursor":9
 }
 
