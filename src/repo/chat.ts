@@ -3,8 +3,8 @@ import { Cursor } from '../schemas/models/Cursor'
 
 const getChatList =
   ({ db }: { db: PrismaClient }) =>
-  (userId: number) =>
-    db.$queryRaw<
+  async (userId: number) => {
+    const users = await db.$queryRaw<
       {
         name: User['name']
         userId: User['userId']
@@ -19,6 +19,31 @@ const getChatList =
   FROM Chat) temp
   INNER JOIN User ON userId = id 
   WHERE id is not NULL`
+
+    const lastChatMessages = await db.$transaction(
+      users.map((e) => {
+        return db.chat.findFirst({
+          where: {
+            OR: [
+              { receiverId: userId, senderId: e.userId },
+              { receiverId: e.userId, senderId: userId },
+            ],
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        })
+      }),
+    )
+
+    return users.map((user) => ({
+      ...user,
+      chat: lastChatMessages.find(
+        (chat) =>
+          chat?.receiverId === user.userId || chat?.senderId === user.userId,
+      ),
+    }))
+  }
 
 const getChatById =
   ({ db }: { db: PrismaClient }) =>

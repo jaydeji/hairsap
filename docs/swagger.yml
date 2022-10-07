@@ -198,6 +198,37 @@ paths:
       security:
         - BearerAuth: []
   
+  /auth/changepassword:
+    post:
+      tags:
+        - Auth
+      summary: change password
+      description: change password
+      operationId: changepassword
+      parameters: []
+      requestBody:
+        description: change password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthChangePasswordRequest'
+        required: true
+      responses:
+        '201':
+          description: Status 201 Response
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+  
   /auth/resetpassword:
     post:
       tags:
@@ -214,8 +245,8 @@ paths:
               $ref: '#/components/schemas/AuthResetPasswordRequest'
         required: true
       responses:
-        '200':
-          description: Status 200 Response
+        '201':
+          description: Status 201 Response
           content:
             application/json:
               schema:
@@ -249,8 +280,8 @@ paths:
               $ref: '#/components/schemas/AuthConfirmResetPasswordRequest'
         required: true
       responses:
-        '200':
-          description: Status 200 Response
+        '201':
+          description: Status 201 Response
           content:
             application/json:
               schema:
@@ -2020,8 +2051,8 @@ paths:
         operationId: transactions
         parameters: []
         responses:
-          '201':
-            description: Status 201 Response
+          '200':
+            description: Status 200 Response
             content:
               application/json:
                 schema:
@@ -2392,6 +2423,8 @@ components:
         rating:
           type: number
         review:
+          type: string
+        completedAt:
           type: string
         acceptedAt:
           type: string
@@ -2845,6 +2878,15 @@ components:
         workVideoUrl: 
           type: string
         businessName: 
+          type: string
+
+    AuthChangePasswordRequest:
+      type: object
+      required: [newPassword,oldPassword]
+      properties:
+        newPassword:
+          type: string
+        oldPassword:
           type: string
 
     AuthResetPasswordRequest:
@@ -3930,8 +3972,10 @@ components:
             type: string
           userId:
             type: number
-          photoUrlprofilePhotoUrl:
+          profilePhotoUrl:
             type: string
+          chat: 
+            $ref: '#/components/schemas/Chat'
     
     ChatsByIdRequest:
       allOf:
@@ -3962,35 +4006,32 @@ components:
       items:
         type: object
         properties:
-            feeId:
-              type: number
-            name:
-              type: string
-            price:
-              type: number
-            invoiceId:
-              type: number
-            createdAt:
-              type: string
-            invoice:
-              type: object
-              properties:
-                booking:
-                  type: object
-                  properties: 
-                    user:
-                      type: object
-                      properties:
-                        name: 
-                          type: string
-                    pro:
-                      type: object
-                      properties:
-                        name: 
-                          type: string
-                        businessName:  
-                          type: string
-    
+          bookingId:
+            type: number
+          service:
+            $ref: '#/components/schemas/Service'
+          user:
+            type: object
+            properties:
+              name: 
+                type: string
+              profilePhotoUrl: 
+                type: string
+          pro:
+            type: object
+            properties:
+              name: 
+                type: string
+              profilePhotoUrl: 
+                type: string
+              businessName:  
+                type: string
+          completedAt:
+            type: string
+          total:
+            type: number
+
+                    
     verifyTransactionResponse:
       type: object
 

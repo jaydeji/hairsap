@@ -357,12 +357,20 @@ const markBookingAsCompleted =
 
     await repo.book.updateBooking(bookingId, {
       status: BOOKING_STATUS.COMPLETED,
+      completedAt: new Date(),
     })
 
     await resolveBonus({ repo, queue, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
       await redeemCash({ repo, queue, proId: booking.proId })
+      await repo.book.updateBooking(bookingId, {
+        invoice: {
+          update: {
+            paid: true,
+          },
+        },
+      })
     } else {
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
@@ -390,6 +398,13 @@ const markBookingAsCompleted =
             },
           })
           .json()
+        await repo.book.updateBooking(bookingId, {
+          invoice: {
+            update: {
+              paid: true,
+            },
+          },
+        })
       } catch (error) {
         // TODO: handle failed payments
         logger.info({ userId: user.userId }, 'payment unsuccessful')

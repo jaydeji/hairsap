@@ -364,6 +364,7 @@ const addServiceToBooking =
           update: {
             invoiceFees: {
               create: {
+                subServiceId,
                 name,
                 price,
               },
@@ -416,6 +417,7 @@ const bookPro =
             transportFee: data.transportFee,
             invoiceFees: {
               create: {
+                subServiceId: data.subServiceId,
                 name: data.subServiceName,
                 price: data.subServiceFee,
               },
@@ -482,45 +484,61 @@ const getUserBookings =
 
 const getTransactions =
   ({ db }: { db: PrismaClient }) =>
-  (userId: number) =>
-    db.invoiceFees.findMany({
-      where: {
-        invoice: {
-          paid: true,
-          booking: {
-            OR: [
-              {
-                userId,
-              },
-              {
-                proId: userId,
-              },
-            ],
-          },
+  async (userId: number) => {
+    const [subServices, bookings] = await db.$transaction([
+      db.subService.findMany({ include: { service: true } }),
+      db.booking.findMany({
+        where: {
+          OR: [{ userId }, { proId: userId }],
+          status: BOOKING_STATUS.COMPLETED,
         },
-      },
-      include: {
-        invoice: {
-          select: {
-            booking: {
-              select: {
-                pro: {
-                  select: {
-                    name: true,
-                    businessName: true,
-                  },
-                },
-                user: {
-                  select: {
-                    name: true,
-                  },
+        select: {
+          bookingId: true,
+          completedAt: true,
+          pro: {
+            select: {
+              businessName: true,
+              name: true,
+              profilePhotoUrl: true,
+            },
+          },
+          user: {
+            select: {
+              name: true,
+              profilePhotoUrl: true,
+            },
+          },
+          invoice: {
+            select: {
+              transportFee: true,
+              invoiceFees: {
+                select: {
+                  price: true,
+                  subServiceId: true,
                 },
               },
             },
           },
         },
-      },
+      }),
+    ])
+
+    return bookings.map((booking) => {
+      return {
+        bookingId: booking.bookingId,
+        pro: booking.pro,
+        user: booking.user,
+        completedAt: booking.completedAt,
+        service: subServices.find(
+          (e) =>
+            e.subServiceId === booking.invoice?.invoiceFees?.[0]?.subServiceId,
+        )?.service,
+        total:
+          booking.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
+          0,
+      }
     })
+  }
 
 const getTotalOfWeeklyCompletedBookings =
   ({ db }: { db: PrismaClient }) =>
@@ -611,6 +629,16 @@ const updateBonus =
       data,
     })
 
+const updateInvoice =
+  ({ db }: { db: PrismaClient }) =>
+  (invoiceId: number, data: Prisma.InvoiceUpdateInput) =>
+    db.invoice.update({
+      where: {
+        invoiceId,
+      },
+      data,
+    })
+
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
@@ -628,6 +656,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getUserBookings: getUserBookings({ db }),
     getProBookings: getProBookings({ db }),
     getInvoiceById: getInvoiceById({ db }),
+    updateInvoice: updateInvoice({ db }),
     getTransactions: getTransactions({ db }),
     getTotalOfWeeklyCompletedBookings: getTotalOfWeeklyCompletedBookings({
       db,

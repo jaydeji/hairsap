@@ -52,6 +52,18 @@ const makeAuthRouter = ({
   )
 
   router.post(
+    '/changepassword',
+    auth({ repo }),
+    ah(async (req, res) => {
+      await service.auth.changePassword({
+        userId: req.tokenData?.userId,
+        ...req.body,
+      })
+      res.status(201).send()
+    }),
+  )
+
+  router.post(
     '/resetpassword',
     ah(async (req, res) => {
       await service.auth.resetPassword(req.body)

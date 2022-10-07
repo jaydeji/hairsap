@@ -10,7 +10,7 @@ const getChatList =
   ({ repo }: { repo: Repo }) =>
   async (userId: number) => {
     const chats = await repo.chat.getChatList(userId)
-    return { chats }
+    return chats
   }
 
 const getChatById =
@@ -18,7 +18,7 @@ const getChatById =
   async (data: { userId: number; otherUserId: number } & Cursor) => {
     GetChatByIdReqSchema.parse(data)
     const chats = await repo.chat.getChatById(data)
-    return { chats }
+    return chats
   }
 
 //unused

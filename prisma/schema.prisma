@@ -82,11 +82,12 @@ model BookingSubService {
 }
 
 model InvoiceFees {
-  feeId     Int     @id @default(autoincrement())
-  name      String
-  price     Float
-  invoiceId Int
-  invoice   Invoice @relation(fields: [invoiceId], references: [invoiceId], onDelete: Cascade)
+  feeId        Int     @id @default(autoincrement())
+  name         String
+  price        Float
+  invoiceId    Int
+  invoice      Invoice @relation(fields: [invoiceId], references: [invoiceId], onDelete: Cascade)
+  subServiceId Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -131,6 +132,7 @@ model Booking {
   rating                      Int?
   review                      String?   @db.Text()
   acceptedAt                  DateTime?
+  completedAt                 DateTime?
   rejectedAt                  DateTime?
   arrivalAt                   DateTime?
   cancelledAt                 DateTime?

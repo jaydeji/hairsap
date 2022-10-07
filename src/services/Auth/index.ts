@@ -7,6 +7,7 @@ import { confirmResetPassword } from './confirmResetPassword'
 import { uploadFaceId } from './uploadFaceId'
 import { generateOtp } from './generateOtp'
 import { Queue } from '../Queue'
+import { changePassword } from './changePassword'
 
 const makeAuth = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
@@ -17,6 +18,7 @@ const makeAuth = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     confirmResetPassword: confirmResetPassword({ repo }),
     resetPassword: resetPassword({ repo, queue }),
     generateOtp: generateOtp({ repo, queue }),
+    changePassword: changePassword({ repo }),
   }
 }
 
