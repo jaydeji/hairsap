@@ -17,7 +17,7 @@ export const changePassword =
 
     const hashedPassword = hashPassword(body.oldPassword)
 
-    if (body.oldPassword !== hashedPassword)
+    if (user.password !== hashedPassword)
       throw new ForbiddenError('wrong password')
 
     await repo.user.updateUser(body.userId, {

@@ -284,4 +284,14 @@ Authorization: Bearer {{ptoken}}
  
 }
 
+###
+POST {{base}}/auth/changepassword HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+{
+ "newPassword":"jide12345",
+ "oldPassword":"jide1234"
+}
+
 
