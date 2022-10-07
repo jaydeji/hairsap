@@ -38,7 +38,7 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
     }
   })
   io.on('connection', (socket) => {
-    logger.debug('a user connected')
+    logger.info('a user connected')
 
     if (process.env.NODE_ENV === 'development') {
       socket.onAny((event, ...args) => {
@@ -68,23 +68,25 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
         createdAt: new Date().toISOString(),
       }
 
+      let messageWithId
+
       try {
         const job = await service.queue.chatQueue.add(message)
-        const chat = await job.finished()
-        callback?.({ data: chat })
+        messageWithId = await job.finished()
+        callback?.({ data: messageWithId })
       } catch (error) {
         return callback?.({ error: (error as Error).message })
       }
 
-      const socketId = connectedUsers[message.receiverId]?.socketId
+      const socketId = connectedUsers[messageWithId.receiverId]?.socketId
       if (socketId) {
         socket
           .to(connectedUsers[message.receiverId]?.socketId as string)
-          .emit('new message', { data: message })
+          .emit('new message', { data: messageWithId })
       } else {
         await service.push.sendPushMessage(message.receiverId, {
           title: 'New chat message',
-          data: message,
+          data: messageWithId,
         })
       }
     })
