@@ -258,7 +258,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/23.jpeg',
     serviceId: 1,
     subServiceId: 23,
-    price: 25000 * 100,
+    price: 30000 * 100,
   },
   {
     name: 'Criss cross braids',
@@ -344,7 +344,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 30000 * 100,
   },
   {
-    name: 'Natural hair Coloring/Highlight & styling',
+    name: 'Natural hair Coloring/Highlight',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/34.jpeg',
     serviceId: 2,
@@ -360,7 +360,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 40000 * 100,
   },
   {
-    name: 'Natural hair Blowout & styling',
+    name: 'Natural hair Blowout',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/36.jpeg',
     serviceId: 2,
@@ -377,21 +377,24 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'Glueless Frontal installation & styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/52.jpeg',
     serviceId: 2,
     subServiceId: 52,
     price: 40000 * 100,
   },
   {
     name: 'Glueless Closure installation & styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
     serviceId: 2,
     subServiceId: 53,
     price: 30000 * 100,
   },
   {
     name: 'Styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/54.jpeg',
     serviceId: 2,
     subServiceId: 54,
     price: 30000 * 100,
@@ -405,35 +408,40 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'Hair Wigging',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/56.jpeg',
     serviceId: 2,
     subServiceId: 56,
     price: 20000 * 100,
   },
   {
     name: 'Hair Wigging & Styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/57.jpeg',
     serviceId: 2,
     subServiceId: 57,
     price: 30000 * 100,
   },
   {
     name: 'Customization (24 hours)',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/58.jpeg',
     serviceId: 2,
     subServiceId: 58,
     price: 15000 * 100,
   },
   {
     name: 'Revamping (3 days)',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/59.jpeg',
     serviceId: 2,
     subServiceId: 59,
     price: 15000 * 100,
   },
   {
     name: 'Chief bridal styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/60.jpeg',
     serviceId: 2,
     subServiceId: 60,
     price: 200000 * 100,
@@ -485,7 +493,7 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     price: 35000 * 100,
   },
   {
-    name: 'Interlocking/crocheting maintenance & Styling',
+    name: 'Interlocking/crotcheting maintenance & Styling',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/43.jpeg',
     serviceId: 4,
@@ -526,14 +534,16 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'Retwisting maintenance & styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/50.jpeg',
     serviceId: 4,
     subServiceId: 50,
     price: 30000 * 100,
   },
   {
     name: 'Washing & Treatment',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/51.jpeg',
     serviceId: 4,
     subServiceId: 51,
     price: 25000 * 100,
