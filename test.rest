@@ -135,8 +135,7 @@ Authorization: Bearer {{utoken}}
 {
     "latitude":6.520238459241921,
     "longitude":3.3680734868226345,
-    "subServiceId":1,
-    "proId":3
+    "subServiceId":1
 }
 
 ###

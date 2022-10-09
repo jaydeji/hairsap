@@ -64,6 +64,9 @@ const getNearestPro =
     u.businessName,
     u.name proName,
     u.available,
+    u.approved,
+    u.terminated,
+    u.deactivated,
     ss.name serviceName,
     u.address,
     ss.price,
@@ -92,9 +95,9 @@ WHERE
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
     AND available = 1
-    AND "approved" = 1
-    AND "terminated" != 1
-    AND "deactivated" != 1
+    AND approved = 1
+    AND \`terminated\` != 1
+    AND deactivated != 1
 ORDER BY distance, userId ASC LIMIT 1;`
 
     if (result.length) {
@@ -142,6 +145,9 @@ SELECT
     u.businessName,
     u.name proName,
     u.available,
+    u.approved,
+    u.deactivated,
+    u.terminated,
     ss.name serviceName,
     u.address,
     ss.price,
@@ -162,9 +168,9 @@ WHERE u.userId = ${userId}
     AND longitude IS NOT NULL
     AND latitude IS NOT NULL
     AND available = 1
-    AND "approved" = 1
-    AND "deactivated" != 1
-    AND "terminated" != 1
+    AND approved = 1
+    AND deactivated != 1
+    AND \`terminated\` != 1
     `
 
     if (result.length) {
