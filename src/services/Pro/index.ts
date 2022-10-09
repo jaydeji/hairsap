@@ -52,6 +52,8 @@ const updatePro =
       available: body.available,
       bio: body.bio,
       phone: body.phone,
+      latitude: body.latitude,
+      longitude: body.longitude,
       account: body.account
         ? {
             upsert: {

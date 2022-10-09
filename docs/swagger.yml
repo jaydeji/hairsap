@@ -3564,6 +3564,10 @@ components:
           type: string
         available:
           type: boolean
+        latitude:
+          type: number
+        longitude:
+          type: number
         account:
           type: object
           required: [accountNumber,accountName,bankName]
