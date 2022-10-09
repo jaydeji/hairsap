@@ -1,13 +1,12 @@
 import { z } from 'zod'
 import { ROLES } from '../../config/constants'
-import { isValidPhone } from '../../utils'
 
 const PostLoginResponseSchema = z
   .object({
     email: z.string().email(),
     name: z.string(),
     userId: z.number(),
-    phone: z.string().refine((e) => isValidPhone(e)),
+    phone: z.string().optional(),
     role: z.nativeEnum(ROLES),
     profilePhotoUrl: z.string().optional().nullable(),
     terminated: z.boolean().optional().nullable(),
