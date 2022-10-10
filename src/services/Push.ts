@@ -15,7 +15,7 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
         if (!pushToken) return
         await expo.sendPushNotificationsAsync([{ ...message, to: pushToken }])
       } catch (error) {
-        logger.err(error)
+        logger.err(error, 'Push message error')
       }
     },
   }

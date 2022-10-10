@@ -34,7 +34,7 @@ const getChatImagePresignedUrl = async (body: { userId: number }) => {
       fields: fields,
     }
   } catch (error) {
-    logger.err(error)
+    logger.err(error, 'Error getting chat image presigned url')
     throw new InternalError()
   }
 }

@@ -108,7 +108,7 @@ const createSocket = ({
         try {
           await repo.user.updateUser(payload.userId, payload)
         } catch (error) {
-          logger.err(error)
+          logger.err(error, 'error updating socket location')
           callback?.({ error: 'error updating user location' })
         }
       },

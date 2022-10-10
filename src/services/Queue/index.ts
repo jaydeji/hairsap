@@ -65,7 +65,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     bookingId: number
   }>('booking', redisUrl, options)
 
-  deactivateQueue.add('deactivate-task', undefined, {
+  deactivateQueue.add(undefined, {
     repeat: { cron: '00 00 21 * * 7' },
   }) //every sunday night by 9pm
 
@@ -90,7 +90,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     try {
       await deactivateProNonRedeems({ db, repo, proId: job.data.proId })
     } catch (error) {
-      logger.err(error)
+      logger.err(error, 'Deactivate Redeem Error')
       done(error as Error)
       return
     }
@@ -134,7 +134,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
         userId: job.data.userId,
       })
     } catch (error) {
-      logger.err(error)
+      logger.err(error, 'Error creating notification')
       done(error as Error)
       return
     }
@@ -146,7 +146,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       return Promise.resolve()
 
     sendMail(job.data).catch((error) => {
-      logger.err(error)
+      logger.err(error, 'Error sending mail')
       return Promise.reject(error)
     })
     return Promise.resolve()
@@ -183,7 +183,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       done(null, chat)
       return
     } catch (error) {
-      logger.err(error)
+      logger.err(error, 'Error in chat queue')
       done(error as Error)
       return
     }
@@ -274,7 +274,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
         logger.info(job.data, 'payment queue not charge.success')
       }
     } catch (error) {
-      logger.err(error)
+      logger.err(error, 'Error in payment queue')
       done(error as Error)
       return
     }

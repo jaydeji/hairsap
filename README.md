@@ -55,6 +55,10 @@ The swagger docs are hosted on /reference
 Use https://studio.asyncapi.com/ to test your yml file
 Edit `docs/asyncapi.yml` and run `npm run docs:sock:gen`
 
+## Queue
+
+To retry jobs, go to `http://localhost:4000`
+
 ## Logging
 
 Avoid using console. Use the npm package pino logger instead

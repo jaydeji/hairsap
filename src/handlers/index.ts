@@ -47,8 +47,7 @@ const makeRouter = ({
           },
         }).json()
       } catch (error) {
-        logger.err(error)
-        logger.err((error as any).response)
+        logger.err((error as any).response, 'Paystack verification error')
         throw new NotFoundError()
       }
 
