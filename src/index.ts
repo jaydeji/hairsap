@@ -28,7 +28,7 @@ const io = new Server(server, {
   },
 })
 
-export const socket = createSocket({ io, service })
+export const socket = createSocket({ io, service, repo })
 
 const PORT = process.env.PORT || 4000
 

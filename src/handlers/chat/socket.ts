@@ -2,7 +2,7 @@ import { ROLES } from '../../config/constants'
 import { IO } from '../../index'
 import { ChatMessageType, MessageSchema } from '../../schemas/models/Message'
 import { PostBookProReq } from '../../schemas/request/postBookPro'
-import { Role, Service } from '../../types'
+import { Repo, Role, Service } from '../../types'
 import { logger } from '../../utils'
 import { UnauthorizedError } from '../../utils/Error'
 import { verifyJwt } from '../../utils/jwtLib'
@@ -15,7 +15,15 @@ import { verifyJwt } from '../../utils/jwtLib'
 //socket input Object<any>
 //socket output Object<{data,message,error}>
 
-const createSocket = ({ io, service }: { io: IO; service: Service }) => {
+const createSocket = ({
+  io,
+  service,
+  repo,
+}: {
+  io: IO
+  service: Service
+  repo: Repo
+}) => {
   const connectedUsers: Record<string, { socketId: string } | undefined> = {}
 
   io.use(function (socket, next) {
@@ -98,9 +106,10 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
         callback,
       ) => {
         try {
-          await service.user.updateUser(payload.userId, payload)
+          await repo.user.updateUser(payload.userId, payload)
         } catch (error) {
-          callback?.({ error: (error as Error).message })
+          logger.err(error)
+          callback?.({ error: 'error updating user location' })
         }
       },
     )
