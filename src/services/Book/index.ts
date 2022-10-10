@@ -573,10 +573,10 @@ const rateAndReviewBooking =
       throw new NotFoundError('booking not found')
 
     if (booking.status !== BOOKING_STATUS.COMPLETED)
-      throw new NotFoundError('Booking has not been completed')
+      throw new ForbiddenError('Booking has not been completed')
 
     if (typeof booking.rating === 'number')
-      throw new NotFoundError('Booking has already been rated')
+      throw new ForbiddenError('Booking has already been rated')
 
     await repo.book.updateBooking(bookingId, {
       rating,
