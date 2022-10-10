@@ -226,7 +226,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
         }
         const authorization = job.data?.data?.data?.authorization
         if (
-          job.data?.data?.data?.metadata?.store === 'true' &&
+          amountPaid === 5000 &&
           authorization?.reusable === true &&
           authorization?.authorization_code &&
           job.data?.userId &&
@@ -258,17 +258,15 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
             },
           })
 
-          if (amountPaid === 5000) {
-            await got.post(PAYSTACK_URL + '/refund', {
-              headers: {
-                Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
-              },
-              json: {
-                transaction: reference,
-                amount: amountPaid,
-              },
-            })
-          }
+          await got.post(PAYSTACK_URL + '/refund', {
+            headers: {
+              Authorization: 'Bearer ' + process.env.PAYMENT_SECRET,
+            },
+            json: {
+              transaction: reference,
+              amount: amountPaid,
+            },
+          })
         }
       } else {
         logger.info(job.data, 'payment queue not charge.success')
