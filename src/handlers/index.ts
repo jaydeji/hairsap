@@ -87,13 +87,14 @@ const makeRouter = ({
   router.post(
     '/webhook/paystack',
     ah((req, res) => {
+      logger.info('paystack webhook')
       const secret = process.env.PAYMENT_SECRET
       const hash = crypto
         .createHmac('sha512', secret)
         .update(JSON.stringify(req.body))
         .digest('hex')
       if (hash !== req.headers['x-paystack-signature']) {
-        logger.info(req.body, 'paystack webhook')
+        logger.info(req.body, 'paystack webhook signature fail')
         throw new ForbiddenError()
       }
       //TODO backend should add "custom_fields" with invoiceitems to metadata
