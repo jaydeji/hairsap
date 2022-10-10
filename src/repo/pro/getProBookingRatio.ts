@@ -15,9 +15,9 @@ const getDailyBookingRatio = async ({
   const query = (users: string[]) =>
     db.$queryRaw`
 SELECT CAST(COUNT(DISTINCT b.userId) AS CHAR(32)) AS cnt
-FROM booking b 
+FROM Booking b 
 WHERE b.createdAt >= ${dayjs().startOf('d').toDate()}
-AND b.userId in (${Prisma.join(users)})
+AND b.userId in (${users.length ? Prisma.join(users) : ''})
     ` as PrismaPromise<{ cnt: number }[]>
 
   const [returnedCount, newCount] = await db.$transaction([
@@ -47,9 +47,9 @@ const getWeeklyDayBookingRatio = async ({
   const query = (users: string[], start: Dayjs, end: Dayjs) =>
     db.$queryRaw`
 SELECT CAST(COUNT(DISTINCT b.userId) AS CHAR(32)) cnt
-FROM booking b 
+FROM Booking b 
 WHERE b.createdAt BETWEEN ${start.toDate()} AND ${end.toDate()}
-AND b.userId in (${Prisma.join(users)})
+AND b.userId in (${users.length ? Prisma.join(users) : ''})
     ` as PrismaPromise<{ cnt: number }[]>
 
   const result = await db.$transaction([
