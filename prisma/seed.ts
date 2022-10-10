@@ -389,7 +389,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
     serviceId: 2,
     subServiceId: 53,
-    price: 30000 * 100,
+    price: 35000 * 100,
   },
   {
     name: 'Styling',
@@ -428,7 +428,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/58.jpeg',
     serviceId: 2,
     subServiceId: 58,
-    price: 15000 * 100,
+    price: 25000 * 100,
   },
   {
     name: 'Revamping (3 days)',
@@ -436,7 +436,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/59.jpeg',
     serviceId: 2,
     subServiceId: 59,
-    price: 15000 * 100,
+    price: 20000 * 100,
   },
   {
     name: 'Chief bridal styling',
