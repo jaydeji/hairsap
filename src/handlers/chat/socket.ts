@@ -105,19 +105,28 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
     })
   })
 
+  const sendSocketNotify = (
+    key: 'notification',
+    userId: number,
+    message: { body?: string; title?: string; userId: number },
+  ) => {
+    const conn = connectedUsers[userId]
+    if (!conn) return false
+    io.sockets.to(conn.socketId).emit(key, { data: message })
+    return true
+  }
+
+  const sendSocketBooking = (userId: number, message: Record<string, any>) => {
+    const conn = connectedUsers[userId]
+    if (!conn) return
+    io.sockets.to(conn.socketId).emit('booking', { data: message })
+  }
+
   return {
     io,
     connectedUsers,
-    sendSocketNotify: (
-      key: 'notification',
-      userId: number,
-      message: { body?: string; title?: string; userId: number },
-    ) => {
-      const conn = connectedUsers[userId]
-      if (!conn) return false
-      io.sockets.to(conn.socketId).emit(key, message)
-      return true
-    },
+    sendSocketNotify,
+    sendSocketBooking,
   }
 }
 

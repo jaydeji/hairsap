@@ -14,7 +14,7 @@ import {
   terminateDeactivatedUsers,
 } from '../../repo/pro/utils'
 import { socket } from '../../index'
-import { Repo } from '../../types'
+import { BookingStatus, Repo } from '../../types'
 import { Push } from '../Push'
 
 const redisUrl = process.env.REDIS_URL
@@ -59,6 +59,11 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     redisUrl,
     options,
   )
+  const bookingQueue = new Queue<{
+    userId: number
+    status: BookingStatus | 'in transit' | 'arrived'
+    bookingId: number
+  }>('booking', redisUrl, options)
 
   deactivateQueue.add('deactivate-task', undefined, {
     repeat: { cron: '00 00 21 * * 7' },
@@ -277,6 +282,11 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     done()
   })
 
+  bookingQueue.process(async (job, done) => {
+    socket.sendSocketBooking(job.data.userId, job.data)
+    done()
+  })
+
   return {
     emailQueue,
     phoneQueue,
@@ -285,6 +295,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     notifyQueue,
     deactivateRedeem,
     deactivateQueue,
+    bookingQueue,
   }
 }
 

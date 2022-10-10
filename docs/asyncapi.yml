@@ -24,6 +24,7 @@ channels:
       message:
         oneOf:
           - $ref: "#/components/messages/Notification"
+          - $ref: "#/components/messages/Booking"
 
 components:
   messages:
@@ -63,7 +64,7 @@ components:
     Notification:
       name: notification
       contentType: application/json
-      description: notificaitions
+      description: notifications
       examples:
         - payload:
             userId: 1
@@ -79,6 +80,27 @@ components:
             type: string
           body:
             type: string
+    Booking:
+      name: booking
+      contentType: application/json
+      description: booking statuses
+      examples:
+        - payload:
+            userId: 1
+            bookingId: 2
+            status: 'completed'
+      payload:
+        type: object
+        required: [userId,bookingId,status]
+        properties:
+          userId:
+            type: number
+          bookingId:
+            type: string
+          status:
+            type: string
+            enum: [accepted, completed, rejected, in transit, arrived]
+
 
   channelBindings:
     AuthenticatedWsBindings:

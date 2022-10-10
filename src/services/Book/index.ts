@@ -191,6 +191,12 @@ const acceptBooking =
       status: BOOKING_STATUS.ACCEPTED,
     })
 
+    queue.bookingQueue.add({
+      userId: booking.userId,
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.ACCEPTED,
+    })
+
     queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Booking accepted',
@@ -253,6 +259,12 @@ const rejectBooking =
     await repo.book.updateBooking(bookingId, {
       status: BOOKING_STATUS.REJECTED,
       rejectedAt: new Date(),
+    })
+
+    queue.bookingQueue.add({
+      userId: booking.userId,
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.REJECTED,
     })
 
     queue.notifyQueue.add({
@@ -360,6 +372,18 @@ const markBookingAsCompleted =
       completedAt: new Date(),
     })
 
+    queue.bookingQueue.add({
+      userId: booking.userId,
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.COMPLETED,
+    })
+
+    queue.notifyQueue.add({
+      title: 'Booking completed',
+      body: 'Booking has been completed',
+      userId: proId,
+    })
+
     await resolveBonus({ repo, queue, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
@@ -414,7 +438,7 @@ const markBookingAsCompleted =
   }
 
 const markBookingAsArrived =
-  ({ repo }: { repo: Repo }) =>
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ proId, bookingId }: { bookingId: number; proId: number }) => {
     PostMarkBookingAsArrivedReqSchema.parse({ proId, bookingId })
 
@@ -432,6 +456,18 @@ const markBookingAsArrived =
       await repo.book.updateBooking(bookingId, {
         arrived: true,
       })
+
+    queue.bookingQueue.add({
+      userId: booking.userId,
+      bookingId: booking.bookingId,
+      status: 'arrived',
+    })
+
+    queue.notifyQueue.add({
+      userId: booking.userId,
+      title: 'Beauty Pro has arrived',
+      body: 'Beauty Pro has arrived',
+    })
   }
 
 const markBookingAsIntransit =
@@ -464,6 +500,12 @@ const markBookingAsIntransit =
       userId: booking.userId,
       title: 'Prep for pro arrival',
       body: 'Kindly provide an electrical outlet. Remove pets or baby around the vicinity before the pro arrives',
+    })
+
+    queue.bookingQueue.add({
+      userId: booking.userId,
+      bookingId: booking.bookingId,
+      status: 'in transit',
     })
   }
 
@@ -593,7 +635,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getAcceptedBookings: getAcceptedBookings({ repo }),
     cancelBooking: cancelBooking({ repo, queue }),
     markBookingAsCompleted: markBookingAsCompleted({ repo, queue }),
-    markBookingAsArrived: markBookingAsArrived({ repo }),
+    markBookingAsArrived: markBookingAsArrived({ repo, queue }),
     getBookingActivity: getBookingActivity({ repo }),
     getUserBookings: getUserBookings({ repo }),
     getProBookings: getProBookings({ repo }),
