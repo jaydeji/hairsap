@@ -225,6 +225,17 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
           }
         }
         const authorization = job.data?.data?.data?.authorization
+
+        logger.info(
+          {
+            amountPaid,
+            reusable: authorization?.reusable,
+            authorization_code: authorization?.authorization_code,
+            userId: job.data?.userId,
+            email: job.data.email,
+          },
+          'payment info',
+        )
         if (
           amountPaid === 5000 &&
           authorization?.reusable === true &&
