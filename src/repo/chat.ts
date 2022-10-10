@@ -59,7 +59,7 @@ const getChatById =
   } & Cursor) =>
     db.chat.findMany({
       take: desc ? take : -take,
-      skip: 1,
+      skip: cursor ? 1 : undefined,
       cursor: cursor
         ? {
             chatId: cursor,
