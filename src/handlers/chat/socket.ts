@@ -91,6 +91,20 @@ const createSocket = ({ io, service }: { io: IO; service: Service }) => {
       }
     })
 
+    socket.on(
+      'location',
+      async (
+        payload: { userId: number; latitude: number; longitude: number },
+        callback,
+      ) => {
+        try {
+          await service.user.updateUser(payload.userId, payload)
+        } catch (error) {
+          callback?.({ error: (error as Error).message })
+        }
+      },
+    )
+
     socket.on('bookpro', async (payload: PostBookProReq, callback) => {
       try {
         //TODO: remove because of photo upload. Send fcm instead

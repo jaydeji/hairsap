@@ -20,6 +20,7 @@ channels:
       message:
         oneOf:
           - $ref: "#/components/messages/NewMessage"
+          - $ref: "#/components/messages/Location"
     subscribe:
       message:
         oneOf:
@@ -61,6 +62,33 @@ components:
               type: [string, Object]
             - data:
               type: Object
+    Location:
+      name: location
+      contentType: application/json
+      description: update user location
+      examples:
+        - payload:
+            userId: 1
+            longitude: 1.2
+            latitude: 3.4
+      payload:
+        type: object
+        required: [userId,longitude,latitude]
+        properties:
+          userId:
+            type: number
+          longitude:
+            type: number
+          latitude:
+            type: number
+      x-ack: # Documents that this event is always acknowledged by the receiver
+        args:
+          type: object
+          properties:
+            oneOf:
+            - error:
+              type: [string, Object]
+          
     Notification:
       name: notification
       contentType: application/json

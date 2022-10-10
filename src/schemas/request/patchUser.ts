@@ -9,6 +9,14 @@ export const PatchUserRequestSchema = z
       .string()
       .optional()
       .refine((e) => isValidPhone(e)),
+    latitude: z
+      .number()
+      .refine((e) => Math.abs(e) <= 90)
+      .optional(),
+    longitude: z
+      .number()
+      .refine((e) => Math.abs(e) <= 180)
+      .optional(),
   })
   .strict()
 
