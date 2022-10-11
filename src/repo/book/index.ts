@@ -60,6 +60,8 @@ const getBookingByIdAndMore =
             longitude: true,
             latitude: true,
             profilePhotoUrl: true,
+            faceIdPhotoUrl: true,
+
             email: true,
             name: true,
             phone: true,
@@ -175,6 +177,8 @@ const getBookingsByStatusAndMore =
             longitude: true,
             latitude: true,
             profilePhotoUrl: true,
+            faceIdPhotoUrl: true,
+
             email: true,
             name: true,
             phone: true,
@@ -260,6 +264,8 @@ const getBookingActivity =
             longitude: true,
             latitude: true,
             profilePhotoUrl: true,
+            faceIdPhotoUrl: true,
+
             email: true,
             name: true,
             phone: true,
@@ -473,6 +479,7 @@ const getUserBookings =
             select: {
               name: true,
               profilePhotoUrl: true,
+              faceIdPhotoUrl: true,
             },
           },
         },
@@ -506,6 +513,7 @@ const getTransactions =
             select: {
               name: true,
               profilePhotoUrl: true,
+              faceIdPhotoUrl: true,
             },
           },
           invoice: {

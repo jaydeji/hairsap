@@ -215,6 +215,7 @@ model User {
   phone                            String
   role                             String
   faceIdPhotoKey                   String?
+  faceIdPhotoUrl                   String?
   faceIdPhotoOriginalFileName      String?
   profilePhotoUrl                  String?  @db.VarChar(512)
   profilePhotoKey                  String?

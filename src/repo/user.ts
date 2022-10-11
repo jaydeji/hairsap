@@ -218,6 +218,7 @@ const getAllUsers =
           email: true,
           phone: true,
           profilePhotoUrl: true,
+          faceIdPhotoUrl: true,
           name: true,
           verified: true,
         },
@@ -262,6 +263,7 @@ const getUserDetails =
             name: true,
             userId: true,
             profilePhotoUrl: true,
+            faceIdPhotoUrl: true,
             email: true,
             createdAt: true,
             verified: true,
@@ -295,6 +297,7 @@ const getUserData =
         phone: true,
         role: true,
         profilePhotoUrl: true,
+        faceIdPhotoUrl: true,
         verified: true,
         card: {
           select: {

@@ -220,6 +220,7 @@ const getProSubscribers =
           select: {
             userId: true,
             profilePhotoUrl: true,
+            faceIdPhotoUrl: true,
             name: true,
           },
         },

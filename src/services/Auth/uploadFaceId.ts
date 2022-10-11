@@ -6,12 +6,13 @@ import { uniqueId } from '../../utils'
 
 const uploadFaceIdUser = async ({
   repo,
-  body: { userId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+  body: { userId, faceIdPhotoKey, faceIdPhotoUrl, faceIdPhotoOriginalFileName },
 }: {
   repo: Repo
   body: {
     userId: number
     faceIdPhotoKey: string
+    faceIdPhotoUrl: string
     faceIdPhotoOriginalFileName: string
     role: Role
   }
@@ -19,18 +20,20 @@ const uploadFaceIdUser = async ({
   await repo.user.updateUser(userId, {
     faceIdPhotoKey,
     faceIdPhotoOriginalFileName,
+    faceIdPhotoUrl,
   })
 }
 
 const uploadFaceIdPro = async ({
   repo,
-  body: { userId, faceIdPhotoKey, faceIdPhotoOriginalFileName },
+  body: { userId, faceIdPhotoKey, faceIdPhotoOriginalFileName, faceIdPhotoUrl },
 }: {
   repo: Repo
   body: {
     userId: number
     faceIdPhotoKey: string
     faceIdPhotoOriginalFileName: string
+    faceIdPhotoUrl: string
     role: Role
   }
 }) => {
@@ -43,6 +46,7 @@ const uploadFaceIdPro = async ({
   await repo.user.updateUser(userId, {
     faceIdPhotoKey,
     faceIdPhotoOriginalFileName,
+    faceIdPhotoUrl,
     profilePhotoKey: key,
     profilePhotoOriginalFileName: faceIdPhotoOriginalFileName,
     profilePhotoUrl: STORAGE_ENDPOINT_CDN + key,
@@ -56,11 +60,13 @@ export const uploadFaceId =
     role,
     faceIdPhotoKey,
     faceIdPhotoOriginalFileName,
+    faceIdPhotoUrl,
   }: {
     userId: number
     role: Role
     faceIdPhotoKey: string
     faceIdPhotoOriginalFileName: string
+    faceIdPhotoUrl: string
   }) => {
     z.object({ userId: z.number() }).strict().parse({ userId })
     if (role === ROLES.PRO)
@@ -71,6 +77,7 @@ export const uploadFaceId =
           role,
           faceIdPhotoKey,
           faceIdPhotoOriginalFileName,
+          faceIdPhotoUrl,
         },
       })
     else
@@ -81,6 +88,7 @@ export const uploadFaceId =
           role,
           faceIdPhotoKey,
           faceIdPhotoOriginalFileName,
+          faceIdPhotoUrl,
         },
       })
   }

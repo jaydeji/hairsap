@@ -9,6 +9,7 @@ const PostLoginResponseSchema = z
     phone: z.string().optional(),
     role: z.nativeEnum(ROLES),
     profilePhotoUrl: z.string().optional().nullable(),
+    faceIdPhotoUrl: z.string().optional().nullable(),
     terminated: z.boolean().optional().nullable(),
     deactivated: z.boolean().optional().nullable(),
     deactivations: z.array(z.any()).optional(),

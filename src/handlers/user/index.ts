@@ -28,11 +28,13 @@ const makeUserRouter = ({
           req.tokenData?.userId
         }/${uniqueId()}`,
         fieldName: 'faceid',
+        acl: 'public-read',
       })
       await service.auth.uploadFaceId({
         userId: req.tokenData!.userId,
         role: req.tokenData!.role,
         faceIdPhotoKey: result.key as string,
+        faceIdPhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
         faceIdPhotoOriginalFileName: result.originalName as unknown as string,
       })
       res.status(201).send()
