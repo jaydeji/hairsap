@@ -188,6 +188,7 @@ const makeProRouter = ({
     ah(async (req, res) => {
       const data = await service.pro.getProInfo({
         proId: +req.params.proId as number,
+        userId: req.tokenData!.userId!,
       })
       res.status(200).send({ data })
     }),

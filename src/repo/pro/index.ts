@@ -404,49 +404,59 @@ const getApplicationVideo =
 
 const getProInfo =
   ({ db }: { db: PrismaClient }) =>
-  async (proId: number) => {
-    const [user, rating, bookings, subscribers] = await db.$transaction([
-      db.user.findFirst({
-        where: {
-          userId: proId,
-          role: ROLES.PRO,
-        },
-        select: {
-          name: true,
-          profilePhotoUrl: true,
-          bio: true,
-          proServices: true,
-        },
-      }),
-      db.booking.aggregate({
-        where: {
-          pro: {
+  async (proId: number, userId?: number) => {
+    const [user, rating, bookings, subscribers, subscribed] =
+      await db.$transaction([
+        db.user.findFirst({
+          where: {
             userId: proId,
             role: ROLES.PRO,
           },
-        },
-        _avg: {
-          rating: true,
-        },
-      }),
-      db.booking.count({
-        where: {
-          pro: {
-            userId: proId,
-            role: ROLES.PRO,
+          select: {
+            name: true,
+            profilePhotoUrl: true,
+            bio: true,
+            proServices: true,
           },
-          status: BOOKING_STATUS.COMPLETED,
-        },
-      }),
-      db.subscription.count({
-        where: {
-          pro: {
-            userId: proId,
-            role: ROLES.PRO,
+        }),
+        db.booking.aggregate({
+          where: {
+            pro: {
+              userId: proId,
+              role: ROLES.PRO,
+            },
           },
-        },
-      }),
-    ])
+          _avg: {
+            rating: true,
+          },
+        }),
+        db.booking.count({
+          where: {
+            pro: {
+              userId: proId,
+              role: ROLES.PRO,
+            },
+            status: BOOKING_STATUS.COMPLETED,
+          },
+        }),
+        db.subscription.count({
+          where: {
+            pro: {
+              userId: proId,
+              role: ROLES.PRO,
+            },
+          },
+        }),
+        db.subscription.findFirst({
+          where: {
+            userId,
+            proId,
+          },
+          select: {
+            userId: true,
+          },
+        }),
+      ])
     if (!user) return
 
     return {
@@ -458,6 +468,7 @@ const getProInfo =
       bookings,
       rating: rating._avg.rating,
       subscribers,
+      subscribed: subscribed ? true : false,
     }
   }
 

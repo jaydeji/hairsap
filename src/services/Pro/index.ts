@@ -202,10 +202,10 @@ const getProDetails =
 
 const getProInfo =
   ({ repo }: { repo: Repo }) =>
-  async (body: { proId: number }) => {
+  async (body: { proId: number; userId: number }) => {
     z.object({ proId: z.number() }).strict().parse(body)
 
-    const data = await repo.pro.getProInfo(body.proId)
+    const data = await repo.pro.getProInfo(body.proId, body.userId)
 
     if (!data) throw new NotFoundError('pro not found')
 

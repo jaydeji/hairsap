@@ -3709,6 +3709,8 @@ components:
           type: number
         subscribers:
           type: number
+        subscribed:
+          type: boolean
 
     ProReviewsRequest:
       allOf:
