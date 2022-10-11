@@ -203,7 +203,7 @@ const getProDetails =
 const getProInfo =
   ({ repo }: { repo: Repo }) =>
   async (body: { proId: number; userId: number }) => {
-    z.object({ proId: z.number() }).strict().parse(body)
+    z.object({ proId: z.number(), userId: z.number() }).strict().parse(body)
 
     const data = await repo.pro.getProInfo(body.proId, body.userId)
 
