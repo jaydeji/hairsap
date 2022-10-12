@@ -482,6 +482,24 @@ const getUserBookings =
               faceIdPhotoUrl: true,
             },
           },
+          pro: {
+            select: {
+              name: true,
+              businessName: true,
+              profilePhotoUrl: true,
+            },
+          },
+          bookedSubServices: {
+            select: {
+              subService: {
+                select: {
+                  name: true,
+                  price: true,
+                  subServiceId: true,
+                },
+              },
+            },
+          },
         },
         take: page.perPage,
         skip: page.skip,
