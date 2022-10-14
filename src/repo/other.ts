@@ -12,7 +12,11 @@ const getServices =
   () =>
     db.service.findMany({
       include: {
-        subServices: true,
+        subServices: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
       },
     })
 
