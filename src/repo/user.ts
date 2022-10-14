@@ -191,6 +191,7 @@ const getUserSubscriptions =
         userId: sub.pro.userId,
         profilePhotoUrl: sub.pro.profilePhotoUrl,
         name: sub.pro.name,
+        businessName: sub.pro.businessName,
         count: sub.pro._count.proBookings,
         rating: ratings.find((e) => e.proId === sub.pro.userId)?._avg || 0,
       },
