@@ -301,6 +301,8 @@ const getProData =
         reactivationRequested: true,
         terminated: true,
         available: true,
+        verified: true,
+        approved: true,
         businessName: true,
         account: true,
         bio: true,
@@ -369,6 +371,7 @@ const getProApplications =
       select: {
         userId: true,
         name: true,
+        profilePhotoUrl: true,
         proServices: {
           select: {
             service: {

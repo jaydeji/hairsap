@@ -156,6 +156,7 @@ const getUserSubscriptions =
             userId: true,
             profilePhotoUrl: true,
             name: true,
+            businessName: true,
             _count: {
               select: {
                 proBookings: {
