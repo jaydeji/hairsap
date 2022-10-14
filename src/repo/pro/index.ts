@@ -401,8 +401,26 @@ const getApplicationVideo =
       where: {
         userId: proId,
       },
-      include: {
+      select: {
         proServices: true,
+        userId: true,
+        email: true,
+        address: true,
+        name: true,
+        phone: true,
+        role: true,
+        profilePhotoUrl: true,
+        deactivated: true,
+        deactivationCount: true,
+        reactivationCount: true,
+        reactivationRequested: true,
+        terminated: true,
+        verified: true,
+        approved: true,
+        available: true,
+        businessName: true,
+        createdAt: true,
+        workVideoUrl: true,
       },
     })
 

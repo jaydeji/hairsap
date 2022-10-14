@@ -137,26 +137,7 @@ const getApplicationVideo =
       .strict()
       .parse({ proId })
     const user = await repo.pro.getApplicationVideo(proId)
-    return {
-      userId: user?.userId,
-      email: user?.email,
-      address: user?.address,
-      name: user?.name,
-      phone: user?.phone,
-      role: user?.role,
-      profilePhotoUrl: user?.profilePhotoUrl,
-      deactivated: user?.deactivated,
-      deactivationCount: user?.deactivationCount,
-      reactivationCount: user?.reactivationCount,
-      reactivationRequested: user?.reactivationRequested,
-      terminated: user?.terminated,
-      verified: user?.verified,
-      approved: user?.approved,
-      available: user?.available,
-      businessName: user?.businessName,
-      createdAt: user?.createdAt,
-      proServices: user?.proServices,
-    }
+    return user
   }
 
 const getUnacceptedProPhotos =
