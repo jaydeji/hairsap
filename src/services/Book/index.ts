@@ -34,6 +34,7 @@ import {
   dayjs,
   logger,
   filterBadWords,
+  addCommas,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -299,9 +300,9 @@ const resolveBonus = async ({
     ])
     queue.notifyQueue.add({
       title: 'New Bonus',
-      body: `You have earned a bonus of ${
-        PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS / 100
-      }`,
+      body: `You have earned a bonus of ${addCommas(
+        PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS / 100,
+      )}`,
       userId: proId,
     })
   }
@@ -332,7 +333,9 @@ const redeemCash = async ({
     await repo.other.addNotificationStatus({ type: 'redeem', userId: proId })
     queue.notifyQueue.add({
       title: 'Redeem Payout Request',
-      body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
+      body: `Kindly remit payout of ${addCommas(
+        total / 100,
+      )} within the next 48 hours`,
       userId: proId,
     })
     queue.deactivateRedeem.add(

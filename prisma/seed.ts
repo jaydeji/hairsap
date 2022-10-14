@@ -530,7 +530,7 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/47.jpeg',
     serviceId: 4,
     subServiceId: 47,
-    price: 50000 * 100,
+    price: 55000 * 100,
   },
   {
     name: 'Retwisting maintenance & styling',

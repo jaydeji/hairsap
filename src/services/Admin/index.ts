@@ -10,7 +10,7 @@ import {
   PostAcceptOrRejectAppReqSchema,
 } from '../../schemas/request/postAcceptOrRejectApplication'
 import type { Repo, Role } from '../../types'
-import { getPageMeta, logger, paginate } from '../../utils'
+import { addCommas, getPageMeta, logger, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
 
@@ -108,7 +108,9 @@ const requestPayout =
 
     queue.notifyQueue.add({
       title: 'Redeem Payout Request',
-      body: `Kindly redeem payout of ${total / 100} within the next 48 hours`,
+      body: `Kindly remit payout of ${addCommas(
+        total / 100,
+      )} within the next 48 hours`,
       userId: proId,
     })
   }
