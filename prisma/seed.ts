@@ -500,8 +500,8 @@ const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/38.jpeg',
     serviceId: 3,
-    subServiceId: 38.1,
-    order: 38,
+    subServiceId: 38,
+    order: 38.1,
     price: 30000 * 100,
   },
   {
