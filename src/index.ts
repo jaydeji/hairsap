@@ -1,5 +1,6 @@
+import '@cspotcode/source-map-support/register'
 import 'dotenv/config'
-import 'source-map-support/register'
+
 import http from 'http'
 
 import { Server } from 'socket.io'

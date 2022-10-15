@@ -12,6 +12,7 @@ const logger = pino({
               level: 'debug',
               options: {
                 colorize: true,
+                ignore: 'pid,hostname',
               },
             },
           ],

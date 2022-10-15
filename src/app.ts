@@ -4,7 +4,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import fileUpload from 'express-fileupload'
 import { auth as authMiddleWare, allowOnly } from './middleware/auth'
-import { handleError } from './utils/Error'
+import { handleError, NotFoundError } from './utils/Error'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import { ROLES } from './config/constants'
@@ -88,6 +88,9 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
   )
   app.use('/', makeRouter({ router: Router(), service, repo }))
 
+  app.use((_req, _res, next) => {
+    next(new NotFoundError())
+  })
   app.use(handleError)
 
   return app
