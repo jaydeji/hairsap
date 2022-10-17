@@ -708,6 +708,33 @@ paths:
       security:
         - BearerAuth: []
         
+  /pros/stats:
+    get:
+      tags:
+        - Admin
+      summary: get pros and deactivated pros count
+      operationId: adminprostats
+      parameters: []
+      responses:
+        '200':
+          description: Status 200 Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProStatsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - BearerAuth: []
+
   /admin/userbookings:
     post:
       tags:
@@ -3284,6 +3311,14 @@ components:
                     createdAt:
                       type: string
                       
+    AdminProStatsResponse:
+      type: object
+      properties:
+        prosCount:
+          type: number
+        deactivatedProsCount:
+          type: number
+        
     AdminUserBookingsRequest:
       type: object
       required:

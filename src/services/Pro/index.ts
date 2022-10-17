@@ -286,6 +286,12 @@ const getProReviews =
     return await repo.pro.getProReviews(body)
   }
 
+const getAdminProStats =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    return await repo.pro.getAdminProStats()
+  }
+
 const makePro = ({ repo }: { repo: Repo }) => {
   return {
     getNearestPro: getNearestPro({ repo }),
@@ -304,6 +310,7 @@ const makePro = ({ repo }: { repo: Repo }) => {
     getProBookingRatio: getProBookingRatio({ repo }),
     getProInfo: getProInfo({ repo }),
     getProReviews: getProReviews({ repo }),
+    getAdminProStats: getAdminProStats({ repo }),
   }
 }
 

@@ -73,6 +73,14 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.get(
+    '/pros/stats',
+    ah(async (_req, res) => {
+      const data = await service.pro.getAdminProStats()
+      res.status(200).send({ data })
+    }),
+  )
+
   router.post(
     '/pros',
     ah(async (req, res) => {

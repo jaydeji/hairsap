@@ -5,6 +5,7 @@ import { PageReq } from '../../schemas/request/Page'
 import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
 import { getProStats } from './getProStats'
+import { dayjs } from '../../utils'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -544,6 +545,31 @@ const getProAccount =
       },
     })
 
+const getAdminProStats =
+  ({ db }: { db: PrismaClient }) =>
+  async () => {
+    const [prosCount, deactivatedProsCount] = await db.$transaction([
+      db.user.aggregate({ _count: true, where: { role: ROLES.PRO } }),
+      db.user.aggregate({
+        _count: true,
+        where: {
+          role: ROLES.PRO,
+          deactivated: true,
+          deactivations: {
+            some: {
+              createdAt: { gte: dayjs().startOf('week').toDate() },
+            },
+          },
+        },
+      }),
+    ])
+
+    return {
+      prosCount: prosCount._count,
+      deactivatedProsCount: deactivatedProsCount._count,
+    }
+  }
+
 const makeProRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getNearestPro: getNearestPro({ db }),
@@ -565,6 +591,7 @@ const makeProRepo = ({ db }: { db: PrismaClient }) => {
     getProInfo: getProInfo({ db }),
     getProReviews: getProReviews({ db }),
     getProAccount: getProAccount({ db }),
+    getAdminProStats: getAdminProStats({ db }),
   }
 }
 
