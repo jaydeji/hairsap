@@ -141,6 +141,8 @@ model Booking {
   proId                       Int
   user                        User      @relation("user_booking", fields: [userId], references: [userId], onDelete: Cascade)
   userId                      Int
+  promo                       Promo?    @relation(fields: [promoId], references: [promoId], onDelete: Cascade)
+  promoId                     Int?
 
   invoice           Invoice?
   bookedSubServices BookingSubService[]
@@ -369,22 +371,26 @@ model Marketer {
 }
 
 model Promo {
-  promoId            Int      @id @default(autoincrement())
-  active             Boolean
-  code               String?
-  Marketer           Marketer @relation(fields: [marketerMarketerId], references: [marketerId])
-  marketerMarketerId Int
-  discount           Discount @relation(fields: [discountId], references: [discountId])
-  discountId         Int
+  promoId    Int       @id @default(autoincrement())
+  active     Boolean
+  code       String    @unique
+  Marketer   Marketer  @relation(fields: [marketerId], references: [marketerId], onDelete: Cascade)
+  marketerId Int
+  discount   Discount  @relation(fields: [discountId], references: [discountId], onDelete: Cascade)
+  discountId Int
+  Booking    Booking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([code])
 }
 
 model Discount {
-  discountId Int     @id @default(autoincrement())
+  discountId Int    @id @default(autoincrement())
   name       String
-  promos     Promo[]
+
+  promos Promo[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

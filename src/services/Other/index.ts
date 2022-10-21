@@ -1,7 +1,7 @@
 import { Expo } from 'expo-server-sdk'
 import { z } from 'zod'
 import type { Repo } from '../../types'
-import { NotFoundError } from '../../utils/Error'
+import { ForbiddenError, NotFoundError } from '../../utils/Error'
 
 const getServices =
   ({ repo }: { repo: Repo }) =>
@@ -69,6 +69,9 @@ const createPromo =
     })
       .strict()
       .parse(body)
+
+    const promo = await repo.other.getPromoByCode(body.code)
+    if (promo) throw new ForbiddenError('promo code already exists')
     await repo.other.createPromo(body)
   }
 
@@ -84,6 +87,40 @@ const updatePromo =
     await repo.other.updatePromo(body)
   }
 
+const getAllMarketers =
+  ({ repo }: { repo: Repo }) =>
+  () => {
+    return repo.other.getAllMarketers()
+  }
+
+const getMarketerPromos =
+  ({ repo }: { repo: Repo }) =>
+  (marketerId: number) => {
+    z.object({
+      marketerId: z.number(),
+    })
+      .strict()
+      .parse({ marketerId })
+    return repo.other.getMarketerPromos(marketerId)
+  }
+
+const getMarketerStats =
+  ({ repo }: { repo: Repo }) =>
+  () => {
+    return repo.other.getMarketerStats()
+  }
+
+const getMarketerStatsById =
+  ({ repo }: { repo: Repo }) =>
+  (marketerId: number) => {
+    z.object({
+      marketerId: z.number(),
+    })
+      .strict()
+      .parse({ marketerId })
+    return repo.other.getMarketerStatsById(marketerId)
+  }
+
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
@@ -96,6 +133,10 @@ const makeOther = ({ repo }: { repo: Repo }) => {
     getDiscounts: getDiscounts({ repo }),
     createPromo: createPromo({ repo }),
     updatePromo: updatePromo({ repo }),
+    getAllMarketers: getAllMarketers({ repo }),
+    getMarketerPromos: getMarketerPromos({ repo }),
+    getMarketerStats: getMarketerStats({ repo }),
+    getMarketerStatsById: getMarketerStatsById({ repo }),
   }
 }
 

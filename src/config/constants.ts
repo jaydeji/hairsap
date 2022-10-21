@@ -71,3 +71,7 @@ export const CHANNEL = {
   CASH: 'cash',
   CARD: 'card',
 } as const
+
+export const DISCOUNT = {
+  FIVE_PERCENT: '5% discount',
+} as const

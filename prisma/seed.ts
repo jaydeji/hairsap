@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { PrismaClient, Prisma, PrismaPromise } from '@prisma/client'
 import { logger } from '../src/utils'
+import { DISCOUNT } from '../src/config/constants'
 
 const prisma = new PrismaClient({
   log: ['query', 'error'],
@@ -660,6 +661,12 @@ const chatData: Prisma.ChatCreateManyInput[] = [
   },
 ]
 
+const discountData: Prisma.DiscountCreateManyInput[] = [
+  {
+    name: DISCOUNT.FIVE_PERCENT,
+  },
+]
+
 async function main() {
   logger.info(`Start seeding ...`)
 
@@ -685,6 +692,9 @@ async function main() {
         ...subServiceBarbing,
         ...subServiceLocks,
       ],
+    }),
+    prisma.discount.createMany({
+      data: discountData,
     }),
   ]
 

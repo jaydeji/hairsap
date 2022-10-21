@@ -98,6 +98,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   deactivateQueue.process(async (_, done) => {
+    logger.info('deactivation started')
     try {
       await deactivateProByTaskTargetEveryWeek({ db })
       await deactivateProByStarRating({ db })
@@ -108,6 +109,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
       done(error as Error)
       return
     }
+    logger.info('deactivation done')
     done()
   })
 

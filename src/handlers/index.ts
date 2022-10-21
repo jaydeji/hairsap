@@ -124,12 +124,42 @@ const makeRouter = ({
   )
 
   router.post(
+    '/marketer/stats',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (_req, res) => {
+      const data = await service.other.getMarketerStats()
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/marketer/:id/stats',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (req, res) => {
+      const data = await service.other.getMarketerStatsById(+req.params.id)
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
     '/marketer',
     auth({ repo }),
     allowOnly([ROLES.ADMIN]),
     ah(async (req, res) => {
       const data = await service.other.addMarketer(req.body)
       res.status(201).send({ data })
+    }),
+  )
+
+  router.get(
+    '/marketer',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (_req, res) => {
+      const data = await service.other.getAllMarketers()
+      res.status(200).send({ data })
     }),
   )
 
@@ -150,6 +180,16 @@ const makeRouter = ({
     ah(async (req, res) => {
       const data = await service.other.createPromo(req.body)
       res.status(201).send({ data })
+    }),
+  )
+
+  router.get(
+    '/promo/:id',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (req, res) => {
+      const data = await service.other.getMarketerPromos(+req.params.id)
+      res.status(200).send({ data })
     }),
   )
 

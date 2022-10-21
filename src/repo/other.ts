@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import { BOOKING_STATUS } from '../config/constants'
 import { Role } from '../types'
 import { dayjs } from '../utils'
 
@@ -145,6 +146,16 @@ const getDiscounts =
     return db.discount.findMany()
   }
 
+const getPromoByCode =
+  ({ db }: { db: PrismaClient }) =>
+  (code: string) => {
+    return db.promo.findUnique({
+      where: {
+        code,
+      },
+    })
+  }
+
 const createPromo =
   ({ db }: { db: PrismaClient }) =>
   (body: { marketerId: number; discountId: number; code: string }) => {
@@ -179,6 +190,112 @@ const updatePromo =
     })
   }
 
+const getAllMarketers =
+  ({ db }: { db: PrismaClient }) =>
+  () =>
+    db.marketer.findMany()
+
+const getMarketerPromos =
+  ({ db }: { db: PrismaClient }) =>
+  (marketerId: number) => {
+    return db.promo.findMany({
+      where: {
+        marketerId,
+      },
+    })
+  }
+
+const getMarketerStats =
+  ({ db }: { db: PrismaClient }) =>
+  async () => {
+    const [
+      marketersCount,
+      marketersCompletedBookingCount,
+      marketersCompletedBookingTotal,
+    ] = await db.$transaction([
+      db.marketer.count(),
+      db.booking.count({
+        where: {
+          promoId: { not: null },
+          status: BOOKING_STATUS.COMPLETED,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: {
+            booking: {
+              promoId: { not: null },
+              status: BOOKING_STATUS.COMPLETED,
+            },
+          },
+        },
+      }),
+    ])
+    return {
+      marketersCount,
+      marketersCompletedBookingCount,
+      marketersCompletedBookingTotal:
+        marketersCompletedBookingTotal._sum.price || 0,
+    }
+  }
+
+const getMarketerStatsById =
+  ({ db }: { db: PrismaClient }) =>
+  async (marketerId: number) => {
+    const [
+      monthlyBookingsCount,
+      monthlyCompletedBookingsCount,
+      monthlyCompletedBookingsTotal,
+    ] = await db.$transaction([
+      db.booking.count({
+        where: {
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+          promo: {
+            marketerId,
+          },
+        },
+      }),
+      db.booking.count({
+        where: {
+          createdAt: {
+            gte: dayjs().startOf('month').toDate(),
+          },
+          promo: {
+            marketerId,
+          },
+          status: BOOKING_STATUS.COMPLETED,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: {
+            booking: {
+              promo: { marketerId },
+              status: BOOKING_STATUS.COMPLETED,
+              createdAt: {
+                gte: dayjs().startOf('month').toDate(),
+              },
+            },
+          },
+        },
+      }),
+    ])
+    return {
+      monthlyBookingsCount,
+      monthlyCompletedBookingsCount,
+      monthlyCompletedBookingsTotal:
+        monthlyCompletedBookingsTotal._sum.price || 0,
+    }
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -195,6 +312,11 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getDiscounts: getDiscounts({ db }),
     createPromo: createPromo({ db }),
     updatePromo: updatePromo({ db }),
+    getPromoByCode: getPromoByCode({ db }),
+    getAllMarketers: getAllMarketers({ db }),
+    getMarketerPromos: getMarketerPromos({ db }),
+    getMarketerStats: getMarketerStats({ db }),
+    getMarketerStatsById: getMarketerStatsById({ db }),
   }
 }
 
