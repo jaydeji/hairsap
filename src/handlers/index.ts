@@ -123,6 +123,46 @@ const makeRouter = ({
     }),
   )
 
+  router.post(
+    '/marketer',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (req, res) => {
+      const data = await service.other.addMarketer(req.body)
+      res.status(201).send({ data })
+    }),
+  )
+
+  router.get(
+    '/discounts',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (_req, res) => {
+      const data = await service.other.getDiscounts()
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.post(
+    '/promo',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (req, res) => {
+      const data = await service.other.createPromo(req.body)
+      res.status(201).send({ data })
+    }),
+  )
+
+  router.patch(
+    '/promo',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (req, res) => {
+      await service.other.updatePromo(req.body)
+      res.status(201).send()
+    }),
+  )
+
   return router
 }
 

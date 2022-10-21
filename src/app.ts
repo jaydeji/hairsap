@@ -86,6 +86,7 @@ const createApp = ({ repo, service }: { repo: Repo; service: Service }) => {
     allowOnly([ROLES.ADMIN]),
     makeAdminRouter({ router: Router(), service }),
   )
+
   app.use('/', makeRouter({ router: Router(), service, repo }))
 
   app.use((_req, _res, next) => {

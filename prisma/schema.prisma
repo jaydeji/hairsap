@@ -358,3 +358,34 @@ model Account {
 
   @@index([userId])
 }
+
+model Marketer {
+  marketerId Int     @id @default(autoincrement())
+  name       String
+  Promo      Promo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Promo {
+  promoId            Int      @id @default(autoincrement())
+  active             Boolean
+  code               String?
+  Marketer           Marketer @relation(fields: [marketerMarketerId], references: [marketerId])
+  marketerMarketerId Int
+  discount           Discount @relation(fields: [discountId], references: [discountId])
+  discountId         Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Discount {
+  discountId Int     @id @default(autoincrement())
+  name       String
+  promos     Promo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}

@@ -46,6 +46,44 @@ const deactivateUserOrPro =
     return user
   }
 
+const addMarketer =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { name: string }) => {
+    z.object({ name: z.string() }).strict().parse(body)
+    return await repo.other.addMarketer(body)
+  }
+
+const getDiscounts =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    return await repo.other.getDiscounts()
+  }
+
+const createPromo =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { marketerId: number; discountId: number; code: string }) => {
+    z.object({
+      marketerId: z.number(),
+      discountId: z.number(),
+      code: z.string(),
+    })
+      .strict()
+      .parse(body)
+    await repo.other.createPromo(body)
+  }
+
+const updatePromo =
+  ({ repo }: { repo: Repo }) =>
+  async (body: { promoId: number; active?: boolean }) => {
+    z.object({
+      promoId: z.number(),
+      active: z.boolean(),
+    })
+      .strict()
+      .parse(body)
+    await repo.other.updatePromo(body)
+  }
+
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
@@ -54,6 +92,10 @@ const makeOther = ({ repo }: { repo: Repo }) => {
     setPushToken: setPushToken({ repo }),
     healthCheck: healthCheck({ repo }),
     deactivateUserOrPro: deactivateUserOrPro({ repo }),
+    addMarketer: addMarketer({ repo }),
+    getDiscounts: getDiscounts({ repo }),
+    createPromo: createPromo({ repo }),
+    updatePromo: updatePromo({ repo }),
   }
 }
 

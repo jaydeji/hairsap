@@ -117,7 +117,6 @@ const getPushToken =
 const deactivateUserOrPro =
   ({ db }: { db: PrismaClient }) =>
   async (body: { userId: number }) => {
-    const proOpt = { where: { proId: body.userId } }
     const userOpt = { where: { userId: body.userId } }
     const user = await db.user.findFirst({
       where: userOpt.where,
@@ -134,6 +133,52 @@ const deactivateUserOrPro =
     return db.user.delete(userOpt)
   }
 
+const addMarketer =
+  ({ db }: { db: PrismaClient }) =>
+  (body: { name: string }) => {
+    return db.marketer.create({ data: body })
+  }
+
+const getDiscounts =
+  ({ db }: { db: PrismaClient }) =>
+  () => {
+    return db.discount.findMany()
+  }
+
+const createPromo =
+  ({ db }: { db: PrismaClient }) =>
+  (body: { marketerId: number; discountId: number; code: string }) => {
+    return db.promo.create({
+      data: {
+        active: true,
+        code: body.code,
+        discount: {
+          connect: {
+            discountId: body.discountId,
+          },
+        },
+        Marketer: {
+          connect: {
+            marketerId: body.marketerId,
+          },
+        },
+      },
+    })
+  }
+
+const updatePromo =
+  ({ db }: { db: PrismaClient }) =>
+  (body: { promoId: number; active?: boolean }) => {
+    db.promo.update({
+      data: {
+        active: body.active,
+      },
+      where: {
+        promoId: body.promoId,
+      },
+    })
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -146,6 +191,10 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getPushToken: getPushToken({ db }),
     dbHealthCheck: dbHealthCheck({ db }),
     deactivateUserOrPro: deactivateUserOrPro({ db }),
+    addMarketer: addMarketer({ db }),
+    getDiscounts: getDiscounts({ db }),
+    createPromo: createPromo({ db }),
+    updatePromo: updatePromo({ db }),
   }
 }
 
