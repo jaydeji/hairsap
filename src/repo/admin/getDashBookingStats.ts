@@ -44,11 +44,11 @@ const query = (
       SELECT
           userId,
           COUNT(userId) cnt
-      FROM booking
+      FROM Booking
       GROUP BY userId
       ${having}
   ) _b
-  JOIN booking b on _b.userId = b.userId
+  JOIN Booking b on _b.userId = b.userId
   JOIN BookingSubService bss ON b.bookingId = bss.bookingId
   JOIN SubService ss ON bss.subServiceId = ss.subServiceId
   JOIN Service s ON ss.serviceId = s.serviceId
