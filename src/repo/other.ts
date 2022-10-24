@@ -216,7 +216,7 @@ const getMarketerStats =
       db.marketer.count(),
       db.booking.count({
         where: {
-          promoId: { not: null },
+          invoice: { promoId: { not: null } },
           status: BOOKING_STATUS.COMPLETED,
         },
       }),
@@ -226,8 +226,8 @@ const getMarketerStats =
         },
         where: {
           invoice: {
+            promoId: { not: null },
             booking: {
-              promoId: { not: null },
               status: BOOKING_STATUS.COMPLETED,
             },
           },
@@ -255,8 +255,10 @@ const getMarketerStatsById =
           createdAt: {
             gte: dayjs().startOf('month').toDate(),
           },
-          promo: {
-            marketerId,
+          invoice: {
+            promo: {
+              marketerId,
+            },
           },
         },
       }),
@@ -265,8 +267,10 @@ const getMarketerStatsById =
           createdAt: {
             gte: dayjs().startOf('month').toDate(),
           },
-          promo: {
-            marketerId,
+          invoice: {
+            promo: {
+              marketerId,
+            },
           },
           status: BOOKING_STATUS.COMPLETED,
         },
@@ -277,8 +281,8 @@ const getMarketerStatsById =
         },
         where: {
           invoice: {
+            promo: { marketerId },
             booking: {
-              promo: { marketerId },
               status: BOOKING_STATUS.COMPLETED,
               createdAt: {
                 gte: dayjs().startOf('month').toDate(),

@@ -26,7 +26,7 @@ const query = ({
 SELECT
     ifees.name,
     SUM(ifees.price) total
-FROM booking b 
+FROM Booking b 
     JOIN Invoice i ON b.bookingId = i.bookingId
     JOIN InvoiceFees ifees ON i.invoiceId = ifees.invoiceId
 WHERE b.createdAt >= ${_period}
@@ -49,7 +49,7 @@ FROM (
         GROUP BY userId
         ${having}
     ) _b
-    JOIN booking b on _b.userId = b.userId
+    JOIN Booking b on _b.userId = b.userId
     JOIN Invoice i ON b.bookingId = i.bookingId
     JOIN InvoiceFees ifees ON i.invoiceId = ifees.invoiceId
 WHERE b.createdAt >= ${_period}

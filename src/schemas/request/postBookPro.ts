@@ -10,6 +10,7 @@ export const PostBookProReqSchema = z
     proId: z.number(),
     address: z.string().min(5),
     channel: z.nativeEnum(CHANNEL),
+    code: z.string().optional(),
   })
   .strict()
 

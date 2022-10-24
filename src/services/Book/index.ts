@@ -38,6 +38,7 @@ import {
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
+import { resolvePromo } from './util'
 
 const bookPro =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -57,6 +58,7 @@ const bookPro =
     samplePhotoKey?: string
     samplePhotoUrl?: string
     channel: Channel
+    code?: string
   }) => {
     const { longitude, latitude, proId, userId } = data
 
@@ -94,6 +96,12 @@ const bookPro =
     ) {
       await repo.user.deleteCard({ cardId: cardData.cardId })
       throw new ForbiddenError('card expired')
+    }
+
+    if (data.code) {
+      const promo = await repo.other.getPromoByCode(data.code)
+      if (!promo || !promo.active)
+        throw new ForbiddenError('promo code missing or inactive')
     }
 
     const [distance, subService] = await Promise.all([
@@ -402,9 +410,14 @@ const markBookingAsCompleted =
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
 
-      const amount = booking.invoice.invoiceFees.reduce(
-        (acc, e) => acc + e.price,
-        0,
+      let promo
+      if (booking.invoice.promo?.promoId)
+        promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
+
+      const amount = resolvePromo(
+        booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
+          booking.invoice.transportFee,
+        promo?.code,
       )
 
       try {
@@ -459,6 +472,20 @@ const markBookingAsArrived =
       await repo.book.updateBooking(bookingId, {
         arrived: true,
       })
+
+    // if (booking.invoice?.promo?.promoId) {
+    //   await repo.book.updateBooking(bookingId, {
+    //     invoice: {
+    //       update: {
+    //         promoAmount: resolvePromo(
+    //           booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
+    //             booking.invoice.transportFee,
+    //           booking.invoice.promo.code,
+    //         ),
+    //       },
+    //     },
+    //   })
+    // }
 
     queue.bookingQueue.add({
       userId: booking.userId,

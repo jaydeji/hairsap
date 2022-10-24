@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
 import { BOOKING_STATUS, CHANNEL } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
+import { resolvePromo } from '../../services/Book/util'
 import { BookingStatus } from '../../types'
 import { dayjs } from '../../utils'
 import { getProBookings } from './getProBookings'
@@ -13,7 +14,12 @@ const getBookingById =
         bookingId,
       },
       include: {
-        invoice: true,
+        invoice: {
+          include: {
+            promo: true,
+            invoiceFees: true,
+          },
+        },
       },
     })
 
@@ -61,7 +67,6 @@ const getBookingByIdAndMore =
             latitude: true,
             profilePhotoUrl: true,
             faceIdPhotoUrl: true,
-
             email: true,
             name: true,
             phone: true,
@@ -72,6 +77,8 @@ const getBookingByIdAndMore =
           select: {
             transportFee: true,
             distance: true,
+            promo: true,
+            promoAmount: true,
             invoiceFees: {
               select: {
                 name: true,
@@ -118,6 +125,7 @@ const getBookingAndInvoiceById =
         invoice: {
           include: {
             invoiceFees: true,
+            promo: true,
           },
         },
       },
@@ -276,6 +284,7 @@ const getBookingActivity =
           select: {
             transportFee: true,
             distance: true,
+            promo: true,
             invoiceFees: {
               select: {
                 name: true,
@@ -400,6 +409,7 @@ const bookPro =
     samplePhotoKey?: string
     samplePhotoOriginalFileName?: string
     channel: string
+    code?: string
   }) =>
     db.booking.create({
       data: {
@@ -421,6 +431,11 @@ const bookPro =
             channel: data.channel,
             distance: data.distance,
             transportFee: data.transportFee,
+            promo: {
+              connect: {
+                code: data.code,
+              },
+            },
             invoiceFees: {
               create: {
                 subServiceId: data.subServiceId,
@@ -537,6 +552,7 @@ const getTransactions =
           invoice: {
             select: {
               transportFee: true,
+              promo: true,
               invoiceFees: {
                 select: {
                   price: true,
@@ -603,15 +619,20 @@ const getUnredeemedCashPayments =
       },
       include: {
         invoiceFees: true,
+        promo: true,
       },
     })
+
     const total = unredeemedCashPayments.reduce(
       (acc, e) =>
         acc +
-        e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0) +
-        e.transportFee,
+        resolvePromo(
+          e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0),
+          e.promo?.code,
+        ),
       0,
     )
+
     return { total, unredeemedCashPayments }
   }
 

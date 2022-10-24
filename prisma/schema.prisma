@@ -100,10 +100,13 @@ model Invoice {
   invoiceId    Int           @id @default(autoincrement())
   transportFee Float
   distance     Float
-  bookingId    Int           @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now()) @updatedAt
   booking      Booking       @relation(fields: [bookingId], references: [bookingId], onDelete: Cascade)
+  bookingId    Int           @unique
+  promo        Promo?        @relation(fields: [promoId], references: [promoId])
+  promoId      Int?
+  promoAmount  Int?
   invoiceFees  InvoiceFees[]
   paid         Boolean       @default(false)
   amountPaid   Float?
@@ -141,8 +144,6 @@ model Booking {
   proId                       Int
   user                        User      @relation("user_booking", fields: [userId], references: [userId], onDelete: Cascade)
   userId                      Int
-  promo                       Promo?    @relation(fields: [promoId], references: [promoId], onDelete: Cascade)
-  promoId                     Int?
 
   invoice           Invoice?
   bookedSubServices BookingSubService[]
@@ -371,17 +372,17 @@ model Marketer {
 }
 
 model Promo {
-  promoId    Int       @id @default(autoincrement())
+  promoId    Int      @id @default(autoincrement())
   active     Boolean
-  code       String    @unique
-  Marketer   Marketer  @relation(fields: [marketerId], references: [marketerId], onDelete: Cascade)
+  code       String   @unique
+  Marketer   Marketer @relation(fields: [marketerId], references: [marketerId], onDelete: Cascade)
   marketerId Int
-  discount   Discount  @relation(fields: [discountId], references: [discountId], onDelete: Cascade)
+  discount   Discount @relation(fields: [discountId], references: [discountId], onDelete: Cascade)
   discountId Int
-  Booking    Booking[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Invoice   Invoice[]
 
   @@index([code])
 }

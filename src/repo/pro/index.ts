@@ -6,6 +6,7 @@ import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
 import { getProStats } from './getProStats'
 import { dayjs } from '../../utils'
+import { resolvePromo } from '../../services/Book/util'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -191,8 +192,8 @@ const getPayoutRequests =
 
 const getPayoutRequestsWP =
   ({ db }: { db: PrismaClient }) =>
-  (page: PageReq & { skip: number }) =>
-    db.invoice.findMany({
+  async (page: PageReq & { skip: number }) => {
+    const result = await db.invoice.findMany({
       take: page.perPage,
       skip: page.skip,
       where: {
@@ -206,8 +207,34 @@ const getPayoutRequestsWP =
       },
       include: {
         invoiceFees: true,
+        promo: true,
+        booking: {
+          select: {
+            bookedSubServices: {
+              select: {
+                subService: {
+                  select: {
+                    service: {
+                      select: { name: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     })
+
+    return result.map((e) => ({
+      invoiceId: e.invoiceId,
+      service: e.booking.bookedSubServices?.[0].subService.service.name,
+      amount: resolvePromo(
+        e.invoiceFees.reduce((acc, e) => acc + e.price, 0),
+        e.promo?.code,
+      ),
+    }))
+  }
 
 const getProSubscribers =
   ({ db }: { db: PrismaClient }) =>

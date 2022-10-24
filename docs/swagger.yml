@@ -2331,6 +2331,36 @@ paths:
         security:
           - BearerAuth: []
 
+  /marketer:
+      get:
+        tags:
+          - Other
+        operationId: pushtoken
+        description: expo push token 
+        parameters: 
+        - name: token
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            example: 'Expotoken-****'
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
 components:
   schemas:
     InternalError:
@@ -2977,41 +3007,12 @@ components:
           items:
             type: object
             properties:
-              invoice:
-                type: object
-                properties:
-                  invoiceId:
-                    type: number  
-                  transportFee:
-                    type: number 
-                  distance:
-                    type: number    
-                  bookingId:
-                    type: number  
-                  createdAt:
-                    type: string  
-                  paid:
-                    type: boolean        
-                  amountPaid:
-                    type: number   
-                  reference:
-                    type: string    
-                  channel:
-                    type: string 
-                    enum: [cash,card]     
-                  invoiceFees:
-                    type: object
-                    properties:
-                        feeId:
-                          type: number
-                        name:
-                          type: string
-                        price:
-                          type: number
-                        invoiceId:
-                          type: number
-                        createdAt:
-                          type: string
+              invoiceId:
+                type: number
+              service:
+                type: string
+              amount:
+                type: number
 
     AdminPayoutProIdRequest:
       type: object

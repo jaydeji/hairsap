@@ -57,11 +57,11 @@ const makeBookingRouter = ({
     '/:id/reject',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
-      const data = await service.book.rejectBooking({
+      await service.book.rejectBooking({
         bookingId: +req.params.id,
         userId: req.tokenData?.userId as number,
       })
-      res.status(200).send({ data })
+      res.status(201).send()
     }),
   )
 
@@ -178,6 +178,7 @@ const makeBookingRouter = ({
         samplePhotoKey: result.key,
         samplePhotoOriginalFileName: result.originalName,
         samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        code: body.promoCode,
       })
       res.status(200).send({ data })
     }),

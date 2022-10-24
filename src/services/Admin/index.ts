@@ -74,6 +74,7 @@ const getProApplications =
       userId: e.userId,
       name: e.name,
       service: e.proServices?.[0].service.name,
+      profilePhotoUrl: e.profilePhotoUrl,
     }))
     return { data }
   }

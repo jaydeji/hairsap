@@ -14,6 +14,9 @@ const getStarRatings = async ({
       rating: 5,
       proId,
       status: BOOKING_STATUS.COMPLETED,
+      createdAt: {
+        gte: dayjs().startOf('week').toDate(),
+      },
     },
     _count: {
       rating: true,
@@ -185,7 +188,7 @@ export const getProDetails =
       db.booking.findMany({
         where: {
           proId,
-          createdAt: { gte: dayjs().startOf('day').toDate() },
+          createdAt: { gte: dayjs().startOf('week').toDate() },
         },
         orderBy: {
           createdAt: 'desc',
@@ -382,15 +385,15 @@ export const getProDetails =
     return {
       latestBookings,
       dailyBookingCount,
-      dailyBookingSum: dailyBookingSum._sum.price,
+      dailyBookingSum: dailyBookingSum._sum.price || 0,
       weeklyBookingCount,
-      weeklyBookingSum: weeklyBookingSum._sum.price,
+      weeklyBookingSum: weeklyBookingSum._sum.price || 0,
       monthlyBookingCount,
-      monthlyBookingSum: monthlyBookingSum._sum.price,
+      monthlyBookingSum: monthlyBookingSum._sum.price || 0,
       allBookingCount,
-      allBookingSum: allBookingSum._sum.price,
+      allBookingSum: allBookingSum._sum.price || 0,
       subscriptions,
-      averageRatings: averageRatings._avg.rating,
+      averageRatings: averageRatings._avg.rating || 0,
       user: {
         userId: user?.userId,
         email: user?.email,
