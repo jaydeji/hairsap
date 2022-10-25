@@ -9,7 +9,7 @@ import {
   PostAcceptOrRejectAppReq,
   PostAcceptOrRejectAppReqSchema,
 } from '../../schemas/request/postAcceptOrRejectApplication'
-import type { Repo, Role } from '../../types'
+import type { Repo } from '../../types'
 import { addCommas, getPageMeta, logger, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'

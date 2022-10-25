@@ -102,6 +102,13 @@ const bookPro =
       const promo = await repo.other.getPromoByCode(data.code)
       if (!promo || !promo.active)
         throw new ForbiddenError('promo code missing or inactive')
+
+      const bookingWithPromo = await repo.other.getBookingByPromo(
+        data.code,
+        userId,
+      )
+      if (bookingWithPromo)
+        throw new ForbiddenError('promo code has been used before')
     }
 
     const [distance, subService] = await Promise.all([
@@ -472,20 +479,6 @@ const markBookingAsArrived =
       await repo.book.updateBooking(bookingId, {
         arrived: true,
       })
-
-    // if (booking.invoice?.promo?.promoId) {
-    //   await repo.book.updateBooking(bookingId, {
-    //     invoice: {
-    //       update: {
-    //         promoAmount: resolvePromo(
-    //           booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
-    //             booking.invoice.transportFee,
-    //           booking.invoice.promo.code,
-    //         ),
-    //       },
-    //     },
-    //   })
-    // }
 
     queue.bookingQueue.add({
       userId: booking.userId,

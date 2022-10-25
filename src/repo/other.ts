@@ -1,6 +1,5 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { BOOKING_STATUS } from '../config/constants'
-import { Role } from '../types'
 import { dayjs } from '../utils'
 
 const dbHealthCheck =
@@ -300,6 +299,21 @@ const getMarketerStatsById =
     }
   }
 
+const getBookingByPromo =
+  ({ db }: { db: PrismaClient }) =>
+  (code: string, userId: number) => {
+    return db.invoice.findFirst({
+      where: {
+        booking: {
+          userId,
+        },
+        promo: {
+          code,
+        },
+      },
+    })
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -321,6 +335,7 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getMarketerPromos: getMarketerPromos({ db }),
     getMarketerStats: getMarketerStats({ db }),
     getMarketerStatsById: getMarketerStatsById({ db }),
+    getBookingByPromo: getBookingByPromo({ db }),
   }
 }
 

@@ -16,7 +16,9 @@ const getBookingById =
       include: {
         invoice: {
           include: {
-            promo: true,
+            promo: {
+              include: { discount: true },
+            },
             invoiceFees: true,
           },
         },
@@ -25,8 +27,8 @@ const getBookingById =
 
 const getBookingByIdAndMore =
   ({ db }: { db: PrismaClient }) =>
-  (bookingId: number) =>
-    db.booking.findUnique({
+  async (bookingId: number) => {
+    const data = await db.booking.findUnique({
       where: {
         bookingId,
       },
@@ -77,8 +79,9 @@ const getBookingByIdAndMore =
           select: {
             transportFee: true,
             distance: true,
-            promo: true,
-            promoAmount: true,
+            promo: {
+              include: { discount: true },
+            },
             invoiceFees: {
               select: {
                 name: true,
@@ -105,6 +108,16 @@ const getBookingByIdAndMore =
       },
     })
 
+    return {
+      ...data,
+      promoTotal: resolvePromo(
+        (data?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0) +
+          (data?.invoice?.transportFee || 0),
+        data?.invoice?.promo?.code,
+      ),
+    }
+  }
+
 const getInvoiceById =
   ({ db }: { db: PrismaClient }) =>
   (invoiceId: number) =>
@@ -125,7 +138,9 @@ const getBookingAndInvoiceById =
         invoice: {
           include: {
             invoiceFees: true,
-            promo: true,
+            promo: {
+              include: { discount: true },
+            },
           },
         },
       },
@@ -284,7 +299,11 @@ const getBookingActivity =
           select: {
             transportFee: true,
             distance: true,
-            promo: true,
+            promo: {
+              include: {
+                discount: true,
+              },
+            },
             invoiceFees: {
               select: {
                 name: true,
@@ -552,7 +571,9 @@ const getTransactions =
           invoice: {
             select: {
               transportFee: true,
-              promo: true,
+              promo: {
+                include: { discount: true },
+              },
               invoiceFees: {
                 select: {
                   price: true,
@@ -619,7 +640,9 @@ const getUnredeemedCashPayments =
       },
       include: {
         invoiceFees: true,
-        promo: true,
+        promo: {
+          include: { discount: true },
+        },
       },
     })
 

@@ -207,7 +207,9 @@ const getPayoutRequestsWP =
       },
       include: {
         invoiceFees: true,
-        promo: true,
+        promo: {
+          include: { discount: true },
+        },
         booking: {
           select: {
             bookedSubServices: {

@@ -8,5 +8,4 @@ export const resolvePromo = (amount: number, code?: string) => {
     default:
       return amount
   }
-  DISCOUNT
 }
