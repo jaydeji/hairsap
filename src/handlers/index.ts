@@ -123,7 +123,7 @@ const makeRouter = ({
     }),
   )
 
-  router.post(
+  router.get(
     '/marketer/stats',
     auth({ repo }),
     allowOnly([ROLES.ADMIN]),
@@ -133,7 +133,7 @@ const makeRouter = ({
     }),
   )
 
-  router.post(
+  router.get(
     '/marketer/:id/stats',
     auth({ repo }),
     allowOnly([ROLES.ADMIN]),
@@ -164,7 +164,7 @@ const makeRouter = ({
   )
 
   router.get(
-    '/discounts',
+    '/discount',
     auth({ repo }),
     allowOnly([ROLES.ADMIN]),
     ah(async (_req, res) => {

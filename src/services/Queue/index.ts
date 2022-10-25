@@ -26,7 +26,9 @@ export type Payment = {
   reason?: string
   data: {
     data?: {
-      metadata?: Record<string, any>
+      metadata?: Record<string, unknown> & {
+        invoiceId?: string
+      }
       authorization?: Record<string, any>
       [key: string]: any
     }

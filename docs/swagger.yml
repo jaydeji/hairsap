@@ -2335,19 +2335,225 @@ paths:
       get:
         tags:
           - Other
-        operationId: pushtoken
-        description: expo push token 
+        operationId: getmarketer
+        description: get all marketers
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketersResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+      post:
+        tags:
+          - Other
+        operationId: postmarketer
+        description: create a marketer
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PostMarketersResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostMarketerRequest'
+        
+        security:
+          - BearerAuth: []
+
+  /marketer/stats:
+      get:
+        tags:
+          - Other
+        operationId: getmarketerstats
+        description: get marketer stats
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketerStatsResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /marketer/{marketerId}/stats:
+      get:
+        tags:
+          - Other
+        operationId: getmarketerstatsbyid
+        description: get marketer stats by id
         parameters: 
-        - name: token
+        - name: marketerId
           in: path
           required: true
           allowEmptyValue: false
           schema:
-            type: string
-            example: 'Expotoken-****'
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketerStatsByIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /promo/{marketerId}:
+      get:
+        tags:
+          - Other
+        operationId: getmarketerspromosbyid
+        description: get marketer promos by id
+        parameters: 
+        - name: marketerId
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: number
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketerPromosByIdResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /promo:
+      post:
+        tags:
+          - Other
+        operationId: createpromo
+        description: create a promo
+        parameters: []
         responses:
           '201':
             description: Status 201 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PostPromoResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostPromoRequest'
+        security:
+          - BearerAuth: []
+      patch:
+        tags:
+          - Other
+        operationId: updatepromo
+        description: update a promo
+        parameters: []
+        responses:
+          '201':
+            description: Status 201 Response
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchPromoRequest'
+        security:
+          - BearerAuth: []
+
+  /discount:
+      get:
+        tags:
+          - Other
+        operationId: getdiscounts
+        description: get all discounts
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetDiscountsResponse'
           '400':
             $ref: '#/components/responses/ValidationError'
           '401':
@@ -2640,6 +2846,45 @@ components:
               type: number
             createdAt:
               type: string
+    Marketer:
+      type: object
+      properties:
+          marketerId: 
+            type: number
+          name: 
+            type: string
+          createdAt: 
+            type: string
+          updatedAt: 
+            type: string
+    Promo:
+      type: object
+      properties:
+        promoId: 
+          type: number
+        active: 
+          type: boolean
+        code: 
+          type: string
+        marketerId: 
+          type: number
+        discountId: 
+          type: number
+        createdAt: 
+          type: string
+        updatedAt: 
+          type: string
+    Discount:
+      type: object
+      properties:
+        discountId: 
+          type: number
+        name: 
+          type: string
+        createdAt: 
+          type: string
+        updatedAt: 
+          type: string
        
     AuthLoginRequest:
       type: object
@@ -4073,7 +4318,6 @@ components:
           total:
             type: number
 
-                    
     verifyTransactionResponse:
       type: object
 
@@ -4143,6 +4387,72 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Notification'
+
+    MarketersResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Marketer'
+
+    MarketerStatsResponse:
+      type: object
+      properties:
+        marketersCount: 
+          type: number
+        marketersCompletedBookingCount: 
+          type: number
+        marketersCompletedBookingTotal: 
+          type: number
+
+    MarketerStatsByIdResponse:
+      type: object
+      properties:
+        monthlyBookingsCount: 
+          type: number
+        monthlyCompletedBookingsCount: 
+          type: number
+        monthlyCompletedBookingsTotal: 
+          type: number
+
+    MarketerPromosByIdResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Promo'
+
+    PostMarketerRequest:
+      $ref: '#/components/schemas/Marketer'
+    PostMarketersResponse:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    PatchPromoRequest:
+      type: object
+      required: [promoId]
+      properties:
+        promoId:
+          type: number
+        active:
+          type: boolean
+
+    PostPromoResponse:
+      $ref: '#/components/schemas/Promo'
+    PostPromoRequest:
+      type: object
+      required: [marketerId,discountId,code]
+      properties:
+        marketerId:
+          type: number
+        discountId:
+          type: number
+        code:
+          type: string
+
+    GetDiscountsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Discount'
 
   responses:
     InternalError:

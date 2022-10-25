@@ -712,7 +712,8 @@ async function main() {
     ])
   }
 
-  await prisma.$transaction(x)
+  // await prisma.$transaction(x)
+  await prisma.discount.createMany({ data: discountData })
 
   logger.info(`Seeding finished.`)
 }

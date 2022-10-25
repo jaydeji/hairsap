@@ -72,7 +72,7 @@ const createPromo =
 
     const promo = await repo.other.getPromoByCode(body.code)
     if (promo) throw new ForbiddenError('promo code already exists')
-    await repo.other.createPromo(body)
+    return await repo.other.createPromo(body)
   }
 
 const updatePromo =
