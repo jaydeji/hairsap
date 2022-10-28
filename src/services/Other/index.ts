@@ -80,7 +80,8 @@ const updatePromo =
   async (body: { promoId: number; active?: boolean }) => {
     z.object({
       promoId: z.number(),
-      active: z.boolean(),
+      active: z.boolean().optional(),
+      discountId: z.number().optional(),
     })
       .strict()
       .parse(body)

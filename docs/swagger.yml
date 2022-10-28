@@ -4433,6 +4433,8 @@ components:
       properties:
         promoId:
           type: number
+        discountId:
+          type: number
         active:
           type: boolean
 

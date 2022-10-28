@@ -178,10 +178,11 @@ const createPromo =
 
 const updatePromo =
   ({ db }: { db: PrismaClient }) =>
-  (body: { promoId: number; active?: boolean }) => {
+  (body: { promoId: number; active?: boolean; discountId?: number }) => {
     db.promo.update({
       data: {
         active: body.active,
+        discountId: body.discountId,
       },
       where: {
         promoId: body.promoId,
