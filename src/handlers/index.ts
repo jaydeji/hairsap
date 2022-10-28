@@ -124,6 +124,26 @@ const makeRouter = ({
   )
 
   router.get(
+    '/marketer/aggregate',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (_req, res) => {
+      const data = await service.other.getMarketerAggregate()
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.get(
+    '/marketer/stats',
+    auth({ repo }),
+    allowOnly([ROLES.ADMIN]),
+    ah(async (_req, res) => {
+      const data = await service.other.getMarketerStats()
+      res.status(200).send({ data })
+    }),
+  )
+
+  router.get(
     '/marketer/:id/stats',
     auth({ repo }),
     allowOnly([ROLES.ADMIN]),

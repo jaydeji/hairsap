@@ -105,6 +105,18 @@ const getMarketerPromos =
     return repo.other.getMarketerPromos(marketerId)
   }
 
+const getMarketerStats =
+  ({ repo }: { repo: Repo }) =>
+  () => {
+    return repo.other.getMarketerStats()
+  }
+
+const getMarketerAggregate =
+  ({ repo }: { repo: Repo }) =>
+  () => {
+    return repo.other.getMarketerAggregate()
+  }
+
 const getMarketerStatsById =
   ({ repo }: { repo: Repo }) =>
   (marketerId: number) => {
@@ -131,6 +143,8 @@ const makeOther = ({ repo }: { repo: Repo }) => {
     getAllMarketers: getAllMarketers({ repo }),
     getMarketerPromos: getMarketerPromos({ repo }),
     getMarketerStatsById: getMarketerStatsById({ repo }),
+    getMarketerStats: getMarketerStats({ repo }),
+    getMarketerAggregate: getMarketerAggregate({ repo }),
   }
 }
 

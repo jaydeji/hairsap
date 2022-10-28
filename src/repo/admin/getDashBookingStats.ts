@@ -1,5 +1,4 @@
 import { Prisma, PrismaClient, PrismaPromise } from '@prisma/client'
-import { BOOKING_STATUS } from '../../config/constants'
 import { GetAdminDashBookStats } from '../../schemas/request/getAdminDashboardBookingStats'
 import { dayjs } from '../../utils'
 
@@ -63,12 +62,7 @@ const query = (
 export const getDashboardBookingStats =
   ({ db }: { db: PrismaClient }) =>
   async ({ limit, period, status }: GetAdminDashBookStats) => {
-    const [
-      bookings,
-      marketersCount,
-      marketersCompletedBookingCount,
-      marketersCompletedBookingTotal,
-    ] = await db.$transaction([
+    const [bookings] = await db.$transaction([
       query(db, limit, status, period) as PrismaPromise<
         {
           serviceIdCnt: string
@@ -76,34 +70,10 @@ export const getDashboardBookingStats =
           name: string
         }[]
       >,
-      db.marketer.count(),
-      db.booking.count({
-        where: {
-          invoice: { promoId: { not: null } },
-          status: BOOKING_STATUS.COMPLETED,
-        },
-      }),
-      db.invoiceFees.aggregate({
-        _sum: {
-          price: true,
-        },
-        where: {
-          invoice: {
-            promoId: { not: null },
-            booking: {
-              status: BOOKING_STATUS.COMPLETED,
-            },
-          },
-        },
-      }),
     ])
 
     return {
       bookings,
       total: bookings.reduce((acc, e) => acc + Number(e.serviceIdCnt), 0),
-      marketersCount,
-      marketersCompletedBookingCount,
-      marketersCompletedBookingTotal:
-        marketersCompletedBookingTotal._sum.price || 0,
     }
   }

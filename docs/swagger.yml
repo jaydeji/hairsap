@@ -2389,6 +2389,60 @@ paths:
         security:
           - BearerAuth: []
 
+  /marketer/stats:
+      get:
+        tags:
+          - Other
+        operationId: getmarketerstats
+        description: get marketer stats
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketerStatsResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /marketer/aggregate:
+      get:
+        tags:
+          - Other
+        operationId: getmarketeraggregate
+        description: get marketer aggregate
+        parameters: []
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MarketerAggregateResponse'
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
   /marketer/{marketerId}/stats:
       get:
         tags:
@@ -3646,22 +3700,30 @@ components:
 
     AdminDashboardBookingsRequest:
       type: object
-      required:
-        - userId
       properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
+        limit:
+          type: string
+          enum: [completed,all]
+        status:
+          type: string
+          enum: [new,returned,all]
+        period:
+          type: string
+          enum: [day,week,month]
     AdminDashboardBookingsResponse:
-      type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: number
-          description: userId
-          example: 1
+      type: array
+      items:
+        type: object
+        properties:
+          serviceId:
+            type: number
+            example: 1
+          serviceIdCnt:
+            type: number
+            example: 1
+          name:
+            type: string
+            example: "Braiding"
 
     AdminDashboardResponse:
       type: object
@@ -4367,6 +4429,33 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Marketer'
+
+    MarketerAggregateResponse:
+      type: object
+      properties:
+        monthlyBookingsCount: 
+          type: number
+        monthlyCompletedBookingsCount: 
+          type: number
+        monthlyCompletedBookingsTotal: 
+          type: number
+
+    MarketerStatsResponse:
+      type: object
+      properties:
+        code: 
+          type: string
+        promoId: 
+          type: number
+        bookingCnt: 
+          type: number
+        completedBookingCnt: 
+          type: string
+        marketerName: 
+          type: string
+        discountName: 
+          type: string
+
 
     MarketerStatsByIdResponse:
       type: object

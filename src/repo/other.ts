@@ -205,6 +205,77 @@ const getMarketerPromos =
     })
   }
 
+const getMarketerStats =
+  ({ db }: { db: PrismaClient }) =>
+  () =>
+    db.$queryRaw<
+      {
+        promoId: number
+        code: string
+        marketerName: string
+        discountName: string
+        bookingCnt: number
+        completedBookingCnt: string
+      }[]
+    >`
+  SELECT
+    p.promoId,
+    code,
+    m.name marketerName,
+    d.name discountName,
+    COUNT(i.promoId) bookingCnt,
+    SUM(
+        CASE b.status
+            WHEN 'completed' THEN 1
+            ELSE 0
+        END
+    ) completedBookingCnt
+    FROM Promo p
+        JOIN Marketer m ON p.marketerId = m.marketerId
+        JOIN Discount d ON p.discountId = d.discountId
+        JOIN Invoice i ON i.promoId = p.promoId
+        JOIN Booking b ON b.bookingId = i.bookingId
+    GROUP BY p.promoId;
+  `
+
+const getMarketerAggregate =
+  ({ db }: { db: PrismaClient }) =>
+  async () => {
+    const [
+      marketersCount,
+      marketersCompletedBookingCount,
+      marketersCompletedBookingTotal,
+    ] = await db.$transaction([
+      db.marketer.count(),
+      db.booking.count({
+        where: {
+          invoice: { promoId: { not: null } },
+          status: BOOKING_STATUS.COMPLETED,
+        },
+      }),
+      db.invoiceFees.aggregate({
+        _sum: {
+          price: true,
+        },
+        where: {
+          invoice: {
+            promoId: { not: null },
+            booking: {
+              status: BOOKING_STATUS.COMPLETED,
+            },
+          },
+        },
+      }),
+    ])
+
+    return {
+      marketersCount,
+      marketersCompletedBookingCount,
+      marketersCompletedBookingTotal:
+        marketersCompletedBookingTotal._sum.price || 0,
+    }
+  }
+
 const getMarketerStatsById =
   ({ db }: { db: PrismaClient }) =>
   async (marketerId: number) => {
@@ -299,6 +370,8 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getMarketerPromos: getMarketerPromos({ db }),
     getMarketerStatsById: getMarketerStatsById({ db }),
     getBookingByPromo: getBookingByPromo({ db }),
+    getMarketerStats: getMarketerStats({ db }),
+    getMarketerAggregate: getMarketerAggregate({ db }),
   }
 }
 
