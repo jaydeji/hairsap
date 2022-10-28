@@ -178,7 +178,7 @@ const makeBookingRouter = ({
         samplePhotoKey: result.key,
         samplePhotoOriginalFileName: result.originalName,
         samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
-        code: body.promoCode,
+        code: body.code,
       })
       res.status(200).send({ data })
     }),

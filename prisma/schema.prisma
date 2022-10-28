@@ -100,8 +100,6 @@ model Invoice {
   invoiceId    Int           @id @default(autoincrement())
   transportFee Float
   distance     Float
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now()) @updatedAt
   booking      Booking       @relation(fields: [bookingId], references: [bookingId], onDelete: Cascade)
   bookingId    Int           @unique
   promo        Promo?        @relation(fields: [promoId], references: [promoId])
@@ -111,6 +109,9 @@ model Invoice {
   amountPaid   Float?
   reference    String?
   channel      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Otp {

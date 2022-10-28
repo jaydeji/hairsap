@@ -4182,6 +4182,8 @@ components:
             channel: 
               type: string
               enum: [cash,card]
+            code: 
+              type: string
     
     BookByIdResponse:
       $ref: '#/components/schemas/Booking'

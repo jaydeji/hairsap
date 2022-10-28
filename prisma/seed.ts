@@ -667,6 +667,22 @@ const discountData: Prisma.DiscountCreateManyInput[] = [
   },
 ]
 
+const marketerData: Prisma.MarketerCreateManyInput[] = [
+  {
+    name: 'Alfie',
+    marketerId: 1,
+  },
+]
+
+const promoData: Prisma.PromoCreateManyInput[] = [
+  {
+    active: true,
+    code: 'ALFIE100',
+    discountId: 1,
+    marketerId: 1,
+  },
+]
+
 async function main() {
   logger.info(`Start seeding ...`)
 
@@ -697,7 +713,6 @@ async function main() {
       data: discountData,
     }),
   ]
-
   if (process.env.NODE_ENV === 'development') {
     x = x.concat([
       prisma.user.createMany({
@@ -709,11 +724,16 @@ async function main() {
       prisma.proService.createMany({
         data: proServiceData,
       }),
+      prisma.marketer.createMany({
+        data: marketerData,
+      }),
+      prisma.promo.createMany({
+        data: promoData,
+      }),
     ])
   }
 
-  // await prisma.$transaction(x)
-  await prisma.discount.createMany({ data: discountData })
+  await prisma.$transaction(x)
 
   logger.info(`Seeding finished.`)
 }
