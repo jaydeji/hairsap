@@ -70,6 +70,6 @@ export const getDashboardBookingStats =
 
     return {
       bookings,
-      total: bookings.reduce((acc, e) => acc + +e.serviceIdCnt, 0),
+      total: bookings.reduce((acc, e) => acc + Number(e.serviceIdCnt), 0),
     }
   }

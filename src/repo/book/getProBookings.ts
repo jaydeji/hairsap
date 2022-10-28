@@ -72,7 +72,7 @@ export const getProBookings =
       name: string
       total: string
     }[]
-    const total = bookings.reduce((acc, e) => acc + +e.total, 0)
+    const total = bookings.reduce((acc, e) => acc + Number(e.total), 0)
 
     return { count: bookings.length, bookings, total }
   }

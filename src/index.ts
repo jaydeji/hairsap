@@ -8,10 +8,12 @@ import { Expo } from 'expo-server-sdk'
 
 import createApp from './app'
 import createSocket from './handlers/chat/socket'
-import db from './config/db'
+import db, { patchPrisma } from './config/db'
 import makeRepo from './repo'
 import makeServices from './services'
 import { logger } from './utils'
+
+patchPrisma()
 
 const expo = new Expo()
 

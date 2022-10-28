@@ -211,7 +211,7 @@ HAVING
     SUM(ifees.price) >= 120000000
 `
   const prosToDeactivate = pros
-    .filter((pro) => +pro.retCnt < +pro.newCnt)
+    .filter((pro) => Number(pro.retCnt) < Number(pro.newCnt))
     .map((pro) => +pro.proId)
 
   await db.$transaction(
