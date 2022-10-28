@@ -2389,33 +2389,6 @@ paths:
         security:
           - BearerAuth: []
 
-  /marketer/stats:
-      get:
-        tags:
-          - Other
-        operationId: getmarketerstats
-        description: get marketer stats
-        parameters: []
-        responses:
-          '200':
-            description: Status 200 Response
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/MarketerStatsResponse'
-          '400':
-            $ref: '#/components/responses/ValidationError'
-          '401':
-            $ref: '#/components/responses/UnauthorizedError'
-          '403':
-            $ref: '#/components/responses/ForbiddenError'
-          '404':
-            $ref: '#/components/responses/NotFoundError'
-          '500':
-            $ref: '#/components/responses/InternalError'
-        security:
-          - BearerAuth: []
-
   /marketer/{marketerId}/stats:
       get:
         tags:
@@ -4394,16 +4367,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Marketer'
-
-    MarketerStatsResponse:
-      type: object
-      properties:
-        marketersCount: 
-          type: number
-        marketersCompletedBookingCount: 
-          type: number
-        marketersCompletedBookingTotal: 
-          type: number
 
     MarketerStatsByIdResponse:
       type: object

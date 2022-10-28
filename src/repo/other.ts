@@ -205,43 +205,6 @@ const getMarketerPromos =
     })
   }
 
-const getMarketerStats =
-  ({ db }: { db: PrismaClient }) =>
-  async () => {
-    const [
-      marketersCount,
-      marketersCompletedBookingCount,
-      marketersCompletedBookingTotal,
-    ] = await db.$transaction([
-      db.marketer.count(),
-      db.booking.count({
-        where: {
-          invoice: { promoId: { not: null } },
-          status: BOOKING_STATUS.COMPLETED,
-        },
-      }),
-      db.invoiceFees.aggregate({
-        _sum: {
-          price: true,
-        },
-        where: {
-          invoice: {
-            promoId: { not: null },
-            booking: {
-              status: BOOKING_STATUS.COMPLETED,
-            },
-          },
-        },
-      }),
-    ])
-    return {
-      marketersCount,
-      marketersCompletedBookingCount,
-      marketersCompletedBookingTotal:
-        marketersCompletedBookingTotal._sum.price || 0,
-    }
-  }
-
 const getMarketerStatsById =
   ({ db }: { db: PrismaClient }) =>
   async (marketerId: number) => {
@@ -334,7 +297,6 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getPromoByCode: getPromoByCode({ db }),
     getAllMarketers: getAllMarketers({ db }),
     getMarketerPromos: getMarketerPromos({ db }),
-    getMarketerStats: getMarketerStats({ db }),
     getMarketerStatsById: getMarketerStatsById({ db }),
     getBookingByPromo: getBookingByPromo({ db }),
   }

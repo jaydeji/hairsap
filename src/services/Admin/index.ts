@@ -21,9 +21,6 @@ const acceptReactivation =
 
     if (!pro) throw new NotFoundError('pro not found')
 
-    if (!pro.reactivationRequested)
-      throw new ForbiddenError('reactivation not requested')
-
     if (!pro.deactivated) throw new ForbiddenError('pro already active')
 
     //TODO: notification
