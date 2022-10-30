@@ -223,7 +223,7 @@ const getMarketerStats =
     code,
     m.name marketerName,
     d.name discountName,
-    COUNT(i.promoId) bookingCnt,
+    COUNT(p.promoId) bookingCnt,
     SUM(
         CASE b.status
             WHEN 'completed' THEN 1
@@ -231,10 +231,10 @@ const getMarketerStats =
         END
     ) completedBookingCnt
     FROM Promo p
-        JOIN Marketer m ON p.marketerId = m.marketerId
-        JOIN Discount d ON p.discountId = d.discountId
-        JOIN Invoice i ON i.promoId = p.promoId
-        JOIN Booking b ON b.bookingId = i.bookingId
+        LEFT JOIN Marketer m ON p.marketerId = m.marketerId
+        LEFT JOIN Discount d ON p.discountId = d.discountId
+        LEFT JOIN Invoice i ON i.promoId = p.promoId
+        LEFT JOIN Booking b ON b.bookingId = i.bookingId
     GROUP BY p.promoId;
   `
 

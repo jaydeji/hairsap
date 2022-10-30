@@ -325,8 +325,7 @@ GET {{base}}/pros/stats/4 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{ptoken}}
 
-###
-GET {{base}}/marketer HTTP/1.1
+GET {{base}}/marketer/stats HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{atoken}}
 
