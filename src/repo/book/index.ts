@@ -450,11 +450,13 @@ const bookPro =
             channel: data.channel,
             distance: data.distance,
             transportFee: data.transportFee,
-            promo: {
-              connect: {
-                code: data.code,
-              },
-            },
+            promo: data.code
+              ? {
+                  connect: {
+                    code: data.code,
+                  },
+                }
+              : undefined,
             invoiceFees: {
               create: {
                 subServiceId: data.subServiceId,
