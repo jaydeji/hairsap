@@ -377,6 +377,58 @@ const getUserBookingsBySubService =
       },
     })
 
+const getUserBookingsByService =
+  ({ db }: { db: PrismaClient }) =>
+  ({
+    userId,
+    status,
+    serviceId,
+  }: {
+    userId: number
+    serviceId: number
+    status?: BookingStatus
+  }) =>
+    db.booking.findMany({
+      where: {
+        AND: [
+          {
+            userId,
+            status,
+          },
+          {
+            bookedSubServices: {
+              some: {
+                subService: {
+                  serviceId,
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+const getPendingUserBookingByServiceAndRange =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, serviceId }: { userId: number; serviceId: number }) =>
+    db.booking.findFirst({
+      where: {
+        userId,
+        status: BOOKING_STATUS.PENDING,
+        bookedSubServices: {
+          some: {
+            subService: {
+              serviceId,
+            },
+          },
+        },
+        createdAt: {
+          lte: db.booking.fields.createdAt,
+          gte: dayjs().subtract(2, 'minute').toDate(),
+        },
+      },
+    })
+
 const addServiceToBooking =
   ({ db }: { db: PrismaClient }) =>
   async ({
@@ -429,6 +481,7 @@ const bookPro =
     samplePhotoOriginalFileName?: string
     channel: string
     code?: string
+    auto: boolean
   }) =>
     db.booking.create({
       data: {
@@ -437,6 +490,7 @@ const bookPro =
         userId: data.userId,
         proId: data.proId,
         arrivalAt: data.arrivalAt,
+        auto: data.auto,
         samplePhotoUrl: data.samplePhotoUrl,
         samplePhotoKey: data.samplePhotoKey,
         samplePhotoOriginalFileName: data.samplePhotoOriginalFileName,
@@ -471,6 +525,20 @@ const bookPro =
         invoice: {
           select: {
             invoiceId: true,
+          },
+        },
+        pro: {
+          select: {
+            address: true,
+            businessName: true,
+            name: true,
+            available: true,
+            userId: true,
+          },
+        },
+        bookedSubServices: {
+          select: {
+            subService: true,
           },
         },
       },
@@ -725,6 +793,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getBookingActivity: getBookingActivity({ db }),
     getProBookingsByProIdAndUserId: getProBookingsByProIdAndUserId({ db }),
     getUserBookingsBySubService: getUserBookingsBySubService({ db }),
+    getUserBookingsByService: getUserBookingsByService({ db }),
     getUserBookings: getUserBookings({ db }),
     getProBookings: getProBookings({ db }),
     getInvoiceById: getInvoiceById({ db }),
@@ -739,6 +808,8 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getUnpaidBonuses: getUnpaidBonuses({ db }),
     getBonusById: getBonusById({ db }),
     updateBonus: updateBonus({ db }),
+    getPendingUserBookingByServiceAndRange:
+      getPendingUserBookingByServiceAndRange({ db }),
   }
 }
 

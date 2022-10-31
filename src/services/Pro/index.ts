@@ -92,6 +92,7 @@ const getNearestPro =
     const arrivalAt = getArrivalTime(pro.distance!)
     const price = pro.price!
 
+    // @ts-ignore
     delete pro.price
 
     return {

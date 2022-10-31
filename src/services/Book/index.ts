@@ -38,6 +38,8 @@ import {
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
+import { autoBook } from './autoBook'
+import { manualBook } from './manualBook'
 import { resolvePromo } from './util'
 
 const bookPro =
@@ -134,6 +136,7 @@ const bookPro =
       samplePhotoOriginalFileName,
       samplePhotoKey,
       samplePhotoUrl,
+      auto: true,
     })
 
     if (bookings.length === 1) {
@@ -668,6 +671,8 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getUnpaidBonuses: getUnpaidBonuses({ repo }),
     markBonusAsPaid: markBonusAsPaid({ repo }),
     getBookingById: getBookingById({ repo }),
+    autoBook: autoBook({ repo, queue }),
+    manualBook: manualBook({ repo, queue }),
   }
 }
 

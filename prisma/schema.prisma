@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl"]
-  previewFeatures = ["filteredRelationCount"]
+  previewFeatures = ["filteredRelationCount", "fieldReference"]
 }
 
 datasource db {
@@ -135,6 +135,7 @@ model Booking {
   status                      String
   rating                      Int?
   review                      String?   @db.Text()
+  auto                        Boolean?
   acceptedAt                  DateTime?
   completedAt                 DateTime?
   rejectedAt                  DateTime?

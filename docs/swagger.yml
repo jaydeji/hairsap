@@ -1298,18 +1298,53 @@ paths:
         security:
           - BearerAuth: []
 
-  /pros/auto:
+  # /pros/auto:
+  #     post:
+  #       tags:
+  #         - Pro
+  #       summary: automatic pro search
+  #       operationId: proauto 
+  #       parameters: []
+  #       requestBody:
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ProAutoRequest'
+  #         required: true
+  #       responses:
+  #         '200':
+  #           description: Status 200 Response
+  #           content:
+  #             application/json:
+  #               schema:
+  #                 oneOf:
+  #                  - $ref: '#/components/schemas/ProAutoResponse'
+  #                  - type: object
+  #         '400':
+  #           $ref: '#/components/responses/ValidationError'
+  #         '401':
+  #           $ref: '#/components/responses/UnauthorizedError'
+  #         '403':
+  #           $ref: '#/components/responses/ForbiddenError'
+  #         '404':
+  #           $ref: '#/components/responses/NotFoundError'
+  #         '500':
+  #           $ref: '#/components/responses/InternalError'
+  #       security:
+  #         - BearerAuth: []
+
+  /pros/auto/book:
       post:
         tags:
           - Pro
-        summary: automatic pro search
-        operationId: proauto 
+        summary: automatic pro book
+        operationId: proautobook 
         parameters: []
         requestBody:
           content:
-            application/json:
+            multipart/form-data:
               schema:
-                $ref: '#/components/schemas/ProAutoRequest'
+                $ref: '#/components/schemas/ProAutoBookRequest'
           required: true
         responses:
           '200':
@@ -1318,7 +1353,42 @@ paths:
               application/json:
                 schema:
                   oneOf:
-                   - $ref: '#/components/schemas/ProAutoResponse'
+                   - $ref: '#/components/schemas/ProAutoBookResponse'
+                   - type: object
+          '400':
+            $ref: '#/components/responses/ValidationError'
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+          '403':
+            $ref: '#/components/responses/ForbiddenError'
+          '404':
+            $ref: '#/components/responses/NotFoundError'
+          '500':
+            $ref: '#/components/responses/InternalError'
+        security:
+          - BearerAuth: []
+
+  /pros/manual/book:
+      post:
+        tags:
+          - Pro
+        summary: manual pro book
+        operationId: promanualbook 
+        parameters: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/ProManualBookRequest'
+          required: true
+        responses:
+          '200':
+            description: Status 200 Response
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                   - $ref: '#/components/schemas/ProManualBookResponse'
                    - type: object
           '400':
             $ref: '#/components/responses/ValidationError'
@@ -3895,6 +3965,66 @@ components:
             bankName:
               type: string
 
+    ProAutoBookResponse:
+      $ref: '#/components/schemas/Booking'
+    ProAutoBookRequest:
+      type: object
+      properties:
+        samplephoto:
+          type: string
+          format: binary
+        payload: 
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+            subServiceId:
+              type: number
+            userId:
+              type: number
+            address:
+              type: string
+            channel: 
+              type: string
+              enum: [cash,card]
+            code:
+              type: string
+            lastProId:
+              type: number
+            distance:
+              type: number
+
+    ProManualBookResponse:
+      $ref: '#/components/schemas/Booking'
+    ProManualBookRequest:
+      type: object
+      properties:
+        samplephoto:
+          type: string
+          format: binary
+        payload: 
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+            subServiceId:
+              type: number
+            userId:
+              type: number
+            address:
+              type: string
+            channel: 
+              type: string
+              enum: [cash,card]
+            proId:
+              type: number
+            code:
+              type: string
+              
     ProAutoRequest:
       type: object
       properties:
@@ -4194,7 +4324,6 @@ components:
                 returned:
                   type: number
     
-
     BookProRequest:
       type: object 
       properties:

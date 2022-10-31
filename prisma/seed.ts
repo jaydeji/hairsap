@@ -612,7 +612,7 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
 const proServiceData: Prisma.ProServiceCreateManyInput[] = [
   {
     serviceId: 1,
-    proId: 3,
+    proId: 4,
   },
 ]
 

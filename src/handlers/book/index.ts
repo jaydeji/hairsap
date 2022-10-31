@@ -146,43 +146,43 @@ const makeBookingRouter = ({
     }),
   )
 
-  router.post(
-    '/',
-    ah(async (req, res) => {
-      let body
-      try {
-        body = JSON.parse(req.body.payload)
-        if (typeof body !== 'object')
-          throw new Error('Unexpected end of JSON input')
-      } catch (error) {
-        throw new ValidationError((error as Error).message)
-      }
+  // router.post(
+  //   '/',
+  //   ah(async (req, res) => {
+  //     let body
+  //     try {
+  //       body = JSON.parse(req.body.payload)
+  //       if (typeof body !== 'object')
+  //         throw new Error('Unexpected end of JSON input')
+  //     } catch (error) {
+  //       throw new ValidationError((error as Error).message)
+  //     }
 
-      const result = await upload({
-        file: req.files?.['samplephoto'] as any,
-        type: 'image',
-        prefix: `samplephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
-        fieldName: 'samplephoto',
-        acl: 'public-read',
-        optional: true,
-      })
+  //     const result = await upload({
+  //       file: req.files?.['samplephoto'] as any,
+  //       type: 'image',
+  //       prefix: `samplephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
+  //       fieldName: 'samplephoto',
+  //       acl: 'public-read',
+  //       optional: true,
+  //     })
 
-      const data = await service.book.bookPro({
-        userId: req.tokenData?.userId as number,
-        proId: body.proId,
-        subServiceId: body.subServiceId, //TODO: multiple subservice?
-        latitude: body.latitude,
-        longitude: body.longitude,
-        address: body.address,
-        channel: body.channel,
-        samplePhotoKey: result.key,
-        samplePhotoOriginalFileName: result.originalName,
-        samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
-        code: body.code,
-      })
-      res.status(200).send({ data })
-    }),
-  )
+  //     const data = await service.book.bookPro({
+  //       userId: req.tokenData?.userId as number,
+  //       proId: body.proId,
+  //       subServiceId: body.subServiceId, //TODO: multiple subservice?
+  //       latitude: body.latitude,
+  //       longitude: body.longitude,
+  //       address: body.address,
+  //       channel: body.channel,
+  //       samplePhotoKey: result.key,
+  //       samplePhotoOriginalFileName: result.originalName,
+  //       samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+  //       code: body.code,
+  //     })
+  //     res.status(200).send({ data })
+  //   }),
+  // )
 
   router.get(
     '/:id',

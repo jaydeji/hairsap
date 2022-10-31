@@ -58,8 +58,8 @@ const getNearestPro =
       address: User['address']
       available: User['available']
       serviceName: SubService['name']
-      price?: SubService['price']
-      distance?: number
+      price: SubService['price']
+      distance: number
     }[] = await db.$queryRaw`
     SELECT * FROM (SELECT
     u.userId,

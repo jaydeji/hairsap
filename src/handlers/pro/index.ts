@@ -6,6 +6,7 @@ import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import type { Role, Service } from '../../types'
 import { uniqueId } from '../../utils'
+import { ValidationError } from '../../utils/Error'
 
 const makeProRouter = ({
   router,
@@ -24,31 +25,117 @@ const makeProRouter = ({
   )
 
   router.post(
-    '/auto',
+    '/auto/book',
     ah(async (req, res) => {
-      const data = await service.pro.getNearestPro({
-        latitude: req.body.latitude,
-        longitude: req.body.longitude,
-        subServiceId: req.body.subServiceId,
-        distance: req.body.distance,
-        userId: req.body.userId,
+      let body
+      try {
+        body = JSON.parse(req.body.payload)
+        if (typeof body !== 'object')
+          throw new Error('Unexpected end of JSON input')
+      } catch (error) {
+        throw new ValidationError((error as Error).message)
+      }
+
+      const result = await upload({
+        file: req.files?.['samplephoto'] as any,
+        type: 'image',
+        prefix: `samplephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
+        fieldName: 'samplephoto',
+        acl: 'public-read',
+        optional: true,
       })
+
+      const data = await service.book.autoBook({
+        userId: req.tokenData?.userId as number,
+        lastProId: body.lastProId,
+        subServiceId: body.subServiceId, //TODO: multiple subservice?
+        latitude: body.latitude,
+        longitude: body.longitude,
+        distance: body.distance,
+        address: body.address,
+        channel: body.channel,
+        samplePhotoKey: result.key,
+        samplePhotoOriginalFileName: result.originalName,
+        samplePhotoUrl: result.key
+          ? STORAGE_ENDPOINT_CDN + result.key
+          : undefined,
+        code: body.code,
+        auto: true,
+      })
+
       res.status(200).send({ data })
     }),
   )
 
+  // router.post(
+  //   '/auto',
+  //   ah(async (req, res) => {
+  //     const data = await service.pro.getNearestPro({
+  //       latitude: req.body.latitude,
+  //       longitude: req.body.longitude,
+  //       subServiceId: req.body.subServiceId,
+  //       distance: req.body.distance,
+  //       userId: req.body.userId,
+  //     })
+
+  //     res.status(200).send({ data })
+  //   }),
+  // )
+
   router.post(
-    '/manual',
+    '/manual/book',
     ah(async (req, res) => {
-      const data = await service.pro.getManualPro({
-        latitude: req.body.latitude,
-        longitude: req.body.longitude,
-        subServiceId: req.body.subServiceId,
-        userId: req.body.userId,
+      let body
+      try {
+        body = JSON.parse(req.body.payload)
+        if (typeof body !== 'object')
+          throw new Error('Unexpected end of JSON input')
+      } catch (error) {
+        throw new ValidationError((error as Error).message)
+      }
+
+      const result = await upload({
+        file: req.files?.['samplephoto'] as any,
+        type: 'image',
+        prefix: `samplephoto/user/${req.tokenData?.userId}/${uniqueId()}`,
+        fieldName: 'samplephoto',
+        acl: 'public-read',
+        optional: true,
       })
+
+      const data = await service.book.manualBook({
+        userId: req.tokenData?.userId as number,
+        proId: body.proId,
+        subServiceId: body.subServiceId, //TODO: multiple subservice?
+        latitude: body.latitude,
+        longitude: body.longitude,
+        address: body.address,
+        channel: body.channel,
+        samplePhotoKey: result.key,
+        samplePhotoOriginalFileName: result.originalName,
+        samplePhotoUrl: result.key
+          ? STORAGE_ENDPOINT_CDN + result.key
+          : undefined,
+        code: body.code,
+        auto: false,
+      })
+
       res.status(200).send({ data })
     }),
   )
+
+  // router.post(
+  //   '/manual',
+  //   ah(async (req, res) => {
+  //     const data = await service.pro.getManualPro({
+  //       latitude: req.body.latitude,
+  //       longitude: req.body.longitude,
+  //       subServiceId: req.body.subServiceId,
+  //       userId: req.body.userId,
+  //     })
+  //     res.status(200).send({ data })
+  //   }),
+  // )
 
   router.post(
     '/reactivate/request',
