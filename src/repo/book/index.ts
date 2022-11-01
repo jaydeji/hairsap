@@ -262,6 +262,7 @@ const getBookingActivity =
         rejectedAt: true,
         arrivalAt: true,
         cancelledAt: true,
+        auto: true,
         pro: {
           select: {
             address: true,
