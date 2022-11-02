@@ -83,7 +83,8 @@ const createSocket = ({
         messageWithId = await job.finished()
         callback?.({ data: messageWithId })
       } catch (error) {
-        return callback?.({ error: (error as Error).message })
+        logger.err(error, 'error sending message')
+        return callback?.({ error: 'error sending socket message' })
       }
 
       const socketId = connectedUsers[messageWithId.receiverId]?.socketId
