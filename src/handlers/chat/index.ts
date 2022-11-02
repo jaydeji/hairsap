@@ -49,7 +49,7 @@ const makeChatRouter = ({
 
       res.status(200).send({
         data: {
-          url: STORAGE_ENDPOINT_CDN + result.key,
+          url: result?.url,
         },
       })
     }),

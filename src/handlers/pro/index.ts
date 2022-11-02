@@ -5,8 +5,8 @@ import { upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import type { Role, Service } from '../../types'
-import { uniqueId } from '../../utils'
-import { ValidationError } from '../../utils/Error'
+import { logger, uniqueId } from '../../utils'
+import { InternalError, ValidationError } from '../../utils/Error'
 
 const makeProRouter = ({
   router,
@@ -54,11 +54,9 @@ const makeProRouter = ({
         distance: body.distance,
         address: body.address,
         channel: body.channel,
-        samplePhotoKey: result.key,
-        samplePhotoOriginalFileName: result.originalName,
-        samplePhotoUrl: result.key
-          ? STORAGE_ENDPOINT_CDN + result.key
-          : undefined,
+        samplePhotoKey: result?.key,
+        samplePhotoOriginalFileName: result?.originalName,
+        samplePhotoUrl: result?.url,
         code: body.code,
         auto: true,
       })
@@ -111,11 +109,9 @@ const makeProRouter = ({
         longitude: body.longitude,
         address: body.address,
         channel: body.channel,
-        samplePhotoKey: result.key,
-        samplePhotoOriginalFileName: result.originalName,
-        samplePhotoUrl: result.key
-          ? STORAGE_ENDPOINT_CDN + result.key
-          : undefined,
+        samplePhotoKey: result?.key,
+        samplePhotoOriginalFileName: result?.originalName,
+        samplePhotoUrl: result?.url,
         code: body.code,
         auto: false,
       })
@@ -214,9 +210,14 @@ const makeProRouter = ({
         acl: 'public-read',
       })
 
+      if (!result) {
+        logger.err('error uploading application videp')
+        throw new InternalError('error uploading application videp')
+      }
+
       await service.pro.uploadApplicationVideo({
         proId: req.tokenData!.userId!,
-        workVideoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        workVideoUrl: result.url,
         workVideoKey: result.key as string,
         workVideoOriginalFileName: result.originalName as string,
       })
@@ -236,11 +237,16 @@ const makeProRouter = ({
         acl: 'public-read',
       })
 
+      if (!result) {
+        logger.err('error uploading photo')
+        throw new InternalError('error uploading photo')
+      }
+
       const data = await service.pro.uploadProfilePhoto({
         proId: req.tokenData!.userId!,
         tempProfilePhotoKey: result.key as string,
         tempProfilePhotoOriginalFileName: result.originalName as string,
-        tempProfilePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        tempProfilePhotoUrl: result.url,
       })
 
       res.status(200).send({ data })

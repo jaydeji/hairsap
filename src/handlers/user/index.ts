@@ -4,7 +4,8 @@ import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
 import type { Service } from '../../types'
-import { uniqueId } from '../../utils'
+import { logger, uniqueId } from '../../utils'
+import { InternalError } from '../../utils/Error'
 import { patchUser } from './patchUser'
 
 const makeUserRouter = ({
@@ -30,11 +31,17 @@ const makeUserRouter = ({
         fieldName: 'faceid',
         acl: 'public-read',
       })
+
+      if (!result) {
+        logger.err('error uploading photo')
+        throw new InternalError('error uploading photo')
+      }
+
       await service.auth.uploadFaceId({
         userId: req.tokenData!.userId,
         role: req.tokenData!.role,
         faceIdPhotoKey: result.key as string,
-        faceIdPhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        faceIdPhotoUrl: result.url,
         faceIdPhotoOriginalFileName: result.originalName as unknown as string,
       })
       res.status(201).send()
@@ -53,11 +60,16 @@ const makeUserRouter = ({
         acl: 'public-read',
       })
 
+      if (!result) {
+        logger.err('error uploading photo')
+        throw new InternalError('error uploading photo')
+      }
+
       const data = await service.user.uploadProfilePhoto({
         userId: req.tokenData!.userId!,
         profilePhotoKey: result.key as string,
         profilePhotoOriginalFileName: result.originalName as string,
-        profilePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+        profilePhotoUrl: result.url,
       })
       res.status(200).send({ data })
     }),

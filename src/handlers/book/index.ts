@@ -1,11 +1,8 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
+import { ROLES } from '../../config/constants'
 import type { Role, Service } from '../../types'
-import { ValidationError } from '../../utils/Error'
-import { upload } from '../../config/multer-cloud'
 import { allowOnly } from '../../middleware/auth'
-import { uniqueId } from '../../utils'
 
 const makeBookingRouter = ({
   router,
@@ -177,7 +174,7 @@ const makeBookingRouter = ({
   //       channel: body.channel,
   //       samplePhotoKey: result.key,
   //       samplePhotoOriginalFileName: result.originalName,
-  //       samplePhotoUrl: STORAGE_ENDPOINT_CDN + result.key,
+  //       samplePhotoUrl: result.url,
   //       code: body.code,
   //     })
   //     res.status(200).send({ data })

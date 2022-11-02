@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 // import {} from '@aws-sdk/s3-request-presigner'
-import { STORAGE_ENDPOINT } from './constants'
+import { STORAGE_ENDPOINT, STORAGE_ENDPOINT_CDN } from './constants'
 import path from 'path'
 import { ValidationError } from '../utils/Error'
 import { logger, uniqueId } from '../utils'
@@ -50,7 +50,7 @@ export const upload = async (opts: {
 
   if (!file?.name && !optional)
     throw new ValidationError(fieldName + ' does not exist')
-  if (!file?.name) return {}
+  if (!file?.name) return
   if (type === 'image') {
     const filetypes = /jpeg|jpg|png|gif/
     if (!filetypes.test(path.extname(file.name as any).toLowerCase()))
@@ -83,6 +83,7 @@ export const upload = async (opts: {
   return {
     key,
     originalName,
+    url: STORAGE_ENDPOINT_CDN + key,
   }
 }
 
