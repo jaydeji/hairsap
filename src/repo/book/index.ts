@@ -250,6 +250,13 @@ const getBookingActivity =
         createdAt: {
           gte: dayjs().subtract(1, 'w').toDate(),
         },
+        NOT: {
+          auto: true,
+          status: BOOKING_STATUS.PENDING,
+          createdAt: {
+            lt: dayjs().subtract(2, 'minute').toDate(),
+          },
+        },
       },
       select: {
         bookingId: true,

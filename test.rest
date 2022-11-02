@@ -325,8 +325,14 @@ GET {{base}}/pros/stats/4 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{ptoken}}
 
+###
 GET {{base}}/marketer/stats HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{atoken}}
+
+###
+GET {{base}}/bookings/2/activity HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
 
 
