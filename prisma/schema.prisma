@@ -160,7 +160,7 @@ model Chat {
   chatId      Int     @id @default(autoincrement())
   messageType String
   message     String? @db.Text()
-  photo       String? @db.VarChar(512)
+  photoUrl    String? @db.VarChar(512)
 
   senderId   Int
   receiverId Int
