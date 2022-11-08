@@ -84,7 +84,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 1,
     order: 1,
-    price: 30000 * 100,
+    price: 15000 * 100,
   },
   {
     name: 'Knotless braids Medium',
@@ -93,7 +93,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 2,
     order: 2,
-    price: 40000 * 100,
+    price: 20000 * 100,
   },
   {
     name: 'Knotless braids Small',
@@ -102,43 +102,34 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 3,
     order: 3,
-    price: 50000 * 100,
+    price: 30000 * 100,
   },
   {
-    name: 'Micro braids',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/4.jpeg',
-    serviceId: 1,
-    subServiceId: 4,
-    order: 4,
-    price: 80000 * 100,
-  },
-  {
-    name: 'Goddess braids Large',
+    name: 'Goddess/Jungle braids Large',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/5.jpeg',
     serviceId: 1,
     subServiceId: 5,
-    order: 5,
-    price: 40000 * 100,
+    order: 4,
+    price: 20000 * 100,
   },
   {
-    name: 'Goddess braids Medium',
+    name: 'Goddess/Jungle braids Medium',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/6.jpeg',
     serviceId: 1,
     subServiceId: 6,
-    order: 6,
-    price: 50000 * 100,
+    order: 5,
+    price: 25000 * 100,
   },
   {
-    name: 'Goddess braids Small',
+    name: 'Goddess/Jungle braids Small',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/7.jpeg',
     serviceId: 1,
     subServiceId: 7,
-    order: 7,
-    price: 60000 * 100,
+    order: 6,
+    price: 35000 * 100,
   },
   {
     name: 'Box braids Large',
@@ -146,8 +137,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/8.jpeg',
     serviceId: 1,
     subServiceId: 8,
-    order: 8,
-    price: 30000 * 100,
+    order: 7,
+    price: 10000 * 100,
   },
   {
     name: 'Box braids Medium',
@@ -155,8 +146,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/9.jpeg',
     serviceId: 1,
     subServiceId: 9,
-    order: 9,
-    price: 40000 * 100,
+    order: 8,
+    price: 15000 * 100,
   },
   {
     name: 'Box braids Small',
@@ -164,8 +155,35 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/10.jpeg',
     serviceId: 1,
     subServiceId: 10,
+    order: 9,
+    price: 25000 * 100,
+  },
+  {
+    name: 'Butterfly/Faux Bob/shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/18.jpeg',
+    serviceId: 1,
+    subServiceId: 18,
     order: 10,
-    price: 50000 * 100,
+    price: 20000 * 100,
+  },
+  {
+    name: 'Butterfly/Faux Locs Mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/19.jpeg',
+    serviceId: 1,
+    subServiceId: 19,
+    order: 11,
+    price: 25000 * 100,
+  },
+  {
+    name: 'Butterfly/Faux Locs Butt length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/20.jpeg',
+    serviceId: 1,
+    subServiceId: 20,
+    order: 12,
+    price: 35000 * 100,
   },
   {
     name: 'All types of Twist Large',
@@ -173,8 +191,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/11.jpeg',
     serviceId: 1,
     subServiceId: 11,
-    order: 11,
-    price: 30000 * 100,
+    order: 13,
+    price: 15000 * 100,
   },
   {
     name: 'All types of Twist Medium',
@@ -182,8 +200,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/12.jpeg',
     serviceId: 1,
     subServiceId: 12,
-    order: 12,
-    price: 40000 * 100,
+    order: 14,
+    price: 20000 * 100,
   },
   {
     name: 'All types of Twist Small',
@@ -191,8 +209,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/13.jpeg',
     serviceId: 1,
     subServiceId: 13,
-    order: 13,
-    price: 50000 * 100,
+    order: 15,
+    price: 30000 * 100,
   },
   {
     name: 'Stitch braids cornrow (6-8 stitches)',
@@ -200,8 +218,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/14.jpeg',
     serviceId: 1,
     subServiceId: 14,
-    order: 14,
-    price: 30000 * 100,
+    order: 16,
+    price: 10000 * 100,
   },
   {
     name: 'Stitch braids cornrow (10-14 stitches)',
@@ -209,8 +227,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/15.jpeg',
     serviceId: 1,
     subServiceId: 15,
-    order: 15,
-    price: 45000 * 100,
+    order: 17,
+    price: 15000 * 100,
   },
   {
     name: 'Stitch braids cornrow (14+ stitches)',
@@ -218,8 +236,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/16.jpeg',
     serviceId: 1,
     subServiceId: 16,
-    order: 16,
-    price: 55000 * 100,
+    order: 18,
+    price: 20000 * 100,
   },
   {
     name: 'Stitch braids with design',
@@ -227,35 +245,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/17.jpeg',
     serviceId: 1,
     subServiceId: 17,
-    order: 17,
-    price: 40000 * 100,
-  },
-  {
-    name: 'Butterly/Faux Locs Large',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/18.jpeg',
-    serviceId: 1,
-    subServiceId: 18,
-    order: 18,
-    price: 30000 * 100,
-  },
-  {
-    name: 'Butterly/Faux Locs Medium',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/19.jpeg',
-    serviceId: 1,
-    subServiceId: 19,
     order: 19,
-    price: 40000 * 100,
-  },
-  {
-    name: 'Butterly/Faux Locs Small',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/20.jpeg',
-    serviceId: 1,
-    subServiceId: 20,
-    order: 20,
-    price: 50000 * 100,
+    price: 15000 * 100,
   },
   {
     name: 'Lemonade braids',
@@ -263,8 +254,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
     serviceId: 1,
     subServiceId: 21,
-    order: 21,
-    price: 40000 * 100,
+    order: 20,
+    price: 20000 * 100,
   },
   {
     name: '14+ Regular all back cornrow',
@@ -272,8 +263,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/22.jpeg',
     serviceId: 1,
     subServiceId: 22,
-    order: 22,
-    price: 50000 * 100,
+    order: 21,
+    price: 20000 * 100,
   },
   {
     name: '6-8 Cornrow braids',
@@ -281,8 +272,17 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/23.jpeg',
     serviceId: 1,
     subServiceId: 23,
+    order: 22,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Micro braids',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/4.jpeg',
+    serviceId: 1,
+    subServiceId: 4,
     order: 23,
-    price: 30000 * 100,
+    price: 50000 * 100,
   },
   {
     name: 'Criss cross braids',
@@ -291,16 +291,25 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 24,
     order: 24,
-    price: 30000 * 100,
+    price: 20000 * 100,
   },
   {
-    name: 'Illusion Crotchet',
+    name: 'All Crotchet',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/25.jpeg',
     serviceId: 1,
     subServiceId: 25,
     order: 25,
-    price: 30000 * 100,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Pop smoke goddess braid',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/61.jpg',
+    serviceId: 1,
+    subServiceId: 61,
+    order: 26,
+    price: 15000 * 100,
   },
   {
     name: 'Chunky bun',
@@ -308,17 +317,33 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/26.jpeg',
     serviceId: 1,
     subServiceId: 26,
-    order: 26,
-    price: 30000 * 100,
+    order: 27,
+    price: 10000 * 100,
   },
   {
-    name: 'Color tint and highlight',
+    name: 'Natural Twist',
+    photoUrl: '',
+    serviceId: 1,
+    subServiceId: 62,
+    order: 28,
+    price: 8000 * 100,
+  },
+  {
+    name: 'Natural cornrow',
+    photoUrl: '',
+    serviceId: 1,
+    subServiceId: 63,
+    order: 29,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/27.jpeg',
     serviceId: 1,
     subServiceId: 27,
-    order: 27,
-    price: 10000 * 100,
+    order: 30,
+    price: 5000 * 100,
   },
   {
     name: 'Braids takedown',
@@ -326,38 +351,64 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/28.jpeg',
     serviceId: 1,
     subServiceId: 28,
-    order: 28,
-    price: 15000 * 100,
+    order: 31,
+    price: 3000 * 100,
   },
 ]
 
 const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   {
-    name: '360 Frontal installation & styling',
+    name: '360 Frontal installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/29.jpeg',
     serviceId: 2,
     subServiceId: 29,
-    order: 29,
-    price: 60000 * 100,
+    order: 32,
+    price: 30000 * 100,
   },
   {
-    name: 'Glued Frontal installation & styling',
+    name: 'Glued Frontal installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/30.jpeg',
     serviceId: 2,
     subServiceId: 30,
-    order: 30,
-    price: 50000 * 100,
+    order: 33,
+    price: 20000 * 100,
   },
   {
-    name: 'Glued Closure installation & styling',
+    name: 'Glued Closure installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/31.jpeg',
     serviceId: 2,
     subServiceId: 31,
-    order: 31,
-    price: 40000 * 100,
+    order: 34,
+    price: 15000 * 100,
+  },
+  {
+    name: 'Glueless Frontal installation & styling (No lace adhesive. It can be taken off same day)',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/52.jpeg',
+    serviceId: 2,
+    subServiceId: 52,
+    order: 35,
+    price: 15000 * 100,
+  },
+  {
+    name: 'Glueless Closure installation & styling (No lace adhesive. It can be taken off same day)',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
+    serviceId: 2,
+    subServiceId: 53,
+    order: 36,
+    price: 13000 * 100,
+  },
+  {
+    name: 'General styling',
+    photoUrl: '',
+    serviceId: 2,
+    subServiceId: 64,
+    order: 37,
+    price: 10000 * 100,
   },
   {
     name: 'Frontal ponytail',
@@ -365,8 +416,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/32.jpeg',
     serviceId: 2,
     subServiceId: 32,
-    order: 32,
-    price: 40000 * 100,
+    order: 38,
+    price: 30000 * 100,
   },
   {
     name: 'Gel ponytail',
@@ -374,26 +425,26 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/33.jpeg',
     serviceId: 2,
     subServiceId: 33,
-    order: 33,
-    price: 30000 * 100,
+    order: 39,
+    price: 15000 * 100,
   },
   {
-    name: 'Natural hair Coloring/Highlight',
+    name: 'Natural hair (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/34.jpeg',
     serviceId: 2,
     subServiceId: 34,
-    order: 34,
-    price: 20000 * 100,
+    order: 40,
+    price: 5000 * 100,
   },
   {
-    name: 'Pixie cut/trim & styling',
+    name: 'Pixie cut',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/35.jpeg',
     serviceId: 2,
     subServiceId: 35,
-    order: 35,
-    price: 40000 * 100,
+    order: 41,
+    price: 15000 * 100,
   },
   {
     name: 'Natural hair Blowout',
@@ -401,127 +452,89 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/36.jpeg',
     serviceId: 2,
     subServiceId: 36,
-    order: 36,
-    price: 20000 * 100,
+    order: 42,
+    price: 5000 * 100,
   },
   {
-    name: 'Bridal styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/37.jpeg',
-    serviceId: 2,
-    subServiceId: 37,
-    order: 37,
-    price: 100000 * 100,
-  },
-  {
-    name: 'Glueless Frontal installation & styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/52.jpeg',
-    serviceId: 2,
-    subServiceId: 52,
-    order: 52,
-    price: 40000 * 100,
-  },
-  {
-    name: 'Glueless Closure installation & styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
-    serviceId: 2,
-    subServiceId: 53,
-    order: 53,
-    price: 35000 * 100,
-  },
-  {
-    name: 'Styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/54.jpeg',
-    serviceId: 2,
-    subServiceId: 54,
-    order: 54,
-    price: 30000 * 100,
-  },
-  {
-    name: 'Natural hair treatment',
-    photoUrl: '',
-    serviceId: 2,
-    subServiceId: 55,
-    order: 55,
-    price: 20000 * 100,
-  },
-  {
-    name: 'Hair Wigging',
+    name: 'Frontal Wigging (Include customization where necessary)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/56.jpeg',
     serviceId: 2,
     subServiceId: 56,
-    order: 56,
-    price: 20000 * 100,
+    order: 43,
+    price: 30000 * 100,
   },
   {
-    name: 'Hair Wigging & Styling',
+    name: 'Closure Wigging (Include customization where necessary)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/57.jpeg',
     serviceId: 2,
     subServiceId: 57,
-    order: 57,
-    price: 30000 * 100,
+    order: 44,
+    price: 25000 * 100,
   },
   {
-    name: 'Customization (24 hours)',
+    name: '360 Wigging (Include customization where necessary)',
+    photoUrl: '',
+    serviceId: 2,
+    subServiceId: 65,
+    order: 45,
+    price: 40000 * 100,
+  },
+  {
+    name: 'Frontal Customization (Include bleaching of the knots and plucking the hairline)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/58.jpeg',
     serviceId: 2,
     subServiceId: 58,
-    order: 58,
+    order: 46,
+    price: 20000 * 100,
+  },
+  {
+    name: 'Closure Customization (Include bleaching of the knots and plucking the hairline)',
+    photoUrl: '',
+    serviceId: 2,
+    subServiceId: 66,
+    order: 47,
+    price: 10000 * 100,
+  },
+  {
+    name: '360 Customization (Include bleaching of the knots and plucking the hairline)',
+    photoUrl: '',
+    serviceId: 2,
+    subServiceId: 67,
+    order: 48,
     price: 25000 * 100,
   },
   {
-    name: 'Revamping (3 days)',
+    name: 'Revamping',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/59.jpeg',
     serviceId: 2,
     subServiceId: 59,
-    order: 59,
-    price: 20000 * 100,
-  },
-  {
-    name: 'Chief bridal styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/60.jpeg',
-    serviceId: 2,
-    subServiceId: 60,
-    order: 38,
-    price: 200000 * 100,
+    order: 49,
+    price: 10000 * 100,
   },
 ]
 
 const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
   {
-    name: 'Haircut',
+    name: 'Hair cut/ grooming',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/38.jpeg',
     serviceId: 3,
     subServiceId: 38,
-    order: 38.1,
-    price: 30000 * 100,
+    order: 50,
+    price: 5000 * 100,
   },
   {
-    name: 'Beard shaving',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/39.jpeg',
-    serviceId: 3,
-    subServiceId: 39,
-    order: 39,
-    price: 15000 * 100,
-  },
-  {
-    name: 'Color tint',
+    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/40.jpeg',
     serviceId: 3,
     subServiceId: 40,
-    order: 40,
-    price: 10000 * 100,
+    order: 51,
+    price: 5000 * 100,
   },
 ]
 
@@ -532,53 +545,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/41.jpeg',
     serviceId: 4,
     subServiceId: 41,
-    order: 41,
-    price: 50000 * 100,
-  },
-  {
-    name: 'Starter Locs',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/42.jpeg',
-    serviceId: 4,
-    subServiceId: 42,
-    order: 42,
-    price: 35000 * 100,
-  },
-  {
-    name: 'Interlocking/crotcheting maintenance & Styling',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/43.jpeg',
-    serviceId: 4,
-    subServiceId: 43,
-    order: 43,
-    price: 35000 * 100,
-  },
-  {
-    name: 'Color tint and highlight',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/44.jpeg',
-    serviceId: 4,
-    subServiceId: 44,
-    order: 44,
-    price: 15000 * 100,
-  },
-  {
-    name: 'Locs takedown',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/45.jpeg',
-    serviceId: 4,
-    subServiceId: 45,
-    order: 45,
-    price: 80000 * 100,
-  },
-  {
-    name: 'Sister Locs',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/46.jpeg',
-    serviceId: 4,
-    subServiceId: 46,
-    order: 46,
-    price: 80000 * 100,
+    order: 52,
+    price: 30000 * 100,
   },
   {
     name: 'Instant starter locs with extensions',
@@ -586,8 +554,26 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/47.jpeg',
     serviceId: 4,
     subServiceId: 47,
-    order: 47,
-    price: 55000 * 100,
+    order: 53,
+    price: 40000 * 100,
+  },
+  {
+    name: 'Starter Locs (This method comes with comb twist or regular twist)',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/42.jpeg',
+    serviceId: 4,
+    subServiceId: 42,
+    order: 54,
+    price: 15000 * 100,
+  },
+  {
+    name: 'Sister Locs',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/46.jpeg',
+    serviceId: 4,
+    subServiceId: 46,
+    order: 55,
+    price: 60000 * 100,
   },
   {
     name: 'Retwisting maintenance & styling',
@@ -595,17 +581,35 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/50.jpeg',
     serviceId: 4,
     subServiceId: 50,
-    order: 50,
-    price: 30000 * 100,
+    order: 56,
+    price: 10000 * 100,
   },
   {
-    name: 'Washing & Treatment',
+    name: 'Interlocking/crotcheting maintenance & Styling',
     photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/51.jpeg',
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/43.jpeg',
     serviceId: 4,
-    subServiceId: 51,
-    order: 51,
-    price: 25000 * 100,
+    subServiceId: 43,
+    order: 57,
+    price: 15000 * 100,
+  },
+  {
+    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/44.jpeg',
+    serviceId: 4,
+    subServiceId: 44,
+    order: 58,
+    price: 5000 * 100,
+  },
+  {
+    name: 'Locs takedown',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/45.jpeg',
+    serviceId: 4,
+    subServiceId: 45,
+    order: 59,
+    price: 50000 * 100,
   },
 ]
 
@@ -732,6 +736,13 @@ async function main() {
       }),
     ])
   }
+
+  // const subServices = [
+  //   ...subServiceBraids,
+  //   ...subServiceStyling,
+  //   ...subServiceBarbing,
+  //   ...subServiceLocks,
+  // ]
 
   await prisma.$transaction(x)
 
