@@ -196,7 +196,22 @@ export const getProDetails =
         select: {
           bookingId: true,
           createdAt: true,
-          bookedSubServices: true,
+          bookedSubServices: {
+            include: {
+              subService: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            select: {
+              name: true,
+              profilePhotoUrl: true,
+              faceIdPhotoUrl: true,
+            },
+          },
         },
       }),
       db.invoiceFees.aggregate({
