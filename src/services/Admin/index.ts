@@ -128,6 +128,20 @@ const getDashboardBookingStats =
     return { data }
   }
 
+const getDashboardDiscountedBookingStats =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.admin.getDashboardDiscountedBookingStats()
+    return { data }
+  }
+
+const getDashboardCompletedBookingStats =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.admin.getDashboardCompletedBookingStats()
+    return { data }
+  }
+
 const getApplicationVideo =
   ({ repo }: { repo: Repo }) =>
   async (proId: number) => {
@@ -181,6 +195,12 @@ const makeAdmin = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getApplicationVideo: getApplicationVideo({ repo }),
     getUnacceptedProPhotos: getUnacceptedProPhotos({ repo }),
     acceptUnacceptedProPhotos: acceptUnacceptedProPhotos({ repo }),
+    getDashboardDiscountedBookingStats: getDashboardDiscountedBookingStats({
+      repo,
+    }),
+    getDashboardCompletedBookingStats: getDashboardCompletedBookingStats({
+      repo,
+    }),
   }
 }
 

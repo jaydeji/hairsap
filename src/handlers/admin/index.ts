@@ -167,6 +167,22 @@ const makeAdminRouter = ({
   )
 
   router.post(
+    '/dashboard/bookings/discounted',
+    ah(async (_req, res) => {
+      const data = await service.admin.getDashboardDiscountedBookingStats()
+      res.status(200).send(data)
+    }),
+  )
+
+  router.post(
+    '/dashboard/bookings/completed',
+    ah(async (_req, res) => {
+      const data = await service.admin.getDashboardCompletedBookingStats()
+      res.status(200).send(data)
+    }),
+  )
+
+  router.post(
     '/dashboard/bookings',
     ah(async (req, res) => {
       const data = await service.admin.getDashboardBookingStats(req.body)

@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import { getDashboardStats } from './getDashStats'
 import { getDashboardBookingStats } from './getDashBookingStats'
+import { getDashboardDiscountedBookingStats } from './getDashboardDiscountedBookingStats'
+import { getDashboardCompletedBookingStats } from './getDashboardCompletedBookingStats'
 
 const getUnacceptedProPhotos =
   ({ db }: { db: PrismaClient }) =>
@@ -37,6 +39,12 @@ const makAdminRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getDashboardStats: getDashboardStats({ db }),
     getDashboardBookingStats: getDashboardBookingStats({ db }),
+    getDashboardDiscountedBookingStats: getDashboardDiscountedBookingStats({
+      db,
+    }),
+    getDashboardCompletedBookingStats: getDashboardCompletedBookingStats({
+      db,
+    }),
     getUnacceptedProPhotos: getUnacceptedProPhotos({ db }),
     getUnacceptedProPhoto: getUnacceptedProPhoto({ db }),
   }
