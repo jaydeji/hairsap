@@ -322,7 +322,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'Natural Twist',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/62.jpeg',
     serviceId: 1,
     subServiceId: 62,
     order: 28,
@@ -330,14 +331,16 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'Natural cornrow',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/63.jpeg',
     serviceId: 1,
     subServiceId: 63,
     order: 29,
     price: 10000 * 100,
   },
   {
-    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
+    name: 'Color tint',
+    info: 'Black & bleach custom color. Customers will be responsible for an alternative dye color',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/27.jpeg',
     serviceId: 1,
@@ -358,7 +361,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
 
 const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   {
-    name: '360 Frontal installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
+    name: '360 Frontal installation & styling',
+    info: 'Include lace adhesive. Can last 5 days to 2 weeks',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/29.jpeg',
     serviceId: 2,
@@ -367,7 +371,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 30000 * 100,
   },
   {
-    name: 'Glued Frontal installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
+    name: 'Glued Frontal installation & styling',
+    info: 'Include lace adhesive. Can last 5 days to 2 weeks',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/30.jpeg',
     serviceId: 2,
@@ -376,16 +381,18 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 20000 * 100,
   },
   {
-    name: 'Glued Closure installation & styling (Include lace adhesive. Can last 5 days to 2 weeks)',
+    name: 'Glued Closure installation & styling',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/31.jpeg',
+    info: 'Include lace adhesive. Can last 5 days to 2 weeks',
     serviceId: 2,
     subServiceId: 31,
     order: 34,
     price: 15000 * 100,
   },
   {
-    name: 'Glueless Frontal installation & styling (No lace adhesive. It can be taken off same day)',
+    name: 'Glueless Frontal installation & styling',
+    info: 'No lace adhesive. It can be taken off same day',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/52.jpeg',
     serviceId: 2,
@@ -394,7 +401,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 15000 * 100,
   },
   {
-    name: 'Glueless Closure installation & styling (No lace adhesive. It can be taken off same day)',
+    name: 'Glueless Closure installation & styling',
+    info: 'No lace adhesive. It can be taken off same day',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
     serviceId: 2,
@@ -429,7 +437,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 15000 * 100,
   },
   {
-    name: 'Natural hair (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
+    name: 'Natural hair',
+    info: 'Black & bleach custom color. Customers will be responsible for an alternative dye color',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/34.jpeg',
     serviceId: 2,
@@ -456,7 +465,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 5000 * 100,
   },
   {
-    name: 'Frontal Wigging (Include customization where necessary)',
+    name: 'Frontal Wigging',
+    info: 'Include customization where necessary',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/56.jpeg',
     serviceId: 2,
@@ -465,7 +475,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 30000 * 100,
   },
   {
-    name: 'Closure Wigging (Include customization where necessary)',
+    name: 'Closure Wigging',
+    info: 'Include customization where necessary',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/57.jpeg',
     serviceId: 2,
@@ -474,7 +485,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 25000 * 100,
   },
   {
-    name: '360 Wigging (Include customization where necessary)',
+    name: '360 Wigging',
+    info: 'Include customization where necessary',
     photoUrl: '',
     serviceId: 2,
     subServiceId: 65,
@@ -482,7 +494,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 40000 * 100,
   },
   {
-    name: 'Frontal Customization (Include bleaching of the knots and plucking the hairline)',
+    name: 'Frontal Customization',
+    info: 'Include bleaching of the knots and plucking the hairline',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/58.jpeg',
     serviceId: 2,
@@ -491,7 +504,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 20000 * 100,
   },
   {
-    name: 'Closure Customization (Include bleaching of the knots and plucking the hairline)',
+    name: 'Closure Customization',
+    info: 'Include bleaching of the knots and plucking the hairline',
     photoUrl: '',
     serviceId: 2,
     subServiceId: 66,
@@ -499,7 +513,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 10000 * 100,
   },
   {
-    name: '360 Customization (Include bleaching of the knots and plucking the hairline)',
+    name: '360 Customization',
+    info: 'Include bleaching of the knots and plucking the hairline',
     photoUrl: '',
     serviceId: 2,
     subServiceId: 67,
@@ -528,7 +543,8 @@ const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
     price: 5000 * 100,
   },
   {
-    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
+    name: 'Color tint',
+    info: 'Black & bleach custom color. Customers will be responsible for an alternative dye color',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/40.jpeg',
     serviceId: 3,
@@ -558,7 +574,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     price: 40000 * 100,
   },
   {
-    name: 'Starter Locs (This method comes with comb twist or regular twist)',
+    name: 'Starter Locs',
+    info: 'This method comes with comb twist or regular twist',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/42.jpeg',
     serviceId: 4,
@@ -594,7 +611,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     price: 15000 * 100,
   },
   {
-    name: 'Color tint (Black & bleach custom color. Customers will be responsible for an alternative dye color)',
+    name: 'Color tint',
+    info: 'Black & bleach custom color. Customers will be responsible for an alternative dye color',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/44.jpeg',
     serviceId: 4,
