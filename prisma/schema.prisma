@@ -58,6 +58,7 @@ model Service {
 model SubService {
   subServiceId      Int                 @id @default(autoincrement())
   name              String
+  info              String?             @db.VarChar(512)
   photoUrl          String              @db.VarChar(512)
   price             Float
   serviceId         Int
