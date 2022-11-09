@@ -28,7 +28,7 @@ const setPushToken =
       userId,
       pushToken,
     })
-    repo.other.setPushToken({ userId, pushToken })
+    return repo.other.setPushToken({ userId, pushToken })
   }
 
 const healthCheck =
