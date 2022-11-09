@@ -247,9 +247,9 @@ const getBookingActivity =
         status: {
           in: [BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.PENDING],
         },
-        createdAt: {
-          gte: dayjs().subtract(1, 'w').toDate(),
-        },
+        // createdAt: {
+        // gte: dayjs().subtract(1, 'w').toDate(),
+        // },
         NOT: {
           auto: true,
           status: BOOKING_STATUS.PENDING,
