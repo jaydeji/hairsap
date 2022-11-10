@@ -31,7 +31,7 @@ export const BOOKING_STATUS = {
 } as const
 
 export const FROM = {
-  NOTIFICATION: 'notification',
+  NOTIFICATION: 'notification@hairsap.com',
 } as const
 
 export const OTP_TYPE = {
