@@ -109,7 +109,7 @@ export const autoBook =
       arrivalAt,
     })
 
-    if (bookings.length === 1) {
+    if (bookings.length < 1) {
       queue.notifyQueue.add({
         title: 'NewBooking',
         body: 'New booking has been received',
