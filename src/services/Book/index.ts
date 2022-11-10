@@ -401,6 +401,15 @@ const markBookingAsCompleted =
       bookingId: booking.bookingId,
     })
 
+    queue.notifyQueue.add({
+      title: 'Booking completed',
+      body: 'Booking has been completed',
+      userId: booking.userId,
+      type: 'booking',
+      status: BOOKING_STATUS.COMPLETED,
+      bookingId: booking.bookingId,
+    })
+
     await resolveBonus({ repo, queue, proId: booking.proId })
 
     if (booking.invoice.channel === CHANNEL.CASH) {
