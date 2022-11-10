@@ -46,8 +46,6 @@ const createSocket = ({
     }
   })
   io.on('connection', (socket) => {
-    logger.info('a user connected')
-
     if (process.env.NODE_ENV === 'development') {
       socket.onAny((event, ...args) => {
         logger.info({ event, args })
@@ -56,7 +54,6 @@ const createSocket = ({
 
     socket.on('disconnect', () => {
       connectedUsers[(socket as any).decodedToken.userId] = undefined
-      logger.info('user disconnected')
     })
 
     // socket.on('setup', ({ userId }: { userId: number }) => {
