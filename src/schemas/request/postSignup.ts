@@ -9,6 +9,7 @@ export const PostSignupRequestSchema = z
     password: z.string().min(6).max(32),
     phone: z.string().refine((e) => isValidPhone(e)),
     otpType: z.nativeEnum(OTP_TYPE).optional(),
+    address: z.string().min(2).optional(),
   })
   .strict()
 

@@ -3,7 +3,7 @@ import { getEmailStagePrefix } from '../../../utils'
 export const signUpEmailTemplate = (name: string) => {
   return {
     from: '"Hairsap" <notification@hairsap.com>',
-    to: 'admin@hairsap.com',
+    to: 'info@hairsap.com',
     subject: `${getEmailStagePrefix()}New SignUp`,
     text: `A new user with name ${name} has signed up`,
     html: `<p>A new user with name ${name} has signed up</p>`,
