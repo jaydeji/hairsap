@@ -110,6 +110,7 @@ const requestPayout =
         total / 100,
       )} within the next 48 hours`,
       userId: proId,
+      type: 'general',
     })
   }
 

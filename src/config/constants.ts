@@ -75,3 +75,8 @@ export const CHANNEL = {
 export const DISCOUNT = {
   FIVE_PERCENT: '5% discount',
 } as const
+
+export const NOTIFICATION_TYPE = {
+  BOOKING: 'booking',
+  GENERAL: 'general',
+} as const

@@ -48,6 +48,7 @@ const subscribe =
       userId: body.proId,
       title: 'New subscriber',
       body: 'You have gained a new subscriber',
+      type: 'general',
     })
     return
   }

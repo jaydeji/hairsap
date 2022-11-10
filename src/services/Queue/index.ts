@@ -14,7 +14,7 @@ import {
   terminateDeactivatedUsers,
 } from '../../repo/pro/utils'
 import { socket } from '../../index'
-import { BookingStatus, Repo } from '../../types'
+import { BookingStatus, Notificationtype, Repo } from '../../types'
 import { Push } from '../Push'
 
 const redisUrl = process.env.REDIS_URL
@@ -51,9 +51,11 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     ChatMessageType & { createdAt: string; senderId: number }
   >('chat', redisUrl, options)
   const notifyQueue = new Queue<{
+    type: Notificationtype
     title?: string
     body?: string
     userId: number
+    [key: string]: any
   }>('notifications', redisUrl, options)
   const deactivateQueue = new Queue('deactivate', redisUrl, options)
   const deactivateRedeem = new Queue<{ proId: number }>(
@@ -61,11 +63,6 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     redisUrl,
     options,
   )
-  const bookingQueue = new Queue<{
-    userId: number
-    status: BookingStatus | 'in transit' | 'arrived'
-    bookingId: number
-  }>('booking', redisUrl, options)
 
   deactivateQueue.add(undefined, {
     repeat: { cron: '00 00 21 * * 7' },
@@ -116,26 +113,30 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   })
 
   notifyQueue.process(async (job, done) => {
-    const sent = socket.sendSocketNotify('notification', job.data.userId, {
-      body: job.data.body,
-      title: job.data.title,
-      userId: job.data.userId,
+    const { body, title, userId, ...rest } = job.data
+    const sent = socket.sendSocketNotify('notification', userId, {
+      body,
+      title,
+      userId,
+      ...rest,
     })
     if (!sent) {
-      push.sendPushMessage(job.data.userId, {
-        title: job.data.title,
+      push.sendPushMessage(userId, {
+        title,
+        body,
         data: {
-          body: job.data.body,
-          title: job.data.title,
-          userId: job.data.userId,
+          body,
+          title,
+          userId,
+          ...rest,
         },
       })
     }
     try {
       await repo.other.createNotification({
-        body: job.data.body,
-        title: job.data.title,
-        userId: job.data.userId,
+        body,
+        title,
+        userId,
       })
     } catch (error) {
       logger.err(error, 'Error creating notification')
@@ -285,11 +286,6 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     done()
   })
 
-  bookingQueue.process(async (job, done) => {
-    socket.sendSocketBooking(job.data.userId, job.data)
-    done()
-  })
-
   return {
     emailQueue,
     phoneQueue,
@@ -298,7 +294,6 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     notifyQueue,
     deactivateRedeem,
     deactivateQueue,
-    bookingQueue,
   }
 }
 

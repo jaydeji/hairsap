@@ -3,6 +3,7 @@ import {
   BUCKET,
   CHANNEL,
   MESSAGE_TYPE,
+  NOTIFICATION_TYPE,
   OTP_TYPE,
   PRO_STATUS,
   ROLES,
@@ -32,3 +33,5 @@ export type OtpType = typeof OTP_TYPE[keyof typeof OTP_TYPE]
 export type BucketType = typeof BUCKET[keyof typeof BUCKET]
 export type ProStatus = typeof PRO_STATUS[keyof typeof PRO_STATUS]
 export type Channel = typeof CHANNEL[keyof typeof CHANNEL]
+export type Notificationtype =
+  typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE]

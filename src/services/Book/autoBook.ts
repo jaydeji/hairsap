@@ -114,6 +114,7 @@ export const autoBook =
         title: 'NewBooking',
         body: 'New booking has been received',
         userId: proId,
+        type: 'booking',
       })
     }
     return {

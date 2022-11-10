@@ -140,17 +140,10 @@ const createSocket = ({
     return true
   }
 
-  const sendSocketBooking = (userId: number, message: Record<string, any>) => {
-    const conn = connectedUsers[userId]
-    if (!conn) return
-    io.sockets.to(conn.socketId).emit('booking', { data: message })
-  }
-
   return {
     io,
     connectedUsers,
     sendSocketNotify,
-    sendSocketBooking,
   }
 }
 

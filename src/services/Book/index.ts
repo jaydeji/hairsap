@@ -144,6 +144,7 @@ const bookPro =
         title: 'NewBooking',
         body: 'New booking has been received',
         userId: proId,
+        type: 'booking',
       })
     }
     return booking
@@ -210,16 +211,13 @@ const acceptBooking =
       status: BOOKING_STATUS.ACCEPTED,
     })
 
-    queue.bookingQueue.add({
-      userId: booking.userId,
-      bookingId: booking.bookingId,
-      status: BOOKING_STATUS.ACCEPTED,
-    })
-
     queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Booking accepted',
       body: 'Booking has been accepted',
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.ACCEPTED,
+      type: 'booking',
     })
   }
 
@@ -256,6 +254,8 @@ const cancelBooking =
       userId: booking.proId,
       title: 'Booking cancelled',
       body: 'Booking has been cancelled',
+      bookingId: booking.bookingId,
+      type: 'booking',
     })
   }
 
@@ -280,16 +280,13 @@ const rejectBooking =
       rejectedAt: new Date(),
     })
 
-    queue.bookingQueue.add({
-      userId: booking.userId,
-      bookingId: booking.bookingId,
-      status: BOOKING_STATUS.REJECTED,
-    })
-
     queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Booking rejected',
       body: 'Booking has been rejected',
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.REJECTED,
+      type: 'booking',
     })
   }
 
@@ -322,6 +319,7 @@ const resolveBonus = async ({
         PERIODIC_CASH_AMOUNTS.WEEKLY_BONUS / 100,
       )}`,
       userId: proId,
+      type: 'general',
     })
   }
 }
@@ -355,6 +353,7 @@ const redeemCash = async ({
         total / 100,
       )} within the next 48 hours`,
       userId: proId,
+      type: 'general',
     })
     queue.deactivateRedeem.add(
       {
@@ -393,16 +392,13 @@ const markBookingAsCompleted =
       completedAt: new Date(),
     })
 
-    queue.bookingQueue.add({
-      userId: booking.userId,
-      bookingId: booking.bookingId,
-      status: BOOKING_STATUS.COMPLETED,
-    })
-
     queue.notifyQueue.add({
       title: 'Booking completed',
       body: 'Booking has been completed',
       userId: proId,
+      type: 'booking',
+      status: BOOKING_STATUS.COMPLETED,
+      bookingId: booking.bookingId,
     })
 
     await resolveBonus({ repo, queue, proId: booking.proId })
@@ -483,16 +479,13 @@ const markBookingAsArrived =
         arrived: true,
       })
 
-    queue.bookingQueue.add({
-      userId: booking.userId,
-      bookingId: booking.bookingId,
-      status: 'arrived',
-    })
-
     queue.notifyQueue.add({
       userId: booking.userId,
       title: 'Beauty Pro has arrived',
       body: 'Beauty Pro has arrived',
+      status: 'arrived',
+      bookingId: booking.bookingId,
+      type: 'booking',
     })
   }
 
@@ -526,11 +519,7 @@ const markBookingAsIntransit =
       userId: booking.userId,
       title: 'Prep for pro arrival',
       body: 'Kindly provide an electrical outlet. Remove pets or baby around the vicinity before the pro arrives',
-    })
-
-    queue.bookingQueue.add({
-      userId: booking.userId,
-      bookingId: booking.bookingId,
+      type: 'booking',
       status: 'in transit',
     })
   }
