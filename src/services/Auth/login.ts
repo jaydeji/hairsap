@@ -70,10 +70,6 @@ const loginUser = async ({
     throw new ForbiddenError(error)
   }
 
-  if (!user.verified) {
-    throw new ForbiddenError('account not verified')
-  }
-
   const token = generateJwt(
     { email: user.email, role: user.role, userId: user.userId },
     false,
@@ -105,10 +101,6 @@ const loginPro = async ({
 
   if (pro.password !== hashedPassword) {
     throw new ForbiddenError(error)
-  }
-
-  if (!pro.verified) {
-    throw new ForbiddenError('account not verified')
   }
 
   const token = generateJwt(
