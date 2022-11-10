@@ -24,7 +24,7 @@ export const otpEmailTemplate = ({
     from: `"Hairsap" <${from}>`,
     to: email,
     subject: `${getEmailStagePrefix()}Your OTP Code`,
-    text: `Dear ${name},\n Please use the OTP code: ${otp} to complete your login.`,
-    html: `<p>Dear ${name},\n Please use the OTP code: ${otp} to complete your login.</p>`,
+    text: `Dear ${name},\n Please use the OTP code: ${otp} to complete your signup.`,
+    html: `<p>Dear ${name},\n Please use the OTP code: ${otp} to complete your signup.</p>`,
   }
 }
