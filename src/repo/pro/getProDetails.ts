@@ -201,6 +201,7 @@ export const getProDetails =
               subService: {
                 select: {
                   name: true,
+                  price: true,
                 },
               },
             },
