@@ -5,7 +5,13 @@ import ah from 'express-async-handler'
 import { ROLES } from '../config/constants'
 import { Repo, Role } from '../types'
 
-const otpRoutes = ['/auth/validateotp', '/auth/generateotp']
+const otpRoutes = [
+  '/auth/validateotp',
+  '/auth/generateotp',
+  '/users/faceid',
+  '/users/me',
+  '/pros/me',
+]
 
 const auth = ({ repo }: { repo: Repo }) =>
   ah(async (req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +39,7 @@ const auth = ({ repo }: { repo: Repo }) =>
       if (
         !user.approved &&
         !otpRoutes
-          .concat(['/users/faceid', '/pros/applicationvideo'])
+          .concat(['/pros/applicationvideo'])
           .includes(req.baseUrl + req.path)
       )
         throw new ForbiddenError('pro not approved')
