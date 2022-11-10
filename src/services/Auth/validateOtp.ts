@@ -20,12 +20,12 @@ export const validateOtp =
     if (dayjs(user?.otp?.expiredAt).isBefore(dayjs()))
       throw new ForbiddenError()
 
-    await repo.user.updateUser(user.userId, {
+    const updatedUser = await repo.user.updateUser(user.userId, {
       otp: {
         delete: true,
       },
       verified: true,
     })
 
-    return PostLoginResponseSchema.parse(user)
+    return PostLoginResponseSchema.parse(updatedUser)
   }

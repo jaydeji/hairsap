@@ -1,5 +1,6 @@
 @base = http://localhost:4000
-@base2 = https://staging.hairsap.com
+@stag = https://staging.hairsap.com
+@prod = https://hairsap-be-production.up.railway.app
 @otp= "{{loginUser.response.body.data.otp}}"
 @utoken= {{loginUser.response.body.data.token}}
 @atoken= {{loginAdmin.response.body.data.token}}
@@ -24,12 +25,25 @@ Content-Type: application/json
 }
 
 ###
-# @name loginUser
-POST {{base}}/auth/login HTTP/1.1
+POST {{prod}}/auth/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "email":"lodashed@gmail.com",
+    "email":"jideadedejifirst@gmail.com",
+    "password":"jide1234",
+    "name":"Jide Adedeji",
+    "phone":"+2348118161239",
+    "role":"user",
+    "otpType":"email"
+}
+
+###
+# @name loginUser
+POST {{prod}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email":"jideadedejifirst@gmail.com",
     "password":"jide1234",
     "role":"user"
 }
@@ -56,7 +70,7 @@ Content-Type: application/json
 }
 ###
 # @name loginAdmin
-POST {{base2}}/auth/login HTTP/1.1
+POST {{stag}}/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -67,12 +81,12 @@ Content-Type: application/json
 
 ###
 # @name generateOtp
-POST {{base}}/auth/generateotp HTTP/1.1
+POST {{prod}}/auth/generateotp HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}
 
 {
-    "userId": 1,
+    "userId": 3,
     "otpType":"email"
 }
 
@@ -85,6 +99,17 @@ Content-Type: application/json
     "userId": {{userid}},
     "otp": {{otp}},
     "role":"user"
+}
+
+###
+# @name validateOtp
+POST {{prod}}/auth/validateotp HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+{
+    "userId": 3,
+    "otp": "298830"
 }
 
 ###
@@ -160,7 +185,7 @@ Authorization: Bearer {{atoken}}
 }
 
 ###uto
-POST {{base2}}/admin/userbookings HTTP/1.1
+POST {{stag}}/admin/userbookings HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{atoken}}
 
