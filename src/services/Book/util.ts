@@ -5,6 +5,9 @@ export const resolvePromo = (amount: number, code?: string) => {
     case DISCOUNT.FIVE_PERCENT: {
       return amount - 0.05 * amount
     }
+    case DISCOUNT.TWENTY_PERCENT: {
+      return amount - 0.2 * amount
+    }
     default:
       return amount
   }

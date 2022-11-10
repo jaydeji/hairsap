@@ -683,11 +683,11 @@ const chatData: Prisma.ChatCreateManyInput[] = [
   },
 ]
 
-const discountData: Prisma.DiscountCreateManyInput[] = [
-  {
-    name: DISCOUNT.FIVE_PERCENT,
-  },
-]
+const discountData: Prisma.DiscountCreateManyInput[] = Object.values(
+  DISCOUNT,
+).map((value) => ({
+  name: value,
+}))
 
 const marketerData: Prisma.MarketerCreateManyInput[] = [
   {
