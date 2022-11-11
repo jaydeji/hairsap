@@ -245,9 +245,9 @@ Content-Type: application/json
 Authorization: Bearer {{atoken}}
 
 {
-    "limit":"all",
+    "limit":"completed",
     "period":"month",
-    "status":"all"
+    "status":"new"
 }
 
 ###

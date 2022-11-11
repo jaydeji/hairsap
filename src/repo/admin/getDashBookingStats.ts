@@ -45,6 +45,7 @@ const query = (
           userId,
           COUNT(userId) cnt
       FROM Booking
+      WHERE 1=1 ${where}
       GROUP BY userId
       ${having}
   ) _b
