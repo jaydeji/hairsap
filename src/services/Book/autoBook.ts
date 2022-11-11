@@ -92,7 +92,7 @@ export const autoBook =
         data.code,
         userId,
       )
-      if (bookingWithPromo)
+      if (bookingWithPromo?.promoUsed)
         throw new ForbiddenError('promo code has been used before')
     }
 

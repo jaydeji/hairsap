@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import got from 'got-cjs'
 import { z } from 'zod'
 import {
@@ -387,10 +388,26 @@ const markBookingAsCompleted =
       throw new InternalError()
     }
 
-    await repo.book.updateBooking(bookingId, {
+    let promo
+    if (booking.invoice.promo?.promoId)
+      promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
+
+    let bookingUpdate: Prisma.BookingUpdateInput = {
       status: BOOKING_STATUS.COMPLETED,
       completedAt: new Date(),
-    })
+    }
+    if (promo) {
+      bookingUpdate = {
+        ...bookingUpdate,
+        invoice: {
+          update: {
+            promoUsed: !!promo,
+          },
+        },
+      }
+    }
+
+    await repo.book.updateBooking(bookingId, bookingUpdate)
 
     queue.notifyQueue.add({
       title: 'Booking completed',
@@ -424,10 +441,6 @@ const markBookingAsCompleted =
     } else {
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
-
-      let promo
-      if (booking.invoice.promo?.promoId)
-        promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
 
       const amount = resolvePromo(
         booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
