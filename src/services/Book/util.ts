@@ -13,7 +13,14 @@ export const resolvePromo = (amount: number, code?: string) => {
       return {
         amount,
         amountLessPromo: amount - 0.2 * amount,
-        promoAmount: 0.05 * amount,
+        promoAmount: 0.2 * amount,
+      }
+    }
+    case DISCOUNT.TEN_PERCENT: {
+      return {
+        amount,
+        amountLessPromo: amount - 0.1 * amount,
+        promoAmount: 0.1 * amount,
       }
     }
     default:

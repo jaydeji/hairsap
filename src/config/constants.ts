@@ -75,6 +75,7 @@ export const CHANNEL = {
 export const DISCOUNT = {
   FIVE_PERCENT: '5% discount',
   TWENTY_PERCENT: '20% discount',
+  TEN_PERCENT: '10% discount',
 } as const
 
 export const NOTIFICATION_TYPE = {
