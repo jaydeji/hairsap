@@ -28,7 +28,7 @@ const loginAdmin = async ({
   if (body.email)
     admin = await repo.user.getUserByEmailAndRole(body.email, body.role)
   if (body.phone)
-    admin = await repo.user.getUserByEmailAndRole(body.phone, body.role)
+    admin = await repo.user.getUserByPhoneAndRole(body.phone, body.role)
 
   if (!admin) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
@@ -94,7 +94,7 @@ const loginPro = async ({
   if (body.email)
     pro = await repo.user.getUserByEmailAndRole(body.email, body.role)
   if (body.phone)
-    pro = await repo.user.getUserByEmailAndRole(body.phone, body.role)
+    pro = await repo.user.getUserByPhoneAndRole(body.phone, body.role)
 
   if (!pro) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
