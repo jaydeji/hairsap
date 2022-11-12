@@ -234,7 +234,7 @@ const getPayoutRequestsWP =
       amount: resolvePromo(
         e.invoiceFees.reduce((acc, e) => acc + e.price, 0),
         e.promo?.code,
-      ),
+      ).amountLessPromo,
     }))
   }
 

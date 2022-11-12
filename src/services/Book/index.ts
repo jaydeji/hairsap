@@ -392,6 +392,12 @@ const markBookingAsCompleted =
     if (booking.invoice.promo?.promoId)
       promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
 
+    const { amountLessPromo, promoAmount } = resolvePromo(
+      booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
+        booking.invoice.transportFee,
+      promo?.code,
+    )
+
     let bookingUpdate: Prisma.BookingUpdateInput = {
       status: BOOKING_STATUS.COMPLETED,
       completedAt: new Date(),
@@ -402,6 +408,7 @@ const markBookingAsCompleted =
         invoice: {
           update: {
             promoUsed: !!promo,
+            promoAmount,
           },
         },
       }
@@ -442,12 +449,6 @@ const markBookingAsCompleted =
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
 
-      const amount = resolvePromo(
-        booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
-          booking.invoice.transportFee,
-        promo?.code,
-      )
-
       try {
         await got
           .post(PAYSTACK_URL + '/transaction/charge_authorization', {
@@ -457,7 +458,7 @@ const markBookingAsCompleted =
             json: {
               authorization_code: user.card.authorizationCode,
               email: user.email,
-              amount,
+              amount: amountLessPromo,
               metadata: {
                 invoiceId: booking.invoice.invoiceId,
                 userId: booking.userId,

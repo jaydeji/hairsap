@@ -651,6 +651,7 @@ const getTransactions =
               promo: {
                 include: { discount: true },
               },
+              promoAmount: true,
               invoiceFees: {
                 select: {
                   price: true,
@@ -674,8 +675,10 @@ const getTransactions =
             e.subServiceId === booking.invoice?.invoiceFees?.[0]?.subServiceId,
         )?.service,
         total:
-          booking.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
-          0,
+          (booking.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
+            0) +
+          (booking.invoice?.transportFee || 0) +
+          (booking.invoice?.promoAmount || 0),
       }
     })
   }
@@ -730,7 +733,7 @@ const getUnredeemedCashPayments =
         resolvePromo(
           e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0),
           e.promo?.code,
-        ),
+        ).amountLessPromo,
       0,
     )
 

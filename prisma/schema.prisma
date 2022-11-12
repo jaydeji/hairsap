@@ -106,6 +106,7 @@ model Invoice {
   promo        Promo?        @relation(fields: [promoId], references: [promoId])
   promoId      Int?
   promoUsed    Boolean?      @default(false)
+  promoAmount  Float?
   invoiceFees  InvoiceFees[]
   paid         Boolean       @default(false)
   amountPaid   Float?
