@@ -677,7 +677,7 @@ const getTransactions =
         total:
           (booking.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
             0) +
-          (booking.invoice?.transportFee || 0) +
+          (booking.invoice?.transportFee || 0) -
           (booking.invoice?.promoAmount || 0),
       }
     })
