@@ -713,6 +713,7 @@ const getUnredeemedCashPayments =
         },
         booking: {
           proId,
+          status: BOOKING_STATUS.COMPLETED,
         },
       },
       include: {
