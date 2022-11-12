@@ -119,6 +119,7 @@ export const autoBook =
     }
     return {
       ...booking,
+      distance,
       total: price + transportation,
     }
   }
