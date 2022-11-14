@@ -388,26 +388,28 @@ const markBookingAsCompleted =
       throw new InternalError()
     }
 
-    let promo
-    if (booking.invoice.promo?.promoId)
-      promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
+    let discount
+    if (booking.invoice.promo?.promoId) {
+      const promo = await repo.other.getPromoByCode(booking.invoice.promo.code)
+      if (promo) discount = await repo.other.getDiscountById(promo.discountId)
+    }
 
     const { amountLessPromo, promoAmount } = resolvePromo(
       booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
         booking.invoice.transportFee,
-      promo?.code,
+      discount?.name,
     )
 
     let bookingUpdate: Prisma.BookingUpdateInput = {
       status: BOOKING_STATUS.COMPLETED,
       completedAt: new Date(),
     }
-    if (promo) {
+    if (discount) {
       bookingUpdate = {
         ...bookingUpdate,
         invoice: {
           update: {
-            promoUsed: !!promo,
+            promoUsed: !!discount,
             promoAmount,
           },
         },

@@ -145,6 +145,12 @@ const getDiscounts =
     return db.discount.findMany()
   }
 
+const getDiscountById =
+  ({ db }: { db: PrismaClient }) =>
+  (discountId: number) => {
+    return db.discount.findUnique({ where: { discountId } })
+  }
+
 const getPromoByCode =
   ({ db }: { db: PrismaClient }) =>
   (code: string) => {
@@ -363,6 +369,7 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     deactivateUserOrPro: deactivateUserOrPro({ db }),
     addMarketer: addMarketer({ db }),
     getDiscounts: getDiscounts({ db }),
+    getDiscountById: getDiscountById({ db }),
     createPromo: createPromo({ db }),
     updatePromo: updatePromo({ db }),
     getPromoByCode: getPromoByCode({ db }),
