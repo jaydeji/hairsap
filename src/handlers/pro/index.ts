@@ -4,6 +4,7 @@ import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
+import { computeBookingTotal } from '../../services/Book/util'
 import type { Role, Service } from '../../types'
 import { logger, uniqueId } from '../../utils'
 import { InternalError, ValidationError } from '../../utils/Error'
@@ -61,7 +62,7 @@ const makeProRouter = ({
         auto: true,
       })
 
-      res.status(200).send({ data })
+      res.status(200).send({ data: data ? computeBookingTotal(data) : {} })
     }),
   )
 

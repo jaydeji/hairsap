@@ -35,7 +35,7 @@ export const autoBook =
       userId: lastProId,
     })
 
-    if (!nearestPro) return {}
+    if (!nearestPro) return
 
     const { distance, userId: proId } = nearestPro
 
@@ -45,7 +45,7 @@ export const autoBook =
     )
 
     if (bookings.length >= 5) {
-      return {}
+      return
       throw new ForbiddenError('pro currently busy')
     }
 
@@ -97,7 +97,6 @@ export const autoBook =
     }
 
     const arrivalAt = getArrivalTime(distance)
-    const transportation = getTransportPrice(distance)
 
     const booking = await repo.book.bookPro({
       ...data,
@@ -117,9 +116,5 @@ export const autoBook =
         type: 'booking',
       })
     }
-    return {
-      ...booking,
-      distance,
-      total: price + transportation,
-    }
+    return booking
   }

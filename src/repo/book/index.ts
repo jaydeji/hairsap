@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
 import { BOOKING_STATUS, CHANNEL } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
-import { resolvePromo } from '../../services/Book/util'
+import { computeBookingTotal, resolvePromo } from '../../services/Book/util'
 import { BookingStatus } from '../../types'
 import { dayjs } from '../../utils'
 import { getProBookings } from './getProBookings'
@@ -108,14 +108,7 @@ const getBookingByIdAndMore =
       },
     })
 
-    return {
-      ...data,
-      promoTotal: resolvePromo(
-        (data?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0) +
-          (data?.invoice?.transportFee || 0),
-        data?.invoice?.promo?.code,
-      ),
-    }
+    return data
   }
 
 const getInvoiceById =
@@ -532,6 +525,12 @@ const bookPro =
         invoice: {
           select: {
             invoiceId: true,
+            transportFee: true,
+            promo: {
+              include: { discount: true },
+            },
+            invoiceFees: true,
+            distance: true,
           },
         },
         pro: {
@@ -674,11 +673,7 @@ const getTransactions =
           (e) =>
             e.subServiceId === booking.invoice?.invoiceFees?.[0]?.subServiceId,
         )?.service,
-        total:
-          (booking.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
-            0) +
-          (booking.invoice?.transportFee || 0) -
-          (booking.invoice?.promoAmount || 0),
+        total: computeBookingTotal(booking),
       }
     })
   }

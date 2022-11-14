@@ -1,4 +1,5 @@
 import { DISCOUNT } from '../../config/constants'
+import { Prisma } from '@prisma/client'
 
 export const resolvePromo = (amount: number, code?: string) => {
   switch (code) {
@@ -25,5 +26,38 @@ export const resolvePromo = (amount: number, code?: string) => {
     }
     default:
       return { amount, amountLessPromo: amount, promoAmount: 0 }
+  }
+}
+
+const bookingWithTotal = Prisma.validator<Prisma.BookingArgs>()({
+  select: {
+    invoice: {
+      select: {
+        invoiceFees: {
+          select: {
+            price: true,
+          },
+        },
+        transportFee: true,
+        promo: {
+          select: {
+            discount: { select: { name: true } },
+          },
+        },
+      },
+    },
+  },
+})
+
+type BookingWithTotal = Prisma.BookingGetPayload<typeof bookingWithTotal>
+
+export const computeBookingTotal = (booking: BookingWithTotal) => {
+  return {
+    ...booking,
+    total: resolvePromo(
+      (booking?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) ||
+        0) + (booking?.invoice?.transportFee || 0),
+      booking?.invoice?.promo?.discount.name,
+    ).amountLessPromo,
   }
 }

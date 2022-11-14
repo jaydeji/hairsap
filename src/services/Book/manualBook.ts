@@ -77,7 +77,6 @@ export const manualBook =
     })
 
     const arrivalAt = getArrivalTime(distance)
-    const transportation = getTransportPrice(distance)
 
     const booking = await repo.book.bookPro({
       ...data,
@@ -97,8 +96,5 @@ export const manualBook =
         type: 'booking',
       })
     }
-    return {
-      ...booking,
-      total: price + transportation,
-    }
+    return booking
   }

@@ -41,7 +41,7 @@ import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
 import { autoBook } from './autoBook'
 import { manualBook } from './manualBook'
-import { resolvePromo } from './util'
+import { computeBookingTotal, resolvePromo } from './util'
 
 const bookPro =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -571,7 +571,7 @@ const getBookingActivity =
       userId,
     })
 
-    return bookingActivities
+    return bookingActivities.map((ba) => computeBookingTotal(ba))
   }
 
 const getUserBookings =
@@ -661,9 +661,11 @@ const markBonusAsPaid =
 
 const getBookingById =
   ({ repo }: { repo: Repo }) =>
-  ({ bookingId }: { bookingId: number }) => {
+  async ({ bookingId }: { bookingId: number }) => {
     z.object({ bookingId: z.number() }).strict().parse({ bookingId })
-    return repo.book.getBookingByIdAndMore(bookingId)
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (booking) return computeBookingTotal(booking)
+    return
   }
 
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
