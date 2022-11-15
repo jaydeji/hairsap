@@ -317,11 +317,12 @@ model NotificationTracker {
 }
 
 model Notification {
-  notificationId Int     @id @default(autoincrement())
-  body           String? @db.Text()
+  notificationId Int      @id @default(autoincrement())
+  body           String?  @db.Text()
   title          String?
-  user           User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId         Int
+  read           Boolean? @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

@@ -73,6 +73,17 @@ const makeRouter = ({
     }),
   )
   router.post(
+    '/notifications/:id',
+    auth({ repo }),
+    ah(async (req, res) => {
+      await service.other.markNotificationAsRead(
+        req.tokenData?.userId as number,
+        +req.params.id,
+      )
+      res.status(201).send()
+    }),
+  )
+  router.post(
     '/deactivate',
     auth({ repo }),
     allowOnly([ROLES.USER, ROLES.PRO]),

@@ -128,6 +128,21 @@ const getMarketerStatsById =
     return repo.other.getMarketerStatsById(marketerId)
   }
 
+const markNotificationAsRead =
+  ({ repo }: { repo: Repo }) =>
+  async (userId: number, notificationId: number) => {
+    z.object({
+      notificationId: z.number(),
+      userId: z.number(),
+    })
+      .strict()
+      .parse({ userId, notificationId })
+
+    const notification = await repo.other.getNotificationsById(notificationId)
+    if (notification && notification.userId == userId)
+      return repo.other.markNotificationAsRead(userId, notificationId)
+  }
+
 const makeOther = ({ repo }: { repo: Repo }) => {
   return {
     getServices: getServices({ repo }),
@@ -145,6 +160,7 @@ const makeOther = ({ repo }: { repo: Repo }) => {
     getMarketerStatsById: getMarketerStatsById({ repo }),
     getMarketerStats: getMarketerStats({ repo }),
     getMarketerAggregate: getMarketerAggregate({ repo }),
+    markNotificationAsRead: markNotificationAsRead({ repo }),
   }
 }
 

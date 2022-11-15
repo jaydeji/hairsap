@@ -355,6 +355,29 @@ const getBookingByPromo =
     })
   }
 
+const markNotificationAsRead =
+  ({ db }: { db: PrismaClient }) =>
+  (userId: number, notificationId: number) => {
+    return db.notification.update({
+      where: {
+        notificationId,
+      },
+      data: {
+        read: true,
+      },
+    })
+  }
+
+const getNotificationsById =
+  ({ db }: { db: PrismaClient }) =>
+  (notificationId: number) => {
+    return db.notification.findFirst({
+      where: {
+        notificationId,
+      },
+    })
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -379,6 +402,8 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getBookingByPromo: getBookingByPromo({ db }),
     getMarketerStats: getMarketerStats({ db }),
     getMarketerAggregate: getMarketerAggregate({ db }),
+    markNotificationAsRead: markNotificationAsRead({ db }),
+    getNotificationsById: getNotificationsById({ db }),
   }
 }
 
