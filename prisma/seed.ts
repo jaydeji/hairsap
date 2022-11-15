@@ -327,7 +327,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 62,
     order: 28,
-    price: 8000 * 100,
+    price: 5000 * 100,
   },
   {
     name: 'Natural cornrow',
@@ -336,7 +336,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 63,
     order: 29,
-    price: 10000 * 100,
+    price: 5000 * 100,
   },
   {
     name: 'Color tint',
@@ -412,7 +412,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   },
   {
     name: 'General styling',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpg',
     serviceId: 2,
     subServiceId: 64,
     order: 37,
@@ -487,7 +488,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   {
     name: '360 Wigging',
     info: 'Include customization where necessary',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/65.jpg',
     serviceId: 2,
     subServiceId: 65,
     order: 45,
@@ -506,7 +508,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   {
     name: 'Closure Customization',
     info: 'Include bleaching of the knots and plucking the hairline',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/66.jpg',
     serviceId: 2,
     subServiceId: 66,
     order: 47,
@@ -515,7 +518,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
   {
     name: '360 Customization',
     info: 'Include bleaching of the knots and plucking the hairline',
-    photoUrl: '',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/67.jpg',
     serviceId: 2,
     subServiceId: 67,
     order: 48,
@@ -755,14 +759,26 @@ async function main() {
     ])
   }
 
-  // const subServices = [
-  //   ...subServiceBraids,
-  //   ...subServiceStyling,
-  //   ...subServiceBarbing,
-  //   ...subServiceLocks,
-  // ]
+  const subServices = [
+    ...subServiceBraids,
+    ...subServiceStyling,
+    ...subServiceBarbing,
+    ...subServiceLocks,
+  ]
 
-  await prisma.$transaction(x)
+  await prisma.$transaction(
+    subServices
+      .filter((e) => [64, 65, 66, 67].includes(e.subServiceId!))
+      .map((e) =>
+        prisma.subService.update({
+          where: {
+            subServiceId: e.subServiceId,
+          },
+          data: e,
+        }),
+      ),
+  )
+  // await prisma.$transaction(x)
 
   logger.info(`Seeding finished.`)
 }
