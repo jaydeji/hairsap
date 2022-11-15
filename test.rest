@@ -39,7 +39,7 @@ Content-Type: application/json
 
 ###
 # @name loginUser
-POST {{prod}}/auth/login HTTP/1.1
+POST {{base}}/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -379,6 +379,11 @@ Authorization: Bearer {{utoken}}
 
 ###
 POST {{base}}/users/me HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{utoken}}
+
+###
+GET {{base}}/notifications HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{utoken}}
 

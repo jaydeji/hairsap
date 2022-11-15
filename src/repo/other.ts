@@ -33,9 +33,9 @@ const getNotifications =
   ({ db }: { db: PrismaClient }) =>
   (userId: number) =>
     db.notification.findMany({
-      take: 20,
+      take: 40,
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc',
       },
       where: {
         userId,
