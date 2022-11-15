@@ -673,7 +673,7 @@ const getTransactions =
           (e) =>
             e.subServiceId === booking.invoice?.invoiceFees?.[0]?.subServiceId,
         )?.service,
-        total: computeBookingTotal(booking),
+        total: computeBookingTotal(booking).total,
       }
     })
   }
