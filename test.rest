@@ -1,6 +1,6 @@
 @base = http://localhost:4000
 @stag = https://staging.hairsap.com
-@prod = https://hairsap-be-production.up.railway.app
+# @prod = https://hairsap-be-production.up.railway.app
 @otp= "{{loginUser.response.body.data.otp}}"
 @utoken= {{loginUser.response.body.data.token}}
 @atoken= {{loginAdmin.response.body.data.token}}

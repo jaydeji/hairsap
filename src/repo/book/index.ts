@@ -43,6 +43,7 @@ const getBookingByIdAndMore =
         rejectedAt: true,
         arrivalAt: true,
         cancelledAt: true,
+        rating: true,
         pro: {
           select: {
             address: true,
