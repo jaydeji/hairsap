@@ -127,8 +127,9 @@ Content-Type: application/json
 Authorization: Bearer {{ptoken}}
 
 {
-    "userId":3,
-    "address":"updated address"
+    "account":{
+         "accountName": "jj", "accountNumber": "1777", "bankName": "hh"
+    }
 }
 
 ###

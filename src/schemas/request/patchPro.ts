@@ -14,8 +14,8 @@ export const PatchProRequestSchema = z.object({
     .optional(),
   phone: z
     .string()
-    .optional()
-    .refine((e) => isValidPhone(e)),
+    .refine((e) => isValidPhone(e))
+    .optional(),
   available: z.boolean().optional(),
   bio: z.string().optional(),
   account: z
