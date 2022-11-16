@@ -478,7 +478,7 @@ const markBookingAsCompleted =
         })
       } catch (error) {
         // TODO: handle failed payments
-        logger.info({ userId: user.userId }, 'payment unsuccessful')
+        logger.err(error, 'payment unsuccessful')
         throw new InternalError('payment unsuccessful')
       }
     }

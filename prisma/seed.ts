@@ -438,7 +438,7 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     price: 15000 * 100,
   },
   {
-    name: 'Natural hair',
+    name: 'Natural hair colouring',
     info: 'Black & bleach custom color. Customers will be responsible for an alternative dye color',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/34.jpeg',
@@ -759,26 +759,7 @@ async function main() {
     ])
   }
 
-  const subServices = [
-    ...subServiceBraids,
-    ...subServiceStyling,
-    ...subServiceBarbing,
-    ...subServiceLocks,
-  ]
-
-  await prisma.$transaction(
-    subServices
-      .filter((e) => [64, 65, 66, 67].includes(e.subServiceId!))
-      .map((e) =>
-        prisma.subService.update({
-          where: {
-            subServiceId: e.subServiceId,
-          },
-          data: e,
-        }),
-      ),
-  )
-  // await prisma.$transaction(x)
+  await prisma.$transaction(x)
 
   logger.info(`Seeding finished.`)
 }
