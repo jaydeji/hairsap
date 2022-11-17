@@ -470,6 +470,12 @@ const markBookingAsCompleted =
       }
 
       if (paymentError) {
+        queue.notifyQueue.add({
+          title: 'Card payment unsuccessful please collect cash',
+          body: `Card payment unsuccessful please collect amount of ${amountLessPromo}`,
+          userId: proId,
+          type: 'booking',
+        })
         await repo.book.updateBooking(bookingId, {
           invoice: {
             update: {
