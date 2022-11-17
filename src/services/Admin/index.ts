@@ -169,6 +169,7 @@ const deactivatePro =
 
     return repo.user.updateUser(proId, {
       deactivated: true,
+      deactivationCount: pro.deactivationCount + 1,
       terminated: pro.deactivationCount >= 4 ? true : undefined,
     })
   }
