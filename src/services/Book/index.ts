@@ -440,16 +440,11 @@ const markBookingAsCompleted =
 
     if (booking.invoice.channel === CHANNEL.CASH) {
       await redeemCash({ repo, queue, proId: booking.proId })
-      await repo.book.updateBooking(bookingId, {
-        invoice: {
-          update: {
-            paid: true,
-          },
-        },
-      })
     } else {
       if (!user.card?.authorizationCode) return
       if (!booking.invoice?.invoiceFees?.length) return
+
+      let paymentError = false
 
       try {
         await got
@@ -469,18 +464,30 @@ const markBookingAsCompleted =
             },
           })
           .json()
+      } catch (error) {
+        paymentError = true
+        logger.err(error, 'payment unsuccessful')
+      }
+
+      if (paymentError) {
         await repo.book.updateBooking(bookingId, {
           invoice: {
             update: {
-              paid: true,
+              channel: CHANNEL.CASH,
             },
           },
         })
-      } catch (error) {
-        logger.err(error, 'payment unsuccessful')
         throw new ForbiddenError('payment unsuccessful')
       }
     }
+
+    await repo.book.updateBooking(bookingId, {
+      invoice: {
+        update: {
+          paid: true,
+        },
+      },
+    })
   }
 
 const markBookingAsArrived =
