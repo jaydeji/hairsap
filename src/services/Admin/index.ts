@@ -161,6 +161,18 @@ const getUnacceptedProPhotos =
     return repo.admin.getUnacceptedProPhotos()
   }
 
+const deactivatePro =
+  ({ repo }: { repo: Repo }) =>
+  async (proId: number) => {
+    const pro = await repo.pro.getProData({ proId })
+    if (!pro) throw new NotFoundError('pro not found')
+
+    return repo.user.updateUser(proId, {
+      deactivated: true,
+      terminated: pro.deactivationCount >= 4 ? true : undefined,
+    })
+  }
+
 const acceptUnacceptedProPhotos =
   ({ repo }: { repo: Repo }) =>
   async (proId: number) => {
@@ -202,6 +214,7 @@ const makeAdmin = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getDashboardCompletedBookingStats: getDashboardCompletedBookingStats({
       repo,
     }),
+    deactivatePro: deactivatePro({ repo }),
   }
 }
 

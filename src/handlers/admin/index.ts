@@ -214,6 +214,14 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.post(
+    '/deactivatepro/:id',
+    ah(async (req, res) => {
+      const data = await service.admin.deactivatePro(+req.params.id)
+      res.status(201).send({ data })
+    }),
+  )
+
   return router
 }
 
