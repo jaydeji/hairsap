@@ -464,6 +464,14 @@ const markBookingAsCompleted =
             },
           })
           .json()
+
+        await repo.book.updateBooking(bookingId, {
+          invoice: {
+            update: {
+              paid: true,
+            },
+          },
+        })
       } catch (error) {
         paymentError = true
         logger.err(error, 'payment unsuccessful')
@@ -486,14 +494,6 @@ const markBookingAsCompleted =
         throw new ForbiddenError('payment unsuccessful')
       }
     }
-
-    await repo.book.updateBooking(bookingId, {
-      invoice: {
-        update: {
-          paid: true,
-        },
-      },
-    })
   }
 
 const markBookingAsArrived =
