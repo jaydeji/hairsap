@@ -336,6 +336,7 @@ const getProData =
         businessName: true,
         account: true,
         bio: true,
+        workVideoUrl: true,
       },
     })
   }
