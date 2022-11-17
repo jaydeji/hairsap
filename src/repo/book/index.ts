@@ -83,6 +83,7 @@ const getBookingByIdAndMore =
             promo: {
               include: { discount: true },
             },
+            channel: true,
             invoiceFees: {
               select: {
                 name: true,
