@@ -477,9 +477,8 @@ const markBookingAsCompleted =
           },
         })
       } catch (error) {
-        // TODO: handle failed payments
         logger.err(error, 'payment unsuccessful')
-        throw new InternalError('payment unsuccessful')
+        throw new ForbiddenError('payment unsuccessful')
       }
     }
   }
