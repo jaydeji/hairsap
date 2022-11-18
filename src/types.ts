@@ -10,9 +10,11 @@ import {
 } from './config/constants'
 import makeRepo from './repo'
 import makeServices from './services'
+import makePush from './services/Push'
 
 export type Repo = ReturnType<typeof makeRepo>
 export type Service = ReturnType<typeof makeServices>
+export type Push = ReturnType<typeof makePush>
 
 interface HsapBody {
   message: string

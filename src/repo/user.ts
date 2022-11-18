@@ -1,6 +1,10 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { BOOKING_STATUS, ROLES } from '../config/constants'
 import { PageReq } from '../schemas/request/Page'
+import {
+  PostPushNotificationReq,
+  PushAudience,
+} from '../schemas/request/postPushNotification'
 import { PostSubscribeReq } from '../schemas/request/postSubscribe'
 import { Role } from '../types'
 
@@ -347,6 +351,52 @@ const deleteCard =
       },
     })
 
+type GetUserTokenType =
+  | {
+      audience: NonNullable<PostPushNotificationReq['audience']>
+      userIds?: never
+    }
+  | {
+      userIds: number[]
+      audience?: never
+    }
+
+const getUserTokens =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userIds, audience }: GetUserTokenType) => {
+    if (userIds)
+      return db.user.findMany({
+        where: {
+          userId: {
+            in: userIds,
+          },
+          pushToken: {
+            not: null,
+          },
+        },
+        select: {
+          pushToken: true,
+        },
+      })
+
+    const where: Prisma.UserWhereInput = {
+      pushToken: {
+        not: null,
+      },
+    }
+
+    if (audience === PushAudience.USERS) {
+      where.role = ROLES.USER
+    } else if (audience === PushAudience.PROS) where.role = ROLES.PRO
+
+    return db.user.findMany({
+      where,
+      select: {
+        pushToken: true,
+      },
+    })
+  }
+
 const makeUserRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getUserById: getUserById({ db }),
@@ -368,6 +418,7 @@ const makeUserRepo = ({ db }: { db: PrismaClient }) => {
     getUserData: getUserData({ db }),
     getCard: getCard({ db }),
     deleteCard: deleteCard({ db }),
+    getUserTokens: getUserTokens({ db }),
   }
 }
 

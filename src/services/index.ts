@@ -21,7 +21,7 @@ const makeServices = ({ repo, expo }: { repo: Repo; expo: Expo }) => {
     chat: makeChat({ repo }),
     pro: makePro({ repo }),
     book: makeBook({ repo, queue }),
-    admin: makeAdmin({ repo, queue }),
+    admin: makeAdmin({ repo, queue, push }),
     other: makeOther({ repo }),
     push,
     queue,

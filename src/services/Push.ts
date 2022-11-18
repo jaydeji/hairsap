@@ -1,5 +1,6 @@
 import type Expo from 'expo-server-sdk'
 import type { ExpoPushMessage } from 'expo-server-sdk'
+import { PostPushNotificationReq } from '../schemas/request/postPushNotification'
 import type { Repo } from '../types'
 
 import { logger } from '../utils'
@@ -16,6 +17,34 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
         await expo.sendPushNotificationsAsync([{ ...message, to: pushToken }])
       } catch (error) {
         logger.err(error, 'Push message error')
+      }
+    },
+    sendMultiPushMessage: async (data: PostPushNotificationReq) => {
+      let userTokens
+
+      try {
+        if (data.userIds) {
+          userTokens = await repo.user.getUserTokens({
+            userIds: data.userIds,
+          })
+        } else {
+          userTokens = await repo.user.getUserTokens({
+            audience: data.audience!,
+          })
+        }
+
+        if (!userTokens.length) return
+
+        await expo.sendPushNotificationsAsync([
+          {
+            title: data.title,
+            body: data.body,
+            to: userTokens.map((e) => e.pushToken!),
+          },
+        ])
+      } catch (error) {
+        logger.err(error, 'Error sending multiple push notifications')
+        throw error
       }
     },
   }

@@ -9,7 +9,11 @@ import {
   PostAcceptOrRejectAppReq,
   PostAcceptOrRejectAppReqSchema,
 } from '../../schemas/request/postAcceptOrRejectApplication'
-import type { Repo } from '../../types'
+import {
+  PostPushNotificationReq,
+  PostPushNotificationReqSchema,
+} from '../../schemas/request/postPushNotification'
+import type { Push, Repo } from '../../types'
 import { addCommas, getPageMeta, logger, paginate } from '../../utils'
 import { ForbiddenError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -196,7 +200,22 @@ const acceptUnacceptedProPhotos =
     })
   }
 
-const makeAdmin = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
+const sendPushNotification =
+  ({ push }: { push: Push }) =>
+  (body: PostPushNotificationReq) => {
+    PostPushNotificationReqSchema.parse(body)
+    return push.sendMultiPushMessage(body)
+  }
+
+const makeAdmin = ({
+  repo,
+  queue,
+  push,
+}: {
+  repo: Repo
+  queue: Queue
+  push: Push
+}) => {
   return {
     acceptReactivation: acceptReactivation({ repo }),
     getPayoutRequests: getPayoutRequests({ repo }),
@@ -216,6 +235,7 @@ const makeAdmin = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
       repo,
     }),
     deactivatePro: deactivatePro({ repo }),
+    sendPushNotification: sendPushNotification({ push }),
   }
 }
 

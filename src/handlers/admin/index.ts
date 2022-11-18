@@ -232,6 +232,14 @@ const makeAdminRouter = ({
       res.status(201).send()
     }),
   )
+  router.post(
+    '/push_notification',
+    ah(async (req, res) => {
+      await service.admin.sendPushNotification(req.body)
+
+      res.status(201).send()
+    }),
+  )
 
   return router
 }
