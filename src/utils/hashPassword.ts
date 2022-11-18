@@ -14,4 +14,13 @@ const hashPassword = (plainTextPassword: string): string => {
     .digest('hex')
 }
 
-export { hashPassword }
+const hashPassword2 = (plainTextPassword: string): string => {
+  return createHmac(
+    ALGORITHM_NAMES.SHA256,
+    process.env.DATA_ENCRYPTION_KEY2 || '',
+  )
+    .update(plainTextPassword)
+    .digest('hex')
+}
+
+export { hashPassword, hashPassword2 }

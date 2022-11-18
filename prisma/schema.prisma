@@ -247,6 +247,7 @@ model User {
   businessName                     String?
   pushToken                        String?
   bio                              String?  @db.Text()
+  systemUpdPass                    Boolean? @default(false)
 
   otp                  Otp?
   notifications        Notification[]

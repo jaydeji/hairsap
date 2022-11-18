@@ -12,6 +12,7 @@ import type { Repo } from '../../types'
 import { ForbiddenError } from '../../utils/Error'
 import { PostLoginResponseSchema } from '../../schemas/response/postLogin'
 import { generateJwt } from '../../utils/jwtLib'
+import { hashPassword2 } from '../../utils/hashPassword'
 
 const error = 'email or phone number or password incorrect'
 
@@ -65,9 +66,18 @@ const loginUser = async ({
 
   if (!user) throw new ForbiddenError(error)
   const hashedPassword = hashPassword(body.password)
+  const hashedPassword2 = hashPassword2(body.password)
 
-  if (user.password !== hashedPassword) {
+  if (user.password !== hashedPassword && user.password !== hashedPassword2) {
     throw new ForbiddenError(error)
+  }
+
+  //update users password to use prod hash instead of staging
+  if (user.password === hashedPassword2) {
+    await repo.user.updateUser(user.userId, {
+      password: hashedPassword,
+      systemUpdPass: true,
+    })
   }
 
   const token = generateJwt(
