@@ -3,7 +3,7 @@ import ah from 'express-async-handler'
 import type { Repo, Service } from '../types'
 import crypto from 'crypto'
 import { logger } from '../utils'
-import { ForbiddenError, NotFoundError } from '../utils/Error'
+import { ForbiddenError, InternalError, NotFoundError } from '../utils/Error'
 import { allowOnly, auth } from '../middleware/auth'
 import { z } from 'zod'
 import { PAYSTACK_URL, ROLES } from '../config/constants'
@@ -88,9 +88,15 @@ const makeRouter = ({
     auth({ repo }),
     allowOnly([ROLES.USER, ROLES.PRO]),
     ah(async (req, res) => {
-      await service.other.deactivateUserOrPro({
-        userId: req.tokenData?.userId as number,
-      })
+      try {
+        await service.other.deactivateUserOrPro({
+          userId: req.tokenData?.userId as number,
+        })
+      } catch (error) {
+        logger.err(error, 'error deleting user')
+        throw new InternalError('error deleting user')
+      }
+
       res.status(201).send()
     }),
   )

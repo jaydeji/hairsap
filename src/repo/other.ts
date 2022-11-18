@@ -130,6 +130,12 @@ const deactivateUserOrPro =
       },
     })
     if (!user) return
+    await db.deactivatedUser.create({
+      data: {
+        data: JSON.parse(JSON.stringify(user)),
+        deactivatedUserId: user?.userId,
+      },
+    })
     return db.user.delete(userOpt)
   }
 

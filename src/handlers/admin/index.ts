@@ -222,6 +222,17 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.delete(
+    '/user/:id',
+    ah(async (req, res) => {
+      await service.other.deactivateUserOrPro({
+        userId: +req.params.id,
+      })
+
+      res.status(201).send()
+    }),
+  )
+
   return router
 }
 

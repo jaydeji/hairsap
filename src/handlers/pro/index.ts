@@ -1,6 +1,6 @@
 import type { Router } from 'express'
 import ah from 'express-async-handler'
-import { ROLES, STORAGE_ENDPOINT_CDN } from '../../config/constants'
+import { ROLES } from '../../config/constants'
 import { upload } from '../../config/multer-cloud'
 import { allowOnly, denyOnly } from '../../middleware/auth'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
