@@ -426,7 +426,7 @@ const getPendingUserBookingByServiceAndRange =
           },
         },
         createdAt: {
-          gte: dayjs().subtract(2, 'minute').toDate(),
+          gte: dayjs().subtract(1, 'minute').subtract(10, 'second').toDate(),
         },
       },
     })
