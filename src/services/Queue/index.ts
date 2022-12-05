@@ -146,15 +146,13 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     done()
   })
 
-  emailQueue.process(async (job) => {
-    if (!['production', 'staging'].includes(process.env.NODE_ENV))
-      return Promise.resolve()
+  emailQueue.process((job, done) => {
+    if (!['production', 'staging'].includes(process.env.NODE_ENV)) return done()
 
     sendMail(job.data).catch((error) => {
       logger.err(error, 'Error sending mail')
-      return Promise.reject(error)
     })
-    return Promise.resolve()
+    done()
   })
 
   phoneQueue.process(async (job, done) => {
