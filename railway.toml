@@ -1,0 +1,9 @@
+[environments.production.build]
+dockerfilePath = "Dockerfile.prod"
+
+[environments.production.deploy]
+startCommand = "echo starting!"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
