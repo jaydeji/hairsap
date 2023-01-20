@@ -56,10 +56,10 @@ export const STORAGE_ENDPOINT_CDN =
 
 export const PERIODIC_CASH_AMOUNTS = {
   // WEEKLY_EARNING: 125_000 * 100, //affected by deductions and bonus
-  DAILY_TASK_TARGET: 70_000 * 100,
+  DAILY_TASK_TARGET: 30_000 * 100,
   MONTHLY_TASK_TARGET: 1_400_000 * 100,
   DAILY_REDEEM_THRESHOLD: 50_000 * 100,
-  WEEKLY_TASK_TARGET: 350_000 * 100, //affected by deductions and bonus and weekly booking number is above 25
+  WEEKLY_TASK_TARGET: 150_000 * 100, //affected by deductions and bonus and weekly booking number is above 25
   WEEKLY_BONUS: 25_000 * 100,
   WEEKLY_BONUS_QUOTA: 420_000 * 100,
 }
