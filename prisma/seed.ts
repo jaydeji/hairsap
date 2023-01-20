@@ -698,6 +698,10 @@ const marketerData: Prisma.MarketerCreateManyInput[] = [
     name: 'Alfie',
     marketerId: 1,
   },
+  {
+    name: 'Hairsap',
+    marketerId: 2,
+  },
 ]
 
 const promoData: Prisma.PromoCreateManyInput[] = [
@@ -706,6 +710,12 @@ const promoData: Prisma.PromoCreateManyInput[] = [
     code: 'ALFIE100',
     discountId: 1,
     marketerId: 1,
+  },
+  {
+    active: true,
+    code: 'HAIRSAP',
+    discountId: 2,
+    marketerId: 2,
   },
 ]
 
@@ -759,27 +769,21 @@ async function main() {
     ])
   }
 
-  // await prisma.$transaction(x)
+  await prisma.$transaction(x)
 
-  const r = [
-    ...subServiceBarbing,
-    ...subServiceBraids,
-    ...subServiceLocks,
-    ...subServiceStyling,
-  ]
+  // const r = [
+  //   ...subServiceBarbing,
+  //   ...subServiceBraids,
+  //   ...subServiceLocks,
+  //   ...subServiceStyling,
+  // ]
 
-  await prisma.$transaction(
-    r.map((e) =>
-      prisma.subService.update({
-        where: {
-          subServiceId: e.subServiceId,
-        },
-        data: e,
-      }),
-    ),
-  )
+  // await prisma.$transaction([
+  //   prisma.marketer.create({ data: marketerData[1] }),
+  //   prisma.promo.create({ data: promoData[1] }),
+  // ])
 
-  return
+  // return
 
   logger.info(`Seeding finished.`)
 }
