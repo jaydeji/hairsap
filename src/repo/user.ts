@@ -226,7 +226,7 @@ const getAllUsers =
           profilePhotoUrl: true,
           faceIdPhotoUrl: true,
           name: true,
-          verified: true,
+          // verified: true,
         },
       }),
     ])
@@ -272,7 +272,7 @@ const getUserDetails =
             faceIdPhotoUrl: true,
             email: true,
             createdAt: true,
-            verified: true,
+            // verified: true,
             phone: true,
             address: true,
           },
@@ -304,7 +304,7 @@ const getUserData =
         role: true,
         profilePhotoUrl: true,
         faceIdPhotoUrl: true,
-        verified: true,
+        // verified: true,
         card: {
           select: {
             bank: true,

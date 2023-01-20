@@ -30,10 +30,10 @@ const auth = ({ repo }: { repo: Repo }) =>
     const user = await repo.user.getUserById(decodedToken?.userId as number)
     if (!user) throw new UnauthorizedError()
 
-    if ([ROLES.PRO, ROLES.USER].includes(decodedToken?.role as any)) {
-      if (!user.verified && !otpRoutes.includes(req.baseUrl + req.path))
-        throw new ForbiddenError('user not verified')
-    }
+    // if ([ROLES.PRO, ROLES.USER].includes(decodedToken?.role as any)) {
+    //   if (!user.verified && !otpRoutes.includes(req.baseUrl + req.path))
+    //     throw new ForbiddenError('user not verified')
+    // }
 
     if (decodedToken?.role === ROLES.PRO) {
       if (

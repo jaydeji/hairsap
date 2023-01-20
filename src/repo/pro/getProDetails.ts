@@ -423,7 +423,7 @@ export const getProDetails =
         reactivationCount: user?.reactivationCount,
         reactivationRequested: user?.reactivationRequested,
         terminated: user?.terminated,
-        verified: user?.verified,
+        // verified: user?.verified,
         approved: user?.approved,
         available: user?.available,
         businessName: user?.businessName,
