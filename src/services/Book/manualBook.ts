@@ -76,6 +76,8 @@ export const manualBook =
       proId,
     })
 
+    if (!distance) throw new ForbiddenError('pro has not set location')
+
     const arrivalAt = getArrivalTime(distance)
 
     const booking = await repo.book.bookPro({
