@@ -78,7 +78,7 @@ const serviceData: Prisma.ServiceCreateManyInput[] = [
 
 const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
   {
-    name: 'Knotless braids Large',
+    name: 'Knotless braids Large shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/1.jpeg',
     serviceId: 1,
@@ -87,84 +87,327 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     price: 7000 * 100,
   },
   {
-    name: 'Knotless braids Medium',
+    name: 'Knotless braids Large mid back length',
     photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/2.jpeg',
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/1.jpeg',
     serviceId: 1,
     subServiceId: 2,
     order: 2,
-    price: 15000 * 100,
+    price: 8000 * 100,
   },
   {
-    name: 'Knotless braids Small',
+    name: 'Knotless braids Large knee length',
     photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/3.jpeg',
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/1.jpeg',
     serviceId: 1,
     subServiceId: 3,
     order: 3,
-    price: 20000 * 100,
-  },
-  {
-    name: 'Goddess/Jungle braids Large',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/5.jpeg',
-    serviceId: 1,
-    subServiceId: 5,
-    order: 4,
     price: 10000 * 100,
   },
   {
-    name: 'Goddess/Jungle braids Medium',
+    name: 'Knotless braids Medium shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/2.jpeg',
+    serviceId: 1,
+    subServiceId: 4,
+    order: 4,
+    price: 8000 * 100,
+  },
+  {
+    name: 'Knotless braids Medium mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/2.jpeg',
+    serviceId: 1,
+    subServiceId: 5,
+    order: 5,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Knotless braids Medium knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/2.jpeg',
+    serviceId: 1,
+    subServiceId: 6,
+    order: 6,
+    price: 13000 * 100,
+  },
+  {
+    name: 'Knotless braids Small shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/3.jpeg',
+    serviceId: 1,
+    subServiceId: 7,
+    order: 7,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Knotless braids Small mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/3.jpeg',
+    serviceId: 1,
+    subServiceId: 8,
+    order: 8,
+    price: 13000 * 100,
+  },
+  {
+    name: 'Knotless braids Small knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/3.jpeg',
+    serviceId: 1,
+    subServiceId: 9,
+    order: 9,
+    price: 15000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Large shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/5.jpeg',
+    serviceId: 1,
+    subServiceId: 10,
+    order: 10,
+    price: 8000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Large mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/5.jpeg',
+    serviceId: 1,
+    subServiceId: 11,
+    order: 11,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Large knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/5.jpeg',
+    serviceId: 1,
+    subServiceId: 12,
+    order: 12,
+    price: 12000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Medium shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/6.jpeg',
     serviceId: 1,
-    subServiceId: 6,
-    order: 5,
+    subServiceId: 13,
+    order: 13,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Medium back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/6.jpeg',
+    serviceId: 1,
+    subServiceId: 14,
+    order: 14,
+    price: 13000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Medium knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/6.jpeg',
+    serviceId: 1,
+    subServiceId: 15,
+    order: 15,
     price: 15000 * 100,
   },
   {
-    name: 'Goddess/Jungle braids Small',
+    name: 'Goddess/Jungle braids Small shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/7.jpeg',
     serviceId: 1,
-    subServiceId: 7,
-    order: 6,
-    price: 23000 * 100,
+    subServiceId: 16,
+    order: 16,
+    price: 13000 * 100,
   },
   {
-    name: 'Box braids Large',
+    name: 'Goddess/Jungle braids Small back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/7.jpeg',
+    serviceId: 1,
+    subServiceId: 17,
+    order: 17,
+    price: 16000 * 100,
+  },
+  {
+    name: 'Goddess/Jungle braids Small knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/7.jpeg',
+    serviceId: 1,
+    subServiceId: 18,
+    order: 18,
+    price: 18000 * 100,
+  },
+  {
+    name: 'Box braids Large shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/8.jpeg',
     serviceId: 1,
-    subServiceId: 8,
-    order: 7,
+    subServiceId: 19,
+    order: 19,
     price: 7000 * 100,
   },
   {
-    name: 'Box braids Medium',
+    name: 'Box braids Large mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/8.jpeg',
+    serviceId: 1,
+    subServiceId: 20,
+    order: 20,
+    price: 8000 * 100,
+  },
+  {
+    name: 'Box braids Large knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/8.jpeg',
+    serviceId: 1,
+    subServiceId: 21,
+    order: 21,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Box braids Medium shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/9.jpeg',
     serviceId: 1,
-    subServiceId: 9,
-    order: 8,
-    price: 15000 * 100,
+    subServiceId: 22,
+    order: 22,
+    price: 8000 * 100,
   },
   {
-    name: 'Box braids Small',
+    name: 'Box braids Medium mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/9.jpeg',
+    serviceId: 1,
+    subServiceId: 23,
+    order: 23,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Box braids Medium knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/9.jpeg',
+    serviceId: 1,
+    subServiceId: 24,
+    order: 24,
+    price: 13000 * 100,
+  },
+  {
+    name: 'Box braids Small shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/10.jpeg',
     serviceId: 1,
-    subServiceId: 10,
-    order: 9,
-    price: 20000 * 100,
+    subServiceId: 25,
+    order: 25,
+    price: 10000 * 100,
+  },
+  {
+    name: 'Box braids Small mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/10.jpeg',
+    serviceId: 1,
+    subServiceId: 26,
+    order: 26,
+    price: 13000 * 100,
+  },
+  {
+    name: 'Box braids Small knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/10.jpeg',
+    serviceId: 1,
+    subServiceId: 27,
+    order: 27,
+    price: 15000 * 100,
+  },
+  {
+    name: 'All types of Twist Large shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/11.jpeg',
+    serviceId: 1,
+    subServiceId: 28,
+    order: 28,
+    price: 7000 * 100,
+  },
+  {
+    name: 'All types of Twist Large mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/11.jpeg',
+    serviceId: 1,
+    subServiceId: 29,
+    order: 29,
+    price: 8000 * 100,
+  },
+  {
+    name: 'All types of Twist Large knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/11.jpeg',
+    serviceId: 1,
+    subServiceId: 30,
+    order: 30,
+    price: 10000 * 100,
+  },
+  {
+    name: 'All types of Twist Medium shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/12.jpeg',
+    serviceId: 1,
+    subServiceId: 31,
+    order: 31,
+    price: 8000 * 100,
+  },
+  {
+    name: 'All types of Twist Medium mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/12.jpeg',
+    serviceId: 1,
+    subServiceId: 32,
+    order: 32,
+    price: 10000 * 100,
+  },
+  {
+    name: 'All types of Twist Medium knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/12.jpeg',
+    serviceId: 1,
+    subServiceId: 33,
+    order: 33,
+    price: 13000 * 100,
+  },
+  {
+    name: 'All types of Twist Small shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/13.jpeg',
+    serviceId: 1,
+    subServiceId: 34,
+    order: 34,
+    price: 10000 * 100,
+  },
+  {
+    name: 'All types of Twist Small mid back length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/13.jpeg',
+    serviceId: 1,
+    subServiceId: 35,
+    order: 35,
+    price: 13000 * 100,
+  },
+  {
+    name: 'All types of Twist Small knee length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/13.jpeg',
+    serviceId: 1,
+    subServiceId: 36,
+    order: 36,
+    price: 15000 * 100,
   },
   {
     name: 'Butterfly/Faux Bob/shoulder length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/18.jpeg',
     serviceId: 1,
-    subServiceId: 18,
-    order: 10,
+    subServiceId: 37,
+    order: 37,
     price: 10000 * 100,
   },
   {
@@ -172,53 +415,26 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/19.jpeg',
     serviceId: 1,
-    subServiceId: 19,
-    order: 11,
-    price: 15000 * 100,
+    subServiceId: 38,
+    order: 38,
+    price: 13000 * 100,
   },
   {
     name: 'Butterfly/Faux Locs Butt length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/20.jpeg',
     serviceId: 1,
-    subServiceId: 20,
-    order: 12,
-    price: 23000 * 100,
-  },
-  {
-    name: 'All types of Twist Large',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/11.jpeg',
-    serviceId: 1,
-    subServiceId: 11,
-    order: 13,
-    price: 7000 * 100,
-  },
-  {
-    name: 'All types of Twist Medium',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/12.jpeg',
-    serviceId: 1,
-    subServiceId: 12,
-    order: 14,
-    price: 12000 * 100,
-  },
-  {
-    name: 'All types of Twist Small',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/13.jpeg',
-    serviceId: 1,
-    subServiceId: 13,
-    order: 15,
-    price: 20000 * 100,
+    subServiceId: 39,
+    order: 39,
+    price: 15000 * 100,
   },
   {
     name: 'Stitch braids cornrow (6-8 stitches)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/14.jpeg',
     serviceId: 1,
-    subServiceId: 14,
-    order: 16,
+    subServiceId: 40,
+    order: 40,
     price: 7000 * 100,
   },
   {
@@ -226,17 +442,17 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/15.jpeg',
     serviceId: 1,
-    subServiceId: 15,
-    order: 17,
-    price: 13000 * 100,
+    subServiceId: 41,
+    order: 41,
+    price: 10000 * 100,
   },
   {
     name: 'Stitch braids cornrow (14+ stitches)',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/16.jpeg',
     serviceId: 1,
-    subServiceId: 16,
-    order: 18,
+    subServiceId: 42,
+    order: 42,
     price: 15000 * 100,
   },
   {
@@ -244,26 +460,26 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/17.jpeg',
     serviceId: 1,
-    subServiceId: 17,
-    order: 19,
+    subServiceId: 43,
+    order: 43,
     price: 10000 * 100,
   },
   {
-    name: 'Lemonade braids',
+    name: 'Lemonade/ Tribal braids',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
     serviceId: 1,
-    subServiceId: 21,
-    order: 20,
-    price: 13000 * 100,
+    subServiceId: 44,
+    order: 44,
+    price: 10000 * 100,
   },
   {
     name: '14+ Regular all back cornrow',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/22.jpeg',
     serviceId: 1,
-    subServiceId: 22,
-    order: 21,
+    subServiceId: 45,
+    order: 45,
     price: 13000 * 100,
   },
   {
@@ -271,44 +487,35 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/23.jpeg',
     serviceId: 1,
-    subServiceId: 23,
-    order: 22,
+    subServiceId: 46,
+    order: 46,
     price: 7000 * 100,
-  },
-  {
-    name: 'Micro braids',
-    photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/4.jpeg',
-    serviceId: 1,
-    subServiceId: 4,
-    order: 23,
-    price: 30000 * 100,
   },
   {
     name: 'Criss cross braids',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/24.jpeg',
     serviceId: 1,
-    subServiceId: 24,
-    order: 24,
-    price: 13000 * 100,
+    subServiceId: 47,
+    order: 47,
+    price: 10000 * 100,
   },
   {
     name: 'All Crotchet',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/25.jpeg',
     serviceId: 1,
-    subServiceId: 25,
-    order: 25,
-    price: 10000 * 100,
+    subServiceId: 48,
+    order: 48,
+    price: 7000 * 100,
   },
   {
     name: 'Pop smoke goddess braid',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/61.jpg',
     serviceId: 1,
-    subServiceId: 61,
-    order: 26,
+    subServiceId: 49,
+    order: 49,
     price: 10000 * 100,
   },
   {
@@ -316,17 +523,17 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/26.jpeg',
     serviceId: 1,
-    subServiceId: 26,
-    order: 27,
-    price: 7000 * 100,
+    subServiceId: 50,
+    order: 50,
+    price: 10000 * 100,
   },
   {
     name: 'Natural Twist',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/62.jpeg',
     serviceId: 1,
-    subServiceId: 62,
-    order: 28,
+    subServiceId: 51,
+    order: 51,
     price: 5000 * 100,
   },
   {
@@ -334,8 +541,8 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/63.jpeg',
     serviceId: 1,
-    subServiceId: 63,
-    order: 29,
+    subServiceId: 52,
+    order: 52,
     price: 5000 * 100,
   },
   {
@@ -344,17 +551,17 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/27.jpeg',
     serviceId: 1,
-    subServiceId: 27,
-    order: 30,
-    price: 5000 * 100,
+    subServiceId: 53,
+    order: 53,
+    price: 3000 * 100,
   },
   {
     name: 'Braids takedown',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/28.jpeg',
     serviceId: 1,
-    subServiceId: 28,
-    order: 31,
+    subServiceId: 54,
+    order: 54,
     price: 3000 * 100,
   },
 ]
@@ -366,9 +573,9 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/29.jpeg',
     serviceId: 2,
-    subServiceId: 29,
-    order: 32,
-    price: 10000 * 100,
+    subServiceId: 55,
+    order: 55,
+    price: 18000 * 100,
   },
   {
     name: 'Glued Frontal installation & styling',
@@ -376,8 +583,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/30.jpeg',
     serviceId: 2,
-    subServiceId: 30,
-    order: 33,
+    subServiceId: 56,
+    order: 56,
     price: 13000 * 100,
   },
   {
@@ -386,8 +593,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/31.jpeg',
     info: 'Include lace adhesive. Can last 5 days to 2 weeks',
     serviceId: 2,
-    subServiceId: 31,
-    order: 34,
+    subServiceId: 57,
+    order: 57,
     price: 10000 * 100,
   },
   {
@@ -396,8 +603,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/52.jpeg',
     serviceId: 2,
-    subServiceId: 52,
-    order: 35,
+    subServiceId: 58,
+    order: 58,
     price: 7000 * 100,
   },
   {
@@ -406,8 +613,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpeg',
     serviceId: 2,
-    subServiceId: 53,
-    order: 36,
+    subServiceId: 59,
+    order: 59,
     price: 5000 * 100,
   },
   {
@@ -415,8 +622,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/53.jpg',
     serviceId: 2,
-    subServiceId: 64,
-    order: 37,
+    subServiceId: 60,
+    order: 60,
     price: 5000 * 100,
   },
   {
@@ -424,8 +631,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/32.jpeg',
     serviceId: 2,
-    subServiceId: 32,
-    order: 38,
+    subServiceId: 61,
+    order: 61,
     price: 15000 * 100,
   },
   {
@@ -433,8 +640,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/33.jpeg',
     serviceId: 2,
-    subServiceId: 33,
-    order: 39,
+    subServiceId: 62,
+    order: 62,
     price: 10000 * 100,
   },
   {
@@ -443,8 +650,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/34.jpeg',
     serviceId: 2,
-    subServiceId: 34,
-    order: 40,
+    subServiceId: 63,
+    order: 63,
     price: 5000 * 100,
   },
   {
@@ -452,8 +659,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/35.jpeg',
     serviceId: 2,
-    subServiceId: 35,
-    order: 41,
+    subServiceId: 64,
+    order: 64,
     price: 7000 * 100,
   },
   {
@@ -461,8 +668,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/36.jpeg',
     serviceId: 2,
-    subServiceId: 36,
-    order: 42,
+    subServiceId: 65,
+    order: 65,
     price: 3000 * 100,
   },
   {
@@ -471,8 +678,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/56.jpeg',
     serviceId: 2,
-    subServiceId: 56,
-    order: 43,
+    subServiceId: 66,
+    order: 66,
     price: 20000 * 100,
   },
   {
@@ -481,8 +688,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/57.jpeg',
     serviceId: 2,
-    subServiceId: 57,
-    order: 44,
+    subServiceId: 67,
+    order: 67,
     price: 15000 * 100,
   },
   {
@@ -491,8 +698,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/65.jpg',
     serviceId: 2,
-    subServiceId: 65,
-    order: 45,
+    subServiceId: 68,
+    order: 68,
     price: 25000 * 100,
   },
   {
@@ -501,8 +708,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/58.jpeg',
     serviceId: 2,
-    subServiceId: 58,
-    order: 46,
+    subServiceId: 69,
+    order: 69,
     price: 12000 * 100,
   },
   {
@@ -511,8 +718,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/66.jpg',
     serviceId: 2,
-    subServiceId: 66,
-    order: 47,
+    subServiceId: 70,
+    order: 70,
     price: 8000 * 100,
   },
   {
@@ -521,8 +728,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/67.jpg',
     serviceId: 2,
-    subServiceId: 67,
-    order: 48,
+    subServiceId: 71,
+    order: 71,
     price: 15000 * 100,
   },
   {
@@ -530,8 +737,8 @@ const subServiceStyling: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/59.jpeg',
     serviceId: 2,
-    subServiceId: 59,
-    order: 49,
+    subServiceId: 72,
+    order: 72,
     price: 7000 * 100,
   },
 ]
@@ -542,8 +749,8 @@ const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/38.jpeg',
     serviceId: 3,
-    subServiceId: 38,
-    order: 50,
+    subServiceId: 73,
+    order: 73,
     price: 5000 * 100,
   },
   {
@@ -552,8 +759,8 @@ const subServiceBarbing: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/40.jpeg',
     serviceId: 3,
-    subServiceId: 40,
-    order: 51,
+    subServiceId: 74,
+    order: 74,
     price: 3000 * 100,
   },
 ]
@@ -564,8 +771,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/41.jpeg',
     serviceId: 4,
-    subServiceId: 41,
-    order: 52,
+    subServiceId: 75,
+    order: 75,
     price: 15000 * 100,
   },
   {
@@ -573,8 +780,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/47.jpeg',
     serviceId: 4,
-    subServiceId: 47,
-    order: 53,
+    subServiceId: 76,
+    order: 76,
     price: 20000 * 100,
   },
   {
@@ -583,8 +790,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/42.jpeg',
     serviceId: 4,
-    subServiceId: 42,
-    order: 54,
+    subServiceId: 77,
+    order: 77,
     price: 10000 * 100,
   },
   {
@@ -592,8 +799,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/46.jpeg',
     serviceId: 4,
-    subServiceId: 46,
-    order: 55,
+    subServiceId: 78,
+    order: 78,
     price: 30000 * 100,
   },
   {
@@ -601,8 +808,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/50.jpeg',
     serviceId: 4,
-    subServiceId: 50,
-    order: 56,
+    subServiceId: 79,
+    order: 79,
     price: 7000 * 100,
   },
   {
@@ -610,8 +817,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/43.jpeg',
     serviceId: 4,
-    subServiceId: 43,
-    order: 57,
+    subServiceId: 80,
+    order: 80,
     price: 10000 * 100,
   },
   {
@@ -620,8 +827,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/44.jpeg',
     serviceId: 4,
-    subServiceId: 44,
-    order: 58,
+    subServiceId: 81,
+    order: 81,
     price: 3000 * 100,
   },
   {
@@ -629,8 +836,8 @@ const subServiceLocks: Prisma.SubServiceCreateManyInput[] = [
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/45.jpeg',
     serviceId: 4,
-    subServiceId: 45,
-    order: 59,
+    subServiceId: 82,
+    order: 82,
     price: 30000 * 100,
   },
 ]
@@ -769,21 +976,30 @@ async function main() {
     ])
   }
 
-  await prisma.$transaction(x)
+  // await prisma.$transaction(x)
 
-  // const r = [
-  //   ...subServiceBarbing,
-  //   ...subServiceBraids,
-  //   ...subServiceLocks,
-  //   ...subServiceStyling,
-  // ]
+  const r = [
+    ...subServiceBarbing,
+    ...subServiceBraids,
+    ...subServiceLocks,
+    ...subServiceStyling,
+  ]
 
-  // await prisma.$transaction([
-  //   prisma.marketer.create({ data: marketerData[1] }),
-  //   prisma.promo.create({ data: promoData[1] }),
-  // ])
-
-  // return
+  await prisma.$transaction(
+    r.map((e) =>
+      prisma.subService.upsert({
+        create: {
+          ...e,
+        },
+        update: {
+          ...e,
+        },
+        where: {
+          subServiceId: e.subServiceId,
+        },
+      }),
+    ),
+  )
 
   logger.info(`Seeding finished.`)
 }
