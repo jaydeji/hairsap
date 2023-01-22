@@ -97,7 +97,7 @@ export const getProStats =
     return {
       ratings: _ratings > 5 ? 5 : _ratings,
       earnings:
-        (earnings._sum.price || 0) / 2 +
+        (earnings._sum.price || 0) * PERIODIC_CASH_AMOUNTS.PRO_EARNING_PERCENT +
         (transport._sum.transportFee || 0) -
         (deactivations._sum.amount || 0),
       dailyTarget:

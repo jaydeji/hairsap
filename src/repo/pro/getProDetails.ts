@@ -149,7 +149,8 @@ const getTotalEarnings = async ({
   return {
     day:
       (totalDayTransport._sum.transportFee || 0) +
-      (totalDayInvoiceFees._sum.price || 0) / 2 -
+      (totalDayInvoiceFees._sum.price || 0) *
+        PERIODIC_CASH_AMOUNTS.PRO_EARNING_PERCENT -
       (totalDeactivations._sum.amount || 0),
     week:
       (totalWeekTransport._sum.transportFee || 0) +
@@ -157,7 +158,8 @@ const getTotalEarnings = async ({
       (totalDeactivations._sum.amount || 0),
     month:
       (totalMonthTransport._sum.transportFee || 0) +
-      (totalMonthInvoiceFees._sum.price || 0) / 2 -
+      (totalMonthInvoiceFees._sum.price || 0) *
+        PERIODIC_CASH_AMOUNTS.PRO_EARNING_PERCENT -
       (totalDeactivations._sum.amount || 0),
   }
 }

@@ -62,6 +62,7 @@ export const PERIODIC_CASH_AMOUNTS = {
   WEEKLY_TASK_TARGET: 150_000 * 100, //affected by deductions and bonus and weekly booking number is above 25
   WEEKLY_BONUS: 25_000 * 100,
   WEEKLY_BONUS_QUOTA: 420_000 * 100,
+  PRO_EARNING_PERCENT: 0.7,
 }
 
 export const PAYSTACK_URL = 'https://api.paystack.co'
