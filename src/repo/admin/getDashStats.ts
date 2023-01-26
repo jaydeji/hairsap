@@ -15,7 +15,14 @@ export const getDashboardStats =
         db.user.aggregate({
           _count: true,
           where: {
-            role: ROLES.PRO,
+            OR: [
+              {
+                role: ROLES.USER,
+              },
+              {
+                role: ROLES.PRO,
+              },
+            ],
           },
         }),
         db.user.aggregate({
