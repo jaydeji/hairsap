@@ -20,15 +20,15 @@ WHERE b.createdAt >= ${dayjs().startOf('d').toDate()}
 AND b.userId in (${users.length ? Prisma.join(users) : ''})
     ` as PrismaPromise<{ cnt: number }[]>
 
-  const [returnedCount, newCount] = await db.$transaction([
+  const [newCount, returnedCount] = await db.$transaction([
     query(newUsers),
     query(retUsers),
   ])
 
   return {
     day: {
-      returnedCount: returnedCount?.[0].cnt || 0,
       newCount: newCount?.[0].cnt || 0,
+      returnedCount: returnedCount?.[0].cnt || 0,
     },
   }
 }
