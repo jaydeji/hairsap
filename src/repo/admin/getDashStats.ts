@@ -15,6 +15,12 @@ export const getDashboardStats =
         db.user.aggregate({
           _count: true,
           where: {
+            role: ROLES.PRO,
+          },
+        }),
+        db.user.aggregate({
+          _count: true,
+          where: {
             OR: [
               {
                 role: ROLES.USER,
@@ -24,9 +30,6 @@ export const getDashboardStats =
               },
             ],
           },
-        }),
-        db.user.aggregate({
-          _count: true,
         }),
         db.booking.aggregate({
           _count: true,

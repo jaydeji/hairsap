@@ -279,7 +279,7 @@ const getAllPros =
     serviceId,
     name,
   }: PageReq & { skip: number } & { serviceId?: number; name?: string }) => {
-    const where = {
+    const where: Prisma.UserWhereInput = {
       role: ROLES.PRO,
       proServices: {
         some: {
@@ -289,6 +289,7 @@ const getAllPros =
       name: {
         contains: name,
       },
+      approved: true,
     }
     return db.$transaction([
       db.user.count({
