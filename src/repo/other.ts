@@ -42,7 +42,7 @@ const getNotifications =
       },
     })
 
-const getNotificationStatus =
+const getNotificationStatusByPeriod =
   ({ db }: { db: PrismaClient }) =>
   ({
     userId,
@@ -57,6 +57,16 @@ const getNotificationStatus =
       where: {
         userId,
         createdAt: { gte: dayjs().startOf(period).toDate() },
+        type,
+      },
+    })
+
+const getNotificationStatus =
+  ({ db }: { db: PrismaClient }) =>
+  ({ userId, type }: { userId: number; type: string }) =>
+    db.notificationTracker.findFirst({
+      where: {
+        userId,
         type,
       },
     })
@@ -390,6 +400,7 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getSubServiceById: getSubServiceById({ db }),
     getNotifications: getNotifications({ db }),
     getNotificationStatus: getNotificationStatus({ db }),
+    getNotificationStatusByPeriod: getNotificationStatusByPeriod({ db }),
     addNotificationStatus: addNotificationStatus({ db }),
     createNotification: createNotification({ db }),
     setPushToken: setPushToken({ db }),

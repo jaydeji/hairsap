@@ -112,5 +112,7 @@ export const getProStats =
         ((monthlyTarget._sum.price || 0) /
           PERIODIC_CASH_AMOUNTS.MONTHLY_TASK_TARGET) *
         100,
+      dailyEarning: 100,
+      weeklyEarning: 100,
     }
   }

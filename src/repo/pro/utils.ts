@@ -248,11 +248,12 @@ export const deactivateProNonRedeems = async ({
 }) => {
   const week = dayjs().startOf('week').toDate()
 
-  const sentRedeemCashNotification = await repo.other.getNotificationStatus({
-    userId: proId,
-    period: 'day',
-    type: 'redeem',
-  })
+  const sentRedeemCashNotification =
+    await repo.other.getNotificationStatusByPeriod({
+      userId: proId,
+      period: 'day',
+      type: 'redeem',
+    })
 
   if (!sentRedeemCashNotification) return
 

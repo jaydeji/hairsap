@@ -300,7 +300,7 @@ const resolveBonus = async ({
   queue: Queue
   proId: number
 }) => {
-  const sentBonusNotification = await repo.other.getNotificationStatus({
+  const sentBonusNotification = await repo.other.getNotificationStatusByPeriod({
     userId: proId,
     period: 'week',
     type: 'bonus',
@@ -334,11 +334,12 @@ const redeemCash = async ({
   queue: Queue
   proId: number
 }) => {
-  const sentRedeemCashNotification = await repo.other.getNotificationStatus({
-    userId: proId,
-    period: 'day',
-    type: 'redeem',
-  })
+  const sentRedeemCashNotification =
+    await repo.other.getNotificationStatusByPeriod({
+      userId: proId,
+      period: 'day',
+      type: 'redeem',
+    })
 
   if (sentRedeemCashNotification) return
 
@@ -365,6 +366,40 @@ const redeemCash = async ({
       },
     )
   }
+}
+
+const notify100completed = async ({
+  repo,
+  queue,
+  proId,
+}: {
+  repo: Repo
+  queue: Queue
+  proId: number
+}) => {
+  const proBookingCount = (await repo.book.getProbookingCount(proId)) >= 100
+
+  if (!proBookingCount) return
+
+  const completed100NotificationStatus = await repo.other.getNotificationStatus(
+    {
+      userId: proId,
+      type: 'completed 100',
+    },
+  )
+
+  if (completed100NotificationStatus) return
+
+  repo.other.addNotificationStatus({
+    userId: proId,
+    type: 'completed 100',
+  })
+  queue.notifyQueue.add({
+    title: '100 completed bookings',
+    body: 'Your 50% and above returned booking ration has been activated',
+    userId: proId,
+    type: 'booking',
+  })
 }
 
 const markBookingAsCompleted =
@@ -417,6 +452,12 @@ const markBookingAsCompleted =
     }
 
     await repo.book.updateBooking(bookingId, bookingUpdate)
+
+    await notify100completed({
+      repo,
+      proId,
+      queue,
+    })
 
     queue.notifyQueue.add({
       title: 'Booking completed',

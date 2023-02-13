@@ -571,6 +571,17 @@ const updateBooking =
       },
     })
 
+const getProbookingCount =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) => {
+    return db.booking.count({
+      where: {
+        proId,
+        status: BOOKING_STATUS.COMPLETED,
+      },
+    })
+  }
+
 const getUserBookings =
   ({ db }: { db: PrismaClient }) =>
   (userId: number, page: PageReq & { skip: number }) => {
@@ -818,6 +829,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     updateBonus: updateBonus({ db }),
     getPendingUserBookingByServiceAndRange:
       getPendingUserBookingByServiceAndRange({ db }),
+    getProbookingCount: getProbookingCount({ db }),
   }
 }
 
