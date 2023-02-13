@@ -165,7 +165,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 10,
     order: 10,
-    price: 8000 * 100,
+    price: 7000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Large mid back length',
@@ -174,7 +174,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 11,
     order: 11,
-    price: 10000 * 100,
+    price: 9000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Large knee length',
@@ -192,7 +192,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 13,
     order: 13,
-    price: 10000 * 100,
+    price: 8000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Medium back length',
@@ -201,7 +201,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 14,
     order: 14,
-    price: 13000 * 100,
+    price: 10000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Medium knee length',
@@ -210,7 +210,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 15,
     order: 15,
-    price: 15000 * 100,
+    price: 13000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Small shoulder length',
@@ -219,7 +219,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 16,
     order: 16,
-    price: 13000 * 100,
+    price: 10000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Small back length',
@@ -228,7 +228,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 17,
     order: 17,
-    price: 16000 * 100,
+    price: 13000 * 100,
   },
   {
     name: 'Goddess/Jungle braids Small knee length',
@@ -237,7 +237,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 18,
     order: 18,
-    price: 18000 * 100,
+    price: 15000 * 100,
   },
   {
     name: 'Box braids Large shoulder length',
@@ -408,7 +408,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 37,
     order: 37,
-    price: 10000 * 100,
+    price: 7000 * 100,
   },
   {
     name: 'Butterfly/Faux Locs Mid back length',
@@ -417,7 +417,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 38,
     order: 38,
-    price: 13000 * 100,
+    price: 10000 * 100,
   },
   {
     name: 'Butterfly/Faux Locs Butt length',
@@ -426,7 +426,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 39,
     order: 39,
-    price: 15000 * 100,
+    price: 13000 * 100,
   },
   {
     name: 'Stitch braids cornrow (6-8 stitches)',
@@ -453,7 +453,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 42,
     order: 42,
-    price: 15000 * 100,
+    price: 13000 * 100,
   },
   {
     name: 'Stitch braids with design',
@@ -462,7 +462,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 43,
     order: 43,
-    price: 10000 * 100,
+    price: 8000 * 100,
   },
   {
     name: 'Lemonade/ Tribal braids',
@@ -480,7 +480,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 45,
     order: 45,
-    price: 13000 * 100,
+    price: 10000 * 100,
   },
   {
     name: '6-8 Cornrow braids',
@@ -516,7 +516,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 49,
     order: 49,
-    price: 10000 * 100,
+    price: 8000 * 100,
   },
   {
     name: 'Chunky bun',
@@ -525,7 +525,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 50,
     order: 50,
-    price: 10000 * 100,
+    price: 8000 * 100,
   },
   {
     name: 'Natural Twist',
@@ -976,30 +976,30 @@ async function main() {
     ])
   }
 
-  // await prisma.$transaction(x)
+  await prisma.$transaction(x)
 
-  const r = [
-    ...subServiceBarbing,
-    ...subServiceBraids,
-    ...subServiceLocks,
-    ...subServiceStyling,
-  ]
+  // const r = [
+  //   ...subServiceBarbing,
+  //   ...subServiceBraids,
+  //   ...subServiceLocks,
+  //   ...subServiceStyling,
+  // ]
 
-  await prisma.$transaction(
-    r.map((e) =>
-      prisma.subService.upsert({
-        create: {
-          ...e,
-        },
-        update: {
-          ...e,
-        },
-        where: {
-          subServiceId: e.subServiceId,
-        },
-      }),
-    ),
-  )
+  // await prisma.$transaction(
+  //   r.map((e) =>
+  //     prisma.subService.upsert({
+  //       create: {
+  //         ...e,
+  //       },
+  //       update: {
+  //         ...e,
+  //       },
+  //       where: {
+  //         subServiceId: e.subServiceId,
+  //       },
+  //     }),
+  //   ),
+  // )
 
   logger.info(`Seeding finished.`)
 }
