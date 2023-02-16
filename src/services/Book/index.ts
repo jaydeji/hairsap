@@ -42,6 +42,7 @@ import { Queue } from '../Queue'
 import { autoBook } from './autoBook'
 import { manualBook } from './manualBook'
 import { computeBookingTotal, resolvePromo } from './util'
+import { socket } from '../../index'
 
 const bookPro =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -207,9 +208,22 @@ const acceptBooking =
 
     if (!booking) throw new NotFoundError('booking not found')
 
+    const pro = await repo.user.getUserById(userId)
+
+    if (!pro) throw new ForbiddenError('pro not found')
+
     await repo.book.updateBooking(bookingId, {
       acceptedAt: new Date(),
       status: BOOKING_STATUS.ACCEPTED,
+    })
+
+    await socket.sendMessage({
+      _message: {
+        messageType: 'text',
+        receiverId: booking.userId,
+        message: `Thank you for booking Hairsap, I am ${pro.name} and I’m your Braider. You can consult with me before my arrival.`,
+      },
+      senderId: userId,
     })
 
     queue.notifyQueue.add({

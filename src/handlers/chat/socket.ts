@@ -45,6 +45,7 @@ const createSocket = ({
       next(new UnauthorizedError())
     }
   })
+
   io.on('connection', (socket) => {
     if (process.env.NODE_ENV === 'development') {
       socket.onAny((event, ...args) => {
@@ -62,39 +63,12 @@ const createSocket = ({
     //   }
     // })
 
-    socket.on('new message', async (_message: ChatMessageType, callback) => {
-      const parsedMessage = MessageSchema.safeParse(_message)
-      if (!parsedMessage.success)
-        return callback?.({ error: parsedMessage.error.issues })
-
-      const message = {
-        ...parsedMessage.data,
+    socket.on('new message', (_message: ChatMessageType, callback) => {
+      sendMessage({
+        callback,
+        _message,
         senderId: (socket as any).decodedToken.userId,
-        createdAt: new Date().toISOString(),
-      }
-
-      let messageWithId
-
-      try {
-        const job = await service.queue.chatQueue.add(message)
-        messageWithId = await job.finished()
-        callback?.({ data: messageWithId })
-      } catch (error) {
-        logger.err(error, 'error sending message')
-        return callback?.({ error: 'error sending socket message' })
-      }
-
-      const socketId = connectedUsers[messageWithId.receiverId]?.socketId
-      if (socketId) {
-        socket
-          .to(connectedUsers[message.receiverId]?.socketId as string)
-          .emit('new message', { data: messageWithId })
-      } else {
-        await service.push.sendPushMessage(message.receiverId, {
-          title: 'New chat message',
-          data: messageWithId,
-        })
-      }
+      })
     })
 
     socket.on(
@@ -137,10 +111,54 @@ const createSocket = ({
     return true
   }
 
+  const sendMessage = async ({
+    callback,
+    _message,
+    senderId,
+  }: {
+    callback?: any
+    _message: ChatMessageType
+    senderId: number
+  }) => {
+    const parsedMessage = MessageSchema.safeParse(_message)
+    if (!parsedMessage.success)
+      return callback?.({ error: parsedMessage.error.issues })
+
+    const message = {
+      ...parsedMessage.data,
+      senderId,
+      createdAt: new Date().toISOString(),
+    }
+
+    let messageWithId
+
+    try {
+      const job = await service.queue.chatQueue.add(message)
+      messageWithId = await job.finished()
+      callback?.({ data: messageWithId })
+    } catch (error) {
+      logger.err(error, 'error sending message')
+      return callback?.({ error: 'error sending socket message' })
+    }
+
+    const socketId = connectedUsers[messageWithId.receiverId]?.socketId
+    if (socketId) {
+      io.sockets
+        .to(connectedUsers[message.receiverId]?.socketId as string)
+        .emit('new message', { data: messageWithId })
+    } else {
+      await service.push.sendPushMessage(message.receiverId, {
+        title: 'New chat message',
+        data: messageWithId,
+      })
+    }
+  }
+
   return {
     io,
     connectedUsers,
     sendSocketNotify,
+    sendMessage,
   }
 }
 
