@@ -14,7 +14,9 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
       try {
         const pushToken = (await repo.other.getPushToken({ userId }))?.pushToken
         if (!pushToken) return
-        await expo.sendPushNotificationsAsync([{ ...message, to: pushToken }])
+        await expo.sendPushNotificationsAsync([
+          { ...message, to: pushToken, sound: 'default' },
+        ])
       } catch (error) {
         logger.err(error, 'Push message error')
       }
@@ -40,6 +42,7 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
             title: data.title,
             body: data.body,
             to: userTokens.map((e) => e.pushToken!),
+            sound: 'default',
           },
         ])
       } catch (error) {
