@@ -20,19 +20,24 @@ import {
   PostUploadUserProfilePhotoReq,
   PostUploadUserProfilePhotoReqSchema,
 } from '../../schemas/request/postUploadProfilePhoto'
-import type { Repo } from '../../types'
+import type { Repo, Role } from '../../types'
 import { getPageMeta, paginate } from '../../utils'
-import { ForbiddenError } from '../../utils/Error'
+import { ForbiddenError, ValidationError } from '../../utils/Error'
 import { Queue } from '../Queue'
 
 const updateUser =
   ({ repo }: { repo: Repo }) =>
-  async (userId: number, body: PatchUserRequest) => {
+  async (userId: number, role: Role, body: PatchUserRequest) => {
     PatchUserRequestSchema.parse({ ...body, userId: userId })
     if (body.phone) {
       const userWithPhone = await repo.user.getUserByPhone(body.phone)
       if (userWithPhone && userWithPhone.userId !== userId)
         throw new ForbiddenError('user with phone number already exists')
+    }
+    if (body.email) {
+      const emailUser = await repo.user.getUserByEmailAndRole(body.email, role)
+      if (emailUser)
+        throw new ValidationError('user with this email already exists')
     }
     await repo.user.updateUser(userId, body)
   }

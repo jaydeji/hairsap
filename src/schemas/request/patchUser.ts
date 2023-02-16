@@ -9,6 +9,7 @@ export const PatchUserRequestSchema = z
       .string()
       .optional()
       .refine((e) => isValidPhone(e)),
+    email: z.string().email().optional(),
     latitude: z
       .number()
       .refine((e) => Math.abs(e) <= 90)
