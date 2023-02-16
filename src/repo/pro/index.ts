@@ -233,6 +233,7 @@ const getPayoutRequestsWP =
       service: e.booking.bookedSubServices?.[0].subService.service.name,
       amount: resolvePromo(
         e.invoiceFees.reduce((acc, e) => acc + e.price, 0),
+        0,
         e.promo?.discount.name,
       ).amountLessPromo,
     }))

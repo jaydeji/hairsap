@@ -444,8 +444,8 @@ const markBookingAsCompleted =
     }
 
     const { amountLessPromo, promoAmount } = resolvePromo(
-      booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0) +
-        booking.invoice.transportFee,
+      booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0),
+      booking.invoice.transportFee,
       discount?.name,
     )
 

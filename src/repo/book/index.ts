@@ -763,6 +763,7 @@ const getUnredeemedCashPayments =
         acc +
         resolvePromo(
           e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0),
+          0,
           e.promo?.discount.name,
         ).amountLessPromo,
       0,

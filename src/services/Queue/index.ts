@@ -16,6 +16,7 @@ import {
 import { socket } from '../../index'
 import { BookingStatus, Notificationtype, Repo } from '../../types'
 import { Push } from '../Push'
+import { resolvePromo } from '../Book/util'
 
 const redisUrl = process.env.REDIS_URL
 
@@ -208,12 +209,23 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
             },
             include: {
               invoiceFees: true,
+              promo: true,
             },
           })
           if (invoice && invoice.paid !== true) {
-            const total =
-              (invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0) +
-              invoice.transportFee
+            let discount
+            if (invoice.promo?.promoId) {
+              const promo = await repo.other.getPromoByCode(invoice.promo.code)
+              if (promo)
+                discount = await repo.other.getDiscountById(promo.discountId)
+            }
+
+            const { amountLessPromo } = resolvePromo(
+              invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0,
+              invoice.transportFee,
+              discount?.name,
+            )
+
             await db.invoice.update({
               where: {
                 invoiceId,
@@ -221,7 +233,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
               data: {
                 amountPaid,
                 reference,
-                paid: amountPaid >= total,
+                paid: amountPaid >= amountLessPromo,
                 channel: 'card',
               },
             })
