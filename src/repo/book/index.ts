@@ -235,8 +235,8 @@ const getBookingsByStatusAndMore =
 
 const getBookingActivity =
   ({ db }: { db: PrismaClient }) =>
-  ({ userId }: { userId: number }) =>
-    db.booking.findMany({
+  async ({ userId }: { userId: number }) => {
+    const bookings = await db.booking.findMany({
       where: {
         OR: [{ userId }, { proId: userId }],
         status: {
@@ -332,6 +332,29 @@ const getBookingActivity =
         updatedAt: true,
       },
     })
+
+    const userIds = bookings.map((e) => e.userId)
+
+    const completedBookings = await db.booking.findMany({
+      where: {
+        userId: {
+          in: userIds,
+        },
+        proId: userId,
+        status: BOOKING_STATUS.COMPLETED,
+      },
+      select: {
+        userId: true,
+      },
+    })
+
+    const _bookings = bookings.map((e) => ({
+      ...e,
+      new: !completedBookings.find((f) => e.userId === f.userId),
+    }))
+
+    return _bookings
+  }
 
 const getProBookingsByProIdAndUserId =
   ({ db }: { db: PrismaClient }) =>
