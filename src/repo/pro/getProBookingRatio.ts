@@ -8,14 +8,14 @@ const getTotals = (
     cnt: number
   }[][],
 ) => {
-  const retTot = result.reduce((acc, e, ind) => {
+  const newTot = result.reduce((acc, e, ind) => {
     if (ind % 2 === 0) {
       return acc + +(e?.[0].cnt || 0)
     }
     return acc
   }, 0)
 
-  const newTot = result.reduce((acc, e, ind) => {
+  const retTot = result.reduce((acc, e, ind) => {
     if (ind % 2 !== 0) {
       return acc + +(e?.[0].cnt || 0)
     }
