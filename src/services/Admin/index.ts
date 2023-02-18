@@ -109,7 +109,7 @@ const requestPayout =
     })
 
     queue.notifyQueue.add({
-      title: 'Redeem Payout Request',
+      title: 'Remit Payout Request',
       body: `Kindly remit payout of ${addCommas(
         total / 100,
       )} within the next 48 hours`,

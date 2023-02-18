@@ -364,7 +364,7 @@ const redeemCash = async ({
   if (total >= PERIODIC_CASH_AMOUNTS.DAILY_REDEEM_THRESHOLD) {
     await repo.other.addNotificationStatus({ type: 'redeem', userId: proId })
     queue.notifyQueue.add({
-      title: 'Redeem Payout Request',
+      title: 'Remit Payout Request',
       body: `Kindly remit payout of ${addCommas(
         total / 100,
       )} within the next 48 hours`,
