@@ -3,87 +3,198 @@ import { Dayjs } from 'dayjs'
 import { GetProBookingRatioReq } from '../../schemas/request/getProBookingRatio'
 import { dayjs } from '../../utils'
 
-const getDailyBookingRatio = async ({
-  db,
-  newUsers,
-  retUsers,
-}: {
-  db: PrismaClient
-  newUsers: string[]
-  retUsers: string[]
-}) => {
-  const query = (users: string[]) =>
-    db.$queryRaw`
-SELECT CAST(COUNT(DISTINCT b.userId) AS CHAR(32)) AS cnt
-FROM Booking b 
-WHERE b.createdAt >= ${dayjs().startOf('d').toDate()}
-AND b.userId in (${users.length ? Prisma.join(users) : ''})
-    ` as PrismaPromise<{ cnt: number }[]>
+const getTotals = (
+  result: {
+    cnt: number
+  }[][],
+) => {
+  const retTot = result.reduce((acc, e, ind) => {
+    if (ind % 2 === 0) {
+      return acc + +(e?.[0].cnt || 0)
+    }
+    return acc
+  }, 0)
 
+  const newTot = result.reduce((acc, e, ind) => {
+    if (ind % 2 !== 0) {
+      return acc + +(e?.[0].cnt || 0)
+    }
+    return acc
+  }, 0)
+
+  return {
+    new: newTot,
+    returned: retTot,
+  }
+}
+
+const query = (
+  db: PrismaClient,
+  proId: number,
+  having: Prisma.Sql,
+  start: Dayjs,
+  end: Dayjs,
+) => {
+  return db.$queryRaw`
+  SELECT CAST(COUNT(*) AS CHAR(32)) AS cnt
+FROM (
+        WITH GroupedData AS(
+                SELECT
+                    userId,
+                    COUNT(userId) cnt
+                FROM Booking b
+                WHERE
+                    b.status = 'completed'
+                    AND b.proId = ${proId}
+                GROUP BY
+                    userId
+                HAVING ${having}
+            )
+        SELECT b.userId
+        FROM GroupedData gd
+            INNER JOIN Booking b ON gd.userId = b.userId
+        WHERE
+            b.status = 'completed'
+            AND b.proId = ${proId}
+            AND b.createdAt BETWEEN ${start.toDate()} AND ${end.toDate()}
+        GROUP BY
+            b.userId
+    ) temp;
+  ` as PrismaPromise<{ cnt: number }[]>
+}
+
+const newHaving = Prisma.sql`cnt = 1`
+const retHaving = Prisma.sql`cnt > 1`
+
+const getDailyBookingRatio = async (db: PrismaClient, proId: number) => {
+  const start = dayjs().startOf('d')
+  const end = dayjs().endOf('d')
   const [newCount, returnedCount] = await db.$transaction([
-    query(newUsers),
-    query(retUsers),
+    query(db, proId, newHaving, start, end),
+    query(db, proId, retHaving, start, end),
   ])
 
   return {
     day: {
-      newCount: newCount?.[0].cnt || 0,
-      returnedCount: returnedCount?.[0].cnt || 0,
+      newCount: +(newCount?.[0].cnt || 0),
+      returnedCount: +(returnedCount?.[0].cnt || 0),
     },
   }
 }
 
 const getWeeklyDayBookingRatio = async ({
   db,
-  newUsers,
-  retUsers,
+  proId,
 }: {
   db: PrismaClient
-  newUsers: string[]
-  retUsers: string[]
+  proId: number
 }) => {
   const week = dayjs().startOf('w')
 
-  const query = (users: string[], start: Dayjs, end: Dayjs) =>
-    db.$queryRaw`
-SELECT CAST(COUNT(DISTINCT b.userId) AS CHAR(32)) cnt
-FROM Booking b 
-WHERE b.createdAt BETWEEN ${start.toDate()} AND ${end.toDate()}
-AND b.userId in (${users.length ? Prisma.join(users) : ''})
-    ` as PrismaPromise<{ cnt: number }[]>
-
   const result = await db.$transaction([
-    query(retUsers, week, week.add(1, 'd').subtract(1, 'ms')), //Monday
-    query(newUsers, week, week.add(1, 'd').subtract(1, 'ms')), //Monday
-    query(retUsers, week.add(1, 'd'), week.add(2, 'd').subtract(1, 'ms')),
-    query(newUsers, week.add(1, 'd'), week.add(2, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(2, 'd'), week.add(3, 'd').subtract(1, 'ms')),
-    query(newUsers, week.add(2, 'd'), week.add(3, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(3, 'd'), week.add(4, 'd').subtract(1, 'ms')),
-    query(newUsers, week.add(3, 'd'), week.add(4, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(4, 'd'), week.add(5, 'd').subtract(1, 'ms')),
-    query(newUsers, week.add(4, 'd'), week.add(5, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(5, 'd'), week.add(6, 'd').subtract(1, 'ms')),
-    query(newUsers, week.add(5, 'd'), week.add(6, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(6, 'd'), week.add(7, 'd').subtract(1, 'ms')), //Sunday
-    query(newUsers, week.add(6, 'd'), week.add(7, 'd').subtract(1, 'ms')), //Sunday
+    query(db, proId, newHaving, week, week.add(1, 'd').subtract(1, 'ms')), //Monday
+    query(db, proId, retHaving, week, week.add(1, 'd').subtract(1, 'ms')), //Monday
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(1, 'd'),
+      week.add(2, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(1, 'd'),
+      week.add(2, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(2, 'd'),
+      week.add(3, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(2, 'd'),
+      week.add(3, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(3, 'd'),
+      week.add(4, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(3, 'd'),
+      week.add(4, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(4, 'd'),
+      week.add(5, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(4, 'd'),
+      week.add(5, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(5, 'd'),
+      week.add(6, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(5, 'd'),
+      week.add(6, 'd').subtract(1, 'ms'),
+    ),
+    query(
+      db,
+      proId,
+      newHaving,
+      week.add(6, 'd'),
+      week.add(7, 'd').subtract(1, 'ms'),
+    ), //Sunday
+    query(
+      db,
+      proId,
+      retHaving,
+      week.add(6, 'd'),
+      week.add(7, 'd').subtract(1, 'ms'),
+    ), //Sunday
   ])
 
   const [
-    retCntMon,
     newCntMon,
-    retCntTue,
+    retCntMon,
     newCntTue,
-    retCntWed,
+    retCntTue,
     newCntWed,
-    retCntThur,
+    retCntWed,
     newCntThur,
-    retCntFri,
+    retCntThur,
     newCntFri,
-    retCntSat,
+    retCntFri,
     newCntSat,
-    retCntSun,
+    retCntSat,
     newCntSun,
+    retCntSun,
   ] = result
 
   return {
@@ -119,57 +230,10 @@ AND b.userId in (${users.length ? Prisma.join(users) : ''})
   }
 }
 
-const getTotals = (
-  result: {
-    cnt: number
-  }[][],
-) => {
-  const retTot = result.reduce((acc, e, ind) => {
-    if (ind % 2 === 0) {
-      return acc + +(e?.[0].cnt || 0)
-    }
-    return acc
-  }, 0)
-
-  const newTot = result.reduce((acc, e, ind) => {
-    if (ind % 2 !== 0) {
-      return acc + +(e?.[0].cnt || 0)
-    }
-    return acc
-  }, 0)
-
-  return {
-    new: newTot,
-    returned: retTot,
-  }
-}
-
-const getUsers = (db: PrismaClient, proId: number, having: Prisma.Sql) =>
-  db.$queryRaw`
-SELECT
-      userId,
-      COUNT(userId) cnt
-  FROM Booking b
-  WHERE
-      b.status = 'completed'
-      and proId = ${proId}
-  GROUP BY userId
-  HAVING ${having}
-` as PrismaPromise<{ userId: string; cnt: string }[]>
-
 export const getProBookingRatio =
   ({ db }: { db: PrismaClient }) =>
   async ({ proId, period }: GetProBookingRatioReq) => {
-    const [_newUsers, _retUsers] = await db.$transaction([
-      getUsers(db, proId, Prisma.sql`cnt=1`),
-      getUsers(db, proId, Prisma.sql`cnt>1`),
-    ])
+    if (period === 'day') return await getDailyBookingRatio(db, proId)
 
-    const newUsers = _newUsers.map((e) => e.userId)
-    const retUsers = _retUsers.map((e) => e.userId)
-
-    if (period === 'day')
-      return await getDailyBookingRatio({ db, newUsers, retUsers })
-
-    return await getWeeklyDayBookingRatio({ db, newUsers, retUsers })
+    return await getWeeklyDayBookingRatio({ db, proId })
   }
