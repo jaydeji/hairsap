@@ -65,8 +65,8 @@ AND b.userId in (${users.length ? Prisma.join(users) : ''})
     query(newUsers, week.add(4, 'd'), week.add(5, 'd').subtract(1, 'ms')),
     query(retUsers, week.add(5, 'd'), week.add(6, 'd').subtract(1, 'ms')),
     query(newUsers, week.add(5, 'd'), week.add(6, 'd').subtract(1, 'ms')),
-    query(retUsers, week.add(7, 'd'), week.add(8, 'd').subtract(1, 'ms')), //Sunday
-    query(newUsers, week.add(7, 'd'), week.add(8, 'd').subtract(1, 'ms')), //Sunday
+    query(retUsers, week.add(6, 'd'), week.add(7, 'd').subtract(1, 'ms')), //Sunday
+    query(newUsers, week.add(6, 'd'), week.add(7, 'd').subtract(1, 'ms')), //Sunday
   ])
 
   const [
