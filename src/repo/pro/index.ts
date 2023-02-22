@@ -212,6 +212,13 @@ const getPayoutRequestsWP =
         },
         booking: {
           select: {
+            pro: {
+              select: {
+                name: true,
+                faceIdPhotoUrl: true,
+                profilePhotoUrl: true,
+              },
+            },
             bookedSubServices: {
               select: {
                 subService: {
