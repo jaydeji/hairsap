@@ -465,13 +465,22 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     price: 8000 * 100,
   },
   {
-    name: 'Lemonade/ Tribal braids',
+    name: 'Lemonade / Tribal braids back length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
     serviceId: 1,
-    subServiceId: 44,
+    subServiceId: 84,
     order: 44,
     price: 10000 * 100,
+  },
+  {
+    name: 'Lemonade / Tribal braids shoulder length',
+    photoUrl:
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
+    serviceId: 1,
+    subServiceId: 83,
+    order: 44.1,
+    price: 8000 * 100,
   },
   {
     name: '14+ Regular all back cornrow',
