@@ -243,6 +243,7 @@ const getPayoutRequestsWP =
         0,
         e.promo?.discount.name,
       ).amountLessPromo,
+      booking: e.booking,
     }))
   }
 
