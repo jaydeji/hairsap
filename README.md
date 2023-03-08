@@ -57,7 +57,8 @@ Edit `docs/asyncapi.yml` and run `npm run docs:sock:gen`
 
 ## Queue
 
-To retry jobs, go to `http://localhost:4000`
+username:user
+To retry jobs, go to `http://localhost:4000/bull`
 
 ## Logging
 

@@ -214,6 +214,7 @@ const getPayoutRequestsWP =
           select: {
             pro: {
               select: {
+                userId: true,
                 name: true,
                 faceIdPhotoUrl: true,
                 profilePhotoUrl: true,
