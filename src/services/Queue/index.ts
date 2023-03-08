@@ -1,4 +1,4 @@
-import Queue from 'bull'
+import Queue, { QueueOptions } from 'bull'
 import { sendMail } from '../../config/email'
 import { SendMailOptions } from 'nodemailer'
 import { logger } from '../../utils'
@@ -36,8 +36,9 @@ export type Payment = {
   }
 }
 
-const options = {
+const options: QueueOptions = {
   defaultJobOptions: { removeOnComplete: true },
+  redis: { maxRetriesPerRequest: 19 },
 }
 
 const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
