@@ -49,10 +49,10 @@ FROM (
         GROUP BY userId
         ${having}
     ) _b
-    JOIN Booking b on _b.userId = b.userId
+    JOIN Booking b ON _b.userId = b.userId
     JOIN Invoice i ON b.bookingId = i.bookingId
     JOIN InvoiceFees ifees ON i.invoiceId = ifees.invoiceId
-WHERE b.createdAt >= ${_period}
+WHERE b.createdAt >= ${_period} AND b.status='completed'
 GROUP BY ifees.name;
     `
 }
