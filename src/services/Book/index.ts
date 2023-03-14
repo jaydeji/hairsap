@@ -629,6 +629,19 @@ const getAcceptedBookings =
     return acceptedBookings
   }
 
+const getPendingBookings =
+  ({ repo }: { repo: Repo }) =>
+  async ({ userId }: { userId: number }) => {
+    GetAcceptedBookingsReqSchema.parse({ userId })
+
+    const pendingBookings = await repo.book.getBookingsByStatusAndMore(
+      userId,
+      BOOKING_STATUS.PENDING,
+    )
+
+    return pendingBookings
+  }
+
 const getBookingActivity =
   ({ repo }: { repo: Repo }) =>
   async ({ userId }: { userId: number }) => {
@@ -742,6 +755,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     acceptBooking: acceptBooking({ repo, queue }),
     rejectBooking: rejectBooking({ repo, queue }),
     getAcceptedBookings: getAcceptedBookings({ repo }),
+    getPendingBookings: getPendingBookings({ repo }),
     cancelBooking: cancelBooking({ repo, queue }),
     markBookingAsCompleted: markBookingAsCompleted({ repo, queue }),
     markBookingAsArrived: markBookingAsArrived({ repo, queue }),
