@@ -370,6 +370,7 @@ const searchPro =
           },
         ],
         role: ROLES.PRO,
+        approved: true,
       },
       select: {
         name: true,
