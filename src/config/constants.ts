@@ -84,3 +84,10 @@ export const NOTIFICATION_TYPE = {
   BOOKING: 'booking',
   GENERAL: 'general',
 } as const
+
+export const PIN_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  PAID: 'paid',
+} as const

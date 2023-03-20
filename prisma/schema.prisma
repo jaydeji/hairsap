@@ -136,6 +136,10 @@ model Booking {
   samplePhotoKey              String?
   samplePhotoOriginalFileName String?
   status                      String
+  pinStatus                   String?
+  pinDate                     DateTime?
+  pinRedisUserKey             String?
+  pinRedisProKey              String?
   rating                      Int?
   review                      String?   @db.Text()
   auto                        Boolean?

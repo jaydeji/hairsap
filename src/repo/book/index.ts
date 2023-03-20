@@ -44,6 +44,8 @@ const getBookingByIdAndMore =
         arrivalAt: true,
         cancelledAt: true,
         rating: true,
+        pinDate: true,
+        pinStatus: true,
         pro: {
           select: {
             address: true,

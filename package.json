@@ -82,6 +82,11 @@
     "socket.io": "^4.5.1",
     "swagger-ui-express": "^4.5.0",
     "yamljs": "^0.3.0",
-    "zod": "^3.17.10"
+    "zod": "^3.21.4"
+  },
+  "overrides": {
+    "@newrelic/pino-enricher": {
+      "newrelic": "$newrelic"
+    }
   }
 }

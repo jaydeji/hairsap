@@ -5,6 +5,7 @@ import {
   MESSAGE_TYPE,
   NOTIFICATION_TYPE,
   OTP_TYPE,
+  PIN_STATUS,
   PRO_STATUS,
   ROLES,
 } from './config/constants'
@@ -37,3 +38,4 @@ export type ProStatus = typeof PRO_STATUS[keyof typeof PRO_STATUS]
 export type Channel = typeof CHANNEL[keyof typeof CHANNEL]
 export type Notificationtype =
   typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE]
+export type PinStatus = typeof PIN_STATUS[keyof typeof PIN_STATUS]

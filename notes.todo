@@ -24,20 +24,10 @@ npx prisma migrate diff \
 NotificationTypes
 Call		
 
-add endpoint for missed booking
-
 PIN
-pin
-during auto or manual
-accept or reject pin
-not more than 7 days
-customer selects day and time
-pro accepts
-notification pops up after pinning to pay through transfer
-fully paid for pin button 
-notificaton everyday until the day of the booking
-additional button on booking
-Pin this accepted booking for the next day or hours
-reminder for day and time appointment for
+null->pending->accepted->paid
+                \
+               rejected 
+at what point do we remove notification cronjob. when accepted or when started
+deduct pin amount from service charge
 
-deposit payment needs to be made

@@ -7,6 +7,7 @@ import {
   CHANNEL,
   PAYSTACK_URL,
   ROLES,
+  PIN_STATUS,
 } from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
@@ -36,6 +37,7 @@ import {
   logger,
   filterBadWords,
   addCommas,
+  uniqueId,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -43,6 +45,7 @@ import { autoBook } from './autoBook'
 import { manualBook } from './manualBook'
 import { computeBookingTotal, resolvePromo } from './util'
 import { socket } from '../../index'
+import Bull from 'bull'
 
 const bookPro =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -748,6 +751,220 @@ const getBookingById =
     return
   }
 
+const pinBooking =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async ({
+    bookingId,
+    userId,
+    date,
+  }: {
+    bookingId: number
+    userId: number
+    date: string
+  }) => {
+    z.object({
+      bookingId: z.number(),
+      userId: z.number(),
+      date: z.string().datetime(),
+    })
+      .strict()
+      .parse({ bookingId, userId, date })
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('Booking not found')
+    if (booking.pinStatus) {
+      throw new ForbiddenError('This booking has been previously pinned')
+    }
+    if (dayjs().add(7, 'days').isAfter(dayjs(date))) {
+      throw new ForbiddenError('Please pick a date less than 7 days from now')
+    }
+
+    const _booking = await repo.book.updateBooking(bookingId, {
+      pinStatus: PIN_STATUS.PENDING,
+      pinDate: date,
+    })
+
+    queue.notifyQueue.add({
+      userId: booking.proId,
+      title: 'Pin request',
+      body: 'A request to pin a booking has been received',
+      type: 'booking',
+      status: 'request pin',
+    })
+
+    return _booking
+  }
+
+const acceptPinnedBooking =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
+    z.object({
+      bookingId: z.number(),
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ bookingId, proId })
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+      throw new ForbiddenError(
+        'The pin status for this booking is invalid for the operation',
+      )
+    }
+    if (dayjs().isAfter(dayjs(booking.pinDate))) {
+      throw new ForbiddenError(
+        'The scheduled pin date for this booking has expired',
+      )
+    }
+
+    const _booking = await repo.book.updateBooking(bookingId, {
+      pinStatus: PIN_STATUS.ACCEPTED,
+    })
+
+    queue.notifyQueue.add({
+      userId: booking.userId,
+      title: 'You pin has been accepted',
+      body: 'Your pin has been accepted, kindly make a deposit of 5,000 to the pro to complete this pinning, this amount is deducted from your total service fee upon completion of your appointment',
+      type: 'booking',
+      status: 'accept pin',
+    })
+    queue.notifyQueue.add({
+      userId: booking.proId,
+      title: 'Pin accepted',
+      body: 'Click Paid if you’ve received a deposit of 5,000',
+      type: 'booking',
+      status: 'request pin',
+    })
+
+    //setup seven day notification cron
+
+    return _booking
+  }
+
+const rejectPinnedBooking =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
+    z.object({
+      bookingId: z.number(),
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ bookingId, proId })
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+      throw new ForbiddenError(
+        'The pin status for this booking is invalid for the operation',
+      )
+    }
+    if (dayjs().isAfter(dayjs(booking.pinDate))) {
+      throw new ForbiddenError(
+        'The scheduled pin date for this booking has expired',
+      )
+    }
+
+    const _booking = await repo.book.updateBooking(bookingId, {
+      pinStatus: PIN_STATUS.REJECTED,
+    })
+
+    queue.notifyQueue.add({
+      userId: booking.userId,
+      title: 'You pin has been rejected',
+      body: 'Your pin has been rejected',
+      type: 'booking',
+      status: 'reject pin',
+    })
+
+    return _booking
+  }
+
+const markPinnedBookingAsPaid =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
+    z.object({
+      bookingId: z.number(),
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ bookingId, proId })
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (!booking || booking.proId !== proId)
+      throw new NotFoundError('booking not found')
+    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+      throw new ForbiddenError(
+        'The pin status for this booking is invalid for the operation',
+      )
+    }
+    if (dayjs().isAfter(dayjs(booking.pinDate))) {
+      throw new ForbiddenError(
+        'The scheduled pin date for this booking has expired',
+      )
+    }
+
+    const relativeTime = dayjs().from(dayjs(booking.pinDate))
+
+    const pinHour = dayjs(booking.pinDate).subtract(3, 'h').get('h')
+
+    const repeat: Bull.JobOptions['repeat'] = {
+      limit: 7,
+      endDate: dayjs(booking.pinDate).toISOString(),
+      cron: `* ${pinHour} * * *`, //every day by 3 hours to the meeting
+    }
+
+    const [userJob, proJob] = await Promise.all([
+      queue.notifyQueue.add(
+        {
+          userId: booking.userId,
+          title: 'Reminder for your pinned booking',
+          body: `This is to remind you that your pinned booking is ${relativeTime}`,
+          type: 'booking',
+          status: 'pin reminder',
+        },
+        {
+          repeat,
+          jobId: uniqueId(),
+        },
+      ),
+      queue.notifyQueue.add(
+        {
+          userId: booking.proId,
+          title: 'Reminder for your pinned booking',
+          body: `This is to remind you that your pinned booking is ${relativeTime}`,
+          type: 'booking',
+          status: 'pin reminder',
+        },
+        {
+          repeat,
+          jobId: uniqueId(),
+        },
+      ),
+    ])
+    let _booking
+
+    const userKey = (userJob.opts.repeat as any)?.key
+    const proKey = (proJob.opts.repeat as any)?.key
+
+    try {
+      _booking = await repo.book.updateBooking(bookingId, {
+        pinStatus: PIN_STATUS.PAID,
+        pinRedisUserKey: userKey,
+        pinRedisProKey: proKey,
+      })
+    } catch (error) {
+      if (error) {
+        await Promise.all([
+          queue.notifyQueue.removeRepeatableByKey(userKey),
+          queue.notifyQueue.removeRepeatableByKey(proKey),
+        ])
+      }
+      throw error
+    }
+
+    return _booking
+  }
+
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     bookPro: bookPro({ repo, queue }),
@@ -770,6 +987,10 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     getBookingById: getBookingById({ repo }),
     autoBook: autoBook({ repo, queue }),
     manualBook: manualBook({ repo, queue }),
+    pinBooking: pinBooking({ repo, queue }),
+    acceptPinnedBooking: acceptPinnedBooking({ repo, queue }),
+    rejectPinnedBooking: rejectPinnedBooking({ repo, queue }),
+    markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
   }
 }
 
