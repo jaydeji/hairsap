@@ -37,7 +37,7 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
 
         if (!userTokens.length) return
 
-        await expo.sendPushNotificationsAsync([
+        const chunks = expo.chunkPushNotifications([
           {
             title: data.title,
             body: data.body,
@@ -45,6 +45,20 @@ const makePush = ({ expo, repo }: { expo: Expo; repo: Repo }) => {
             sound: 'default',
           },
         ])
+
+        const x = await Promise.allSettled(
+          chunks.map((chunk) => expo.sendPushNotificationsAsync(chunk)),
+        )
+
+        const error = (
+          x.find((e) => e.status === 'rejected') as
+            | PromiseRejectedResult
+            | undefined
+        )?.reason
+
+        if (error) {
+          throw new Error(error)
+        }
       } catch (error) {
         logger.err(error, 'Error sending multiple push notifications')
         throw error

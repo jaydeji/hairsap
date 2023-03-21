@@ -14,8 +14,12 @@ import {
   terminateDeactivatedUsers,
 } from '../../repo/pro/utils'
 import { socket } from '../../index'
-import { BookingStatus, Notificationtype, Repo } from '../../types'
+import { Notificationtype, Repo } from '../../types'
 import { Push } from '../Push'
+import {
+  PostPushNotificationReq,
+  PushAudience,
+} from '../../schemas/request/postPushNotification'
 import { resolveAmount } from '../Book/util'
 
 const redisUrl = process.env.REDIS_URL
@@ -58,6 +62,11 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     userId: number
     [key: string]: any
   }>('notifications', redisUrl, options)
+  const bulkNotifyQueue = new Queue<PostPushNotificationReq>(
+    'bulk_notifications',
+    redisUrl,
+    options,
+  )
   const deactivateQueue = new Queue('deactivate', redisUrl, options)
   const deactivateRedeem = new Queue<{ proId: number }>(
     'deactivate_redeem',
@@ -68,6 +77,28 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   deactivateQueue.add(undefined, {
     repeat: { cron: '00 00 21 * * 7' },
   }) //every sunday night by 9pm
+
+  bulkNotifyQueue.add(
+    {
+      title: 'We’re now available',
+      body: 'Good morning Queens! We’re now available for immediate bookings till 7pm',
+      audience: PushAudience.USERS,
+    },
+    {
+      repeat: { cron: '0 7 * * *' },
+    },
+  ) //every day 7am
+
+  bulkNotifyQueue.add(
+    {
+      title: 'Schedule an appointment',
+      body: 'Hello Queens! Don’t forget to schedule an appointment this week',
+      audience: PushAudience.USERS,
+    },
+    {
+      repeat: { cron: '0 17 * * *' },
+    },
+  ) //every day 5pm
 
   // paymentThreshold.add(
   //   { email: req.body.email },
@@ -299,6 +330,15 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     done()
   })
 
+  bulkNotifyQueue.process((job, done) => {
+    push.sendMultiPushMessage({
+      audience: job.data.audience,
+      title: job.data.title,
+      body: job.data.body,
+    })
+    done()
+  })
+
   return {
     emailQueue,
     phoneQueue,
@@ -307,6 +347,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     notifyQueue,
     deactivateRedeem,
     deactivateQueue,
+    bulkNotifyQueue,
   }
 }
 
