@@ -153,11 +153,11 @@ const getProBookingsByStatus =
 
 const getBookingsByStatusAndMore =
   ({ db }: { db: PrismaClient }) =>
-  (userId: number, status: BookingStatus) =>
+  (userId: number, statuses: BookingStatus[]) =>
     db.booking.findMany({
       where: {
         OR: [{ userId }, { proId: userId }],
-        status,
+        status: { in: statuses },
       },
       select: {
         bookingId: true,

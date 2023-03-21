@@ -192,7 +192,7 @@ const makeProRouter = ({
     '/bookings/pending',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
-      const data = await service.book.getPendingBookings({
+      const data = await service.book.getPendingAndCancelledBookings({
         userId: req.tokenData?.userId as number,
       })
       res.status(200).send({ data })
