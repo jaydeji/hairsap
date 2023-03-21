@@ -28,6 +28,3 @@ PIN
 null->pending->accepted->paid
                 \
                rejected 
-at what point do we remove notification cronjob. when accepted or when started
-deduct pin amount from service charge
-

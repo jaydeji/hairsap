@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
 import { BOOKING_STATUS, CHANNEL } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
-import { computeBookingTotal, resolvePromo } from '../../services/Book/util'
+import { computeBookingTotal, resolveAmount } from '../../services/Book/util'
 import { BookingStatus } from '../../types'
 import { dayjs } from '../../utils'
 import { getProBookings } from './getProBookings'
@@ -46,6 +46,7 @@ const getBookingByIdAndMore =
         rating: true,
         pinDate: true,
         pinStatus: true,
+        pinAmount: true,
         pro: {
           select: {
             address: true,
@@ -267,6 +268,7 @@ const getBookingActivity =
         arrivalAt: true,
         cancelledAt: true,
         auto: true,
+        pinAmount: true,
         pro: {
           select: {
             address: true,
@@ -668,6 +670,7 @@ const getTransactions =
         select: {
           bookingId: true,
           completedAt: true,
+          pinAmount: true,
           pro: {
             select: {
               businessName: true,
@@ -757,17 +760,19 @@ const getUnredeemedCashPayments =
         promo: {
           include: { discount: true },
         },
+        booking: { select: { pinAmount: true } },
       },
     })
 
     const total = unredeemedCashPayments.reduce(
       (acc, e) =>
         acc +
-        resolvePromo(
-          e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0),
-          0,
-          e.promo?.discount.name,
-        ).amountLessPromo,
+        resolveAmount({
+          invoice: e.invoiceFees.reduce((acc2, e2) => acc2 + e2.price, 0),
+          transport: 0,
+          code: e.promo?.discount.name,
+          pinAmount: e.booking.pinAmount,
+        }).total,
       0,
     )
 

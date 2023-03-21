@@ -1,42 +1,49 @@
 import { DISCOUNT } from '../../config/constants'
 import { Prisma } from '@prisma/client'
 
-export const resolvePromo = (
-  amount: number,
-  transport: number,
-  code?: string,
-) => {
+export const resolveAmount = ({
+  invoice,
+  transport,
+  code,
+  pinAmount,
+}: {
+  invoice: number
+  transport: number
+  code?: string
+  pinAmount: number
+}) => {
+  const amount = invoice + transport - pinAmount
   switch (code) {
     case DISCOUNT.FIVE_PERCENT: {
       return {
-        amount: amount + transport,
-        amountLessPromo: amount + transport - 0.05 * amount,
-        promoAmount: 0.05 * amount,
+        amount,
+        total: amount - 0.05 * invoice,
+        promoAmount: 0.05 * invoice,
       }
     }
     case DISCOUNT.TWENTY_PERCENT: {
       return {
-        amount: amount + transport,
-        amountLessPromo: amount + transport - 0.2 * amount,
-        promoAmount: 0.2 * amount,
+        amount,
+        total: amount - 0.2 * invoice,
+        promoAmount: 0.2 * invoice,
       }
     }
     case DISCOUNT.TEN_PERCENT: {
       return {
-        amount: amount + transport,
-        amountLessPromo: amount + transport - 0.1 * amount,
-        promoAmount: 0.1 * amount,
+        amount,
+        total: amount - 0.1 * invoice,
+        promoAmount: 0.1 * invoice,
       }
     }
     case DISCOUNT.FIFTY_PERCENT: {
       return {
-        amount: amount + transport,
-        amountLessPromo: amount + transport - 0.5 * amount,
-        promoAmount: 0.5 * amount,
+        amount,
+        total: amount - 0.5 * invoice,
+        promoAmount: 0.5 * invoice,
       }
     }
     default:
-      return { amount, amountLessPromo: amount, promoAmount: 0 }
+      return { amount, total: invoice, promoAmount: 0 }
   }
 }
 
@@ -57,6 +64,7 @@ const bookingWithTotal = Prisma.validator<Prisma.BookingArgs>()({
         },
       },
     },
+    pinAmount: true,
   },
 })
 
@@ -65,10 +73,12 @@ type BookingWithTotal = Prisma.BookingGetPayload<typeof bookingWithTotal>
 export const computeBookingTotal = (booking: BookingWithTotal) => {
   return {
     ...booking,
-    total: resolvePromo(
-      booking?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0,
-      booking?.invoice?.transportFee || 0,
-      booking?.invoice?.promo?.discount.name,
-    ).amountLessPromo,
+    total: resolveAmount({
+      invoice:
+        booking?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0,
+      transport: booking?.invoice?.transportFee || 0,
+      code: booking?.invoice?.promo?.discount.name,
+      pinAmount: booking.pinAmount,
+    }).total,
   }
 }

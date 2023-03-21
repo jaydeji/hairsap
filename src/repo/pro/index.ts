@@ -6,7 +6,7 @@ import { getProBookingRatio } from './getProBookingRatio'
 import { getProDetails } from './getProDetails'
 import { getProStats } from './getProStats'
 import { dayjs } from '../../utils'
-import { resolvePromo } from '../../services/Book/util'
+import { resolveAmount } from '../../services/Book/util'
 
 const getDistBtwLoctions =
   ({ db }: { db: PrismaClient }) =>
@@ -212,6 +212,7 @@ const getPayoutRequestsWP =
         },
         booking: {
           select: {
+            pinAmount: true,
             pro: {
               select: {
                 userId: true,
@@ -239,11 +240,12 @@ const getPayoutRequestsWP =
     return result.map((e) => ({
       invoiceId: e.invoiceId,
       service: e.booking.bookedSubServices?.[0].subService.service.name,
-      amount: resolvePromo(
-        e.invoiceFees.reduce((acc, e) => acc + e.price, 0),
-        0,
-        e.promo?.discount.name,
-      ).amountLessPromo,
+      amount: resolveAmount({
+        invoice: e.invoiceFees.reduce((acc, e) => acc + e.price, 0),
+        transport: 0,
+        code: e.promo?.discount.name,
+        pinAmount: e.booking.pinAmount,
+      }).total,
       booking: e.booking,
     }))
   }

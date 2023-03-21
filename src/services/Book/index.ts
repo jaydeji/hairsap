@@ -8,6 +8,7 @@ import {
   PAYSTACK_URL,
   ROLES,
   PIN_STATUS,
+  PIN_AMOUNT,
 } from '../../config/constants'
 import { GetAcceptedBookingsReqSchema } from '../../schemas/request/getPendingBookingsSchema'
 import {
@@ -43,7 +44,7 @@ import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
 import { autoBook } from './autoBook'
 import { manualBook } from './manualBook'
-import { computeBookingTotal, resolvePromo } from './util'
+import { computeBookingTotal, resolveAmount } from './util'
 import { socket } from '../../index'
 import Bull from 'bull'
 
@@ -446,11 +447,12 @@ const markBookingAsCompleted =
       if (promo) discount = await repo.other.getDiscountById(promo.discountId)
     }
 
-    const { amountLessPromo, promoAmount } = resolvePromo(
-      booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0),
-      booking.invoice.transportFee,
-      discount?.name,
-    )
+    const { total, promoAmount } = resolveAmount({
+      invoice: booking.invoice.invoiceFees.reduce((acc, e) => acc + e.price, 0),
+      transport: booking.invoice.transportFee,
+      code: discount?.name,
+      pinAmount: booking.pinAmount,
+    })
 
     let bookingUpdate: Prisma.BookingUpdateInput = {
       status: BOOKING_STATUS.COMPLETED,
@@ -513,7 +515,7 @@ const markBookingAsCompleted =
             json: {
               authorization_code: user.card.authorizationCode,
               email: user.email,
-              amount: amountLessPromo,
+              amount: total,
               metadata: {
                 invoiceId: booking.invoice.invoiceId,
                 userId: booking.userId,
@@ -538,7 +540,7 @@ const markBookingAsCompleted =
       if (paymentError) {
         queue.notifyQueue.add({
           title: 'Card payment unsuccessful please collect cash',
-          body: `Card payment unsuccessful please collect amount of ${amountLessPromo}`,
+          body: `Card payment unsuccessful please collect amount of ${total}`,
           userId: proId,
           type: 'booking',
         })
@@ -825,14 +827,18 @@ const acceptPinnedBooking =
     queue.notifyQueue.add({
       userId: booking.userId,
       title: 'You pin has been accepted',
-      body: 'Your pin has been accepted, kindly make a deposit of 5,000 to the pro to complete this pinning, this amount is deducted from your total service fee upon completion of your appointment',
+      body: `Your pin has been accepted, kindly make a deposit of ${addCommas(
+        PIN_AMOUNT / 100,
+      )} to the pro to complete this pinning, this amount is deducted from your total service fee upon completion of your appointment`,
       type: 'booking',
       status: 'accept pin',
     })
     queue.notifyQueue.add({
       userId: booking.proId,
       title: 'Pin accepted',
-      body: 'Click Paid if you’ve received a deposit of 5,000',
+      body: `Click Paid if you’ve received a deposit of ${addCommas(
+        PIN_AMOUNT / 100,
+      )}`,
       type: 'booking',
       status: 'request pin',
     })
@@ -951,6 +957,7 @@ const markPinnedBookingAsPaid =
         pinStatus: PIN_STATUS.PAID,
         pinRedisUserKey: userKey,
         pinRedisProKey: proKey,
+        pinAmount: PIN_AMOUNT,
       })
     } catch (error) {
       if (error) {

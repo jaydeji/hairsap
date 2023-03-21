@@ -137,6 +137,7 @@ model Booking {
   samplePhotoOriginalFileName String?
   status                      String
   pinStatus                   String?
+  pinAmount                   Int       @default(0)
   pinDate                     DateTime?
   pinRedisUserKey             String?
   pinRedisProKey              String?
