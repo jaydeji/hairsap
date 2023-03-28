@@ -330,13 +330,17 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     done()
   })
 
-  bulkNotifyQueue.process((job, done) => {
-    push.sendMultiPushMessage({
-      audience: job.data.audience,
-      title: job.data.title,
-      body: job.data.body,
-    })
-    done()
+  bulkNotifyQueue.process(async (job, done) => {
+    try {
+      await push.sendMultiPushMessage({
+        audience: job.data.audience,
+        title: job.data.title,
+        body: job.data.body,
+      })
+      done()
+    } catch (error) {
+      done(error as Error)
+    }
   })
 
   return {
