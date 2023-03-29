@@ -59,16 +59,16 @@ export const autoBook =
     if (acceptedUserBookingsBySubService.length)
       throw new ForbiddenError('user has existing booking with service')
 
-    const pendingUserBooking =
-      await repo.book.getPendingUserBookingByServiceAndRange({
-        serviceId,
-        userId,
-      })
+    // const pendingUserBooking =
+    //   await repo.book.getPendingUserBookingByServiceAndRange({
+    //     serviceId,
+    //     userId,
+    //   })
 
-    if (pendingUserBooking)
-      throw new ForbiddenError(
-        'please wait a few minutes for booking to be accepted',
-      )
+    // if (pendingUserBooking)
+    //   throw new ForbiddenError(
+    //     'please wait a few minutes for booking to be accepted',
+    //   )
 
     const cardData = await repo.user.getCard({ userId })
 
