@@ -791,7 +791,7 @@ const pinBooking =
     queue.notifyQueue.add({
       userId: booking.proId,
       title: 'Pin request',
-      body: 'A request to pin a booking has been received',
+      body: 'A request to pin a booking has been received. Go to your activity page to accept the pinned booking',
       type: 'booking',
       status: 'request pin',
     })
