@@ -774,6 +774,8 @@ const pinBooking =
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('Booking not found')
+    if (booking.status !== BOOKING_STATUS.ACCEPTED)
+      throw new ForbiddenError('This booking has not been accepted')
     if (booking.pinStatus) {
       throw new ForbiddenError('This booking has been previously pinned')
     }
