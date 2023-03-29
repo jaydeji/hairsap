@@ -900,7 +900,7 @@ const markPinnedBookingAsPaid =
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
     if (!booking || booking.proId !== proId)
       throw new NotFoundError('booking not found')
-    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+    if (booking.pinStatus !== PIN_STATUS.ACCEPTED) {
       throw new ForbiddenError(
         'The pin status for this booking is invalid for the operation',
       )
