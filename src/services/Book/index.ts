@@ -777,7 +777,7 @@ const pinBooking =
     if (booking.pinStatus) {
       throw new ForbiddenError('This booking has been previously pinned')
     }
-    if (dayjs().add(7, 'days').isAfter(dayjs(date))) {
+    if (dayjs(date).isAfter(dayjs().add(7, 'days'))) {
       throw new ForbiddenError('Please pick a date less than 7 days from now')
     }
 
