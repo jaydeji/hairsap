@@ -269,6 +269,8 @@ const getBookingActivity =
         cancelledAt: true,
         auto: true,
         pinAmount: true,
+        pinDate: true,
+        pinStatus: true,
         pro: {
           select: {
             address: true,
@@ -335,6 +337,14 @@ const getBookingActivity =
         createdAt: true,
         updatedAt: true,
       },
+      orderBy: [
+        {
+          pinStatus: 'desc',
+        },
+        {
+          updatedAt: 'desc',
+        },
+      ],
     })
 
     const userIds = bookings.map((e) => e.userId)
