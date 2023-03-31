@@ -81,7 +81,7 @@ const bookPro =
       BOOKING_STATUS.ACCEPTED,
     )
 
-    if (bookings.length >= 5) throw new ForbiddenError('pro currently busy')
+    // if (bookings.length >= 5) throw new ForbiddenError('pro currently busy')
 
     const userBookingsBySubService =
       await repo.book.getUserBookingsBySubService({
@@ -198,13 +198,13 @@ const acceptBooking =
     if (role !== ROLES.PRO)
       throw new ForbiddenError('Booking can only be accepted by pro')
 
-    const [pendingBookings, acceptedBookings] = await Promise.all([
+    const [pendingBookings] = await Promise.all([
       repo.book.getProBookingsByStatus(userId, BOOKING_STATUS.PENDING),
-      repo.book.getProBookingsByStatus(userId, BOOKING_STATUS.ACCEPTED),
+      // repo.book.getProBookingsByStatus(userId, BOOKING_STATUS.ACCEPTED),
     ])
 
-    if (acceptedBookings.length > 1)
-      throw new ForbiddenError('too many accepted bookings')
+    // if (acceptedBookings.length > 1)
+    //   throw new ForbiddenError('too many accepted bookings')
 
     const booking = pendingBookings.find(
       (booking) => booking.bookingId === bookingId,

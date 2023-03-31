@@ -29,10 +29,10 @@ export const manualBook =
       BOOKING_STATUS.ACCEPTED,
     )
 
-    if (bookings.length >= 5) {
-      return {}
-      throw new ForbiddenError('pro currently busy')
-    }
+    // if (bookings.length >= 5) {
+    //   return {}
+    //   throw new ForbiddenError('pro currently busy')
+    // }
 
     const acceptedUserBookingsBySubService =
       await repo.book.getUserBookingsByService({
