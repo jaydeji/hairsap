@@ -80,11 +80,11 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
   {
     name: 'Frontal Installation and braids',
     photoUrl:
-      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/1.jpeg',
+      'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/85.jpeg',
     serviceId: 1,
     subServiceId: 85,
-    order: 1.1,
-    price: 25000 * 100,
+    order: 1,
+    price: 30000 * 100,
   },
   {
     name: 'Knotless braids Large shoulder length',
