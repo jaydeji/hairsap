@@ -173,6 +173,9 @@ const getBookingsByStatusAndMore =
         rejectedAt: true,
         arrivalAt: true,
         cancelledAt: true,
+        pinDate: true,
+        pinStatus: true,
+        pinAmount: true,
         pro: {
           select: {
             address: true,
@@ -234,6 +237,14 @@ const getBookingsByStatusAndMore =
         createdAt: true,
         updatedAt: true,
       },
+      orderBy: [
+        {
+          pinStatus: 'desc',
+        },
+        {
+          updatedAt: 'desc',
+        },
+      ],
     })
 
 const getBookingActivity =
