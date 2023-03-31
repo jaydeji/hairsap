@@ -911,6 +911,11 @@ const markPinnedBookingAsPaid =
       )
     }
 
+    const _booking = await repo.book.updateBooking(bookingId, {
+      pinStatus: PIN_STATUS.PAID,
+      pinAmount: PIN_AMOUNT,
+    })
+
     const relativeTime = dayjs().from(dayjs(booking.pinDate))
 
     const pinHour = dayjs(booking.pinDate).subtract(3, 'h').get('h')
@@ -920,21 +925,25 @@ const markPinnedBookingAsPaid =
       endDate: dayjs(booking.pinDate).toISOString(),
       cron: `* ${pinHour} * * *`, //every day by 3 hours to the meeting
     }
+    //  delay: dayjs.duration({ days: 2 }).as('ms')
 
-    const [userJob, proJob] = await Promise.all([
-      queue.notifyQueue.add(
-        {
-          userId: booking.userId,
-          title: 'Reminder for your pinned booking',
-          body: `This is to remind you that your pinned booking is ${relativeTime}`,
-          type: 'booking',
-          status: 'pin reminder',
-        },
-        {
-          repeat,
-          jobId: uniqueId(),
-        },
-      ),
+    const oneHourBeforeSchedule = dayjs(booking.pinDate).subtract(1, 'hour')
+    const oneDayBeforeSchedule = oneHourBeforeSchedule.subtract(1, 'day')
+
+    queue.notifyQueue.add(
+      {
+        userId: booking.userId,
+        title: 'Reminder for your pinned booking',
+        body: `This is to remind you that your pinned booking is ${relativeTime}`,
+        type: 'booking',
+        status: 'pin reminder',
+      },
+      {
+        repeat,
+      },
+    )
+
+    if (dayjs().isBefore(oneHourBeforeSchedule)) {
       queue.notifyQueue.add(
         {
           userId: booking.proId,
@@ -944,31 +953,24 @@ const markPinnedBookingAsPaid =
           status: 'pin reminder',
         },
         {
-          repeat,
-          jobId: uniqueId(),
+          delay: oneHourBeforeSchedule.diff(dayjs()),
         },
-      ),
-    ])
-    let _booking
+      )
+    }
 
-    const userKey = (userJob.opts.repeat as any)?.key
-    const proKey = (proJob.opts.repeat as any)?.key
-
-    try {
-      _booking = await repo.book.updateBooking(bookingId, {
-        pinStatus: PIN_STATUS.PAID,
-        pinRedisUserKey: userKey,
-        pinRedisProKey: proKey,
-        pinAmount: PIN_AMOUNT,
-      })
-    } catch (error) {
-      if (error) {
-        await Promise.all([
-          queue.notifyQueue.removeRepeatableByKey(userKey),
-          queue.notifyQueue.removeRepeatableByKey(proKey),
-        ])
-      }
-      throw error
+    if (dayjs().isBefore(oneDayBeforeSchedule)) {
+      queue.notifyQueue.add(
+        {
+          userId: booking.proId,
+          title: 'Reminder for your pinned booking',
+          body: `This is to remind you that your pinned booking is ${relativeTime}`,
+          type: 'booking',
+          status: 'pin reminder',
+        },
+        {
+          delay: oneDayBeforeSchedule.diff(dayjs()),
+        },
+      )
     }
 
     return _booking

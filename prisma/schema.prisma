@@ -127,17 +127,6 @@ model Otp {
   expiredAt DateTime @default(now())
 }
 
-model BookingFrequency {
-  user   User @relation("user_freq", fields: [userId], references: [userId], onDelete: Cascade)
-  userId Int
-  pro    User @relation("pro_freq", fields: [proId], references: [userId], onDelete: Cascade)
-  proId  Int
-  count  Int  @default(0)
-
-  @@id([userId, proId])
-  @@unique([userId, proId])
-}
-
 model Booking {
   bookingId                   Int       @id @default(autoincrement())
   arrived                     Boolean   @default(false)
@@ -150,8 +139,6 @@ model Booking {
   pinStatus                   String?
   pinAmount                   Int       @default(0)
   pinDate                     DateTime?
-  pinRedisUserKey             String?
-  pinRedisProKey              String?
   rating                      Int?
   review                      String?   @db.Text()
   auto                        Boolean?
@@ -286,9 +273,6 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
-  userBookingFrequency BookingFrequency[] @relation("user_freq")
-  proBookingFrequency  BookingFrequency[] @relation("pro_freq")
 
   @@unique([email, phone, role])
   @@unique([email, role])
