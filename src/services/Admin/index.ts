@@ -35,6 +35,7 @@ const acceptReactivation =
       reactivationCount: {
         increment: 1,
       },
+      terminated: false,
     })
   }
 
