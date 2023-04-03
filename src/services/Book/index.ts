@@ -779,9 +779,9 @@ const pinBooking =
     if (booking.pinStatus) {
       throw new ForbiddenError('This booking has been previously pinned')
     }
-    if (dayjs(date).isAfter(dayjs().add(7, 'days'))) {
-      throw new ForbiddenError('Please pick a date less than 7 days from now')
-    }
+    // if (dayjs(date).isAfter(dayjs().add(7, 'days'))) {
+    //   throw new ForbiddenError('Please pick a date less than 7 days from now')
+    // }
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.PENDING,
@@ -921,7 +921,7 @@ const markPinnedBookingAsPaid =
     const pinHour = dayjs(booking.pinDate).subtract(3, 'h').get('h')
 
     const repeat: Bull.JobOptions['repeat'] = {
-      limit: 7,
+      // limit: 7,
       endDate: dayjs(booking.pinDate).toISOString(),
       cron: `* ${pinHour} * * *`, //every day by 3 hours to the meeting
     }
