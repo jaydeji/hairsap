@@ -38,7 +38,6 @@ import {
   logger,
   filterBadWords,
   addCommas,
-  uniqueId,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -47,6 +46,7 @@ import { manualBook } from './manualBook'
 import { computeBookingTotal, resolveAmount } from './util'
 import { socket } from '../../index'
 import Bull from 'bull'
+import { CursorSchema } from '../../schemas/models/Cursor'
 
 const bookPro =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
@@ -634,17 +634,19 @@ const getAcceptedBookings =
     return acceptedBookings
   }
 
-const getPendingAndCancelledBookings =
+const getMissedBookings =
   ({ repo }: { repo: Repo }) =>
-  async ({ userId }: { userId: number }) => {
-    GetAcceptedBookingsReqSchema.parse({ userId })
+  async ({ proId }: { proId: number }) => {
+    z.object({
+      proId: z.number(),
+    })
+      .strict()
+      .merge(CursorSchema)
+      .parse({ proId })
 
-    const pendingBookings = await repo.book.getBookingsByStatusAndMore(userId, [
-      BOOKING_STATUS.PENDING,
-      BOOKING_STATUS.CANCELLED,
-    ])
+    const missedBookings = await repo.book.getMissedBookings({ proId })
 
-    return pendingBookings
+    return missedBookings
   }
 
 const getBookingActivity =
@@ -983,7 +985,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     acceptBooking: acceptBooking({ repo, queue }),
     rejectBooking: rejectBooking({ repo, queue }),
     getAcceptedBookings: getAcceptedBookings({ repo }),
-    getPendingAndCancelledBookings: getPendingAndCancelledBookings({ repo }),
+    getMissedBookings: getMissedBookings({ repo }),
     cancelBooking: cancelBooking({ repo, queue }),
     markBookingAsCompleted: markBookingAsCompleted({ repo, queue }),
     markBookingAsArrived: markBookingAsArrived({ repo, queue }),

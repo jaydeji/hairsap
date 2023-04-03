@@ -5,6 +5,7 @@ import { computeBookingTotal, resolveAmount } from '../../services/Book/util'
 import { BookingStatus } from '../../types'
 import { dayjs } from '../../utils'
 import { getProBookings } from './getProBookings'
+import { getMissedBookings } from './getMissedBookings'
 
 const getBookingById =
   ({ db }: { db: PrismaClient }) =>
@@ -202,7 +203,6 @@ const getBookingsByStatusAndMore =
             latitude: true,
             profilePhotoUrl: true,
             faceIdPhotoUrl: true,
-
             email: true,
             name: true,
             phone: true,
@@ -882,6 +882,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
     getPendingUserBookingByServiceAndRange:
       getPendingUserBookingByServiceAndRange({ db }),
     getProbookingCount: getProbookingCount({ db }),
+    getMissedBookings: getMissedBookings({ db }),
   }
 }
 
