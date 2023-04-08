@@ -30,7 +30,9 @@ null->pending->accepted->paid
                rejected 
 
 add and edit services
-implement new new and returned
+cancel pinned bookings
+list of pinned bookings
+deduct 3k from total
 
-
-previous day 1 hr before and and rthe day for pro
+theres a new returned property for missed bookings
+There is a new property called pinnedBookings in /admin/pros/:userId

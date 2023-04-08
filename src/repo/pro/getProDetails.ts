@@ -1,5 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { BOOKING_STATUS, PERIODIC_CASH_AMOUNTS } from '../../config/constants'
+import {
+  BOOKING_STATUS,
+  PERIODIC_CASH_AMOUNTS,
+  PIN_STATUS,
+} from '../../config/constants'
 import { dayjs } from '../../utils'
 
 const getStarRatings = async ({
@@ -168,6 +172,7 @@ export const getProDetails =
   ({ db }: { db: PrismaClient }) =>
   async ({ proId }: { proId: number }) => {
     const [
+      pinnedBookings,
       latestBookings,
       dailyBookingSum,
       dailyBookingCount,
@@ -187,6 +192,39 @@ export const getProDetails =
       // weeklyBonus,
       // monthlyBonus,
     ] = await db.$transaction([
+      db.booking.findMany({
+        where: {
+          proId,
+          pinStatus: { notIn: [PIN_STATUS.REJECTED] },
+          status: {
+            not: BOOKING_STATUS.COMPLETED,
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          bookingId: true,
+          createdAt: true,
+          bookedSubServices: {
+            include: {
+              subService: {
+                select: {
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          },
+          user: {
+            select: {
+              name: true,
+              profilePhotoUrl: true,
+              faceIdPhotoUrl: true,
+            },
+          },
+        },
+      }),
       db.booking.findMany({
         where: {
           proId,
@@ -401,6 +439,7 @@ export const getProDetails =
     const ratings = await getStarRatings({ db, proId })
 
     return {
+      pinnedBookings,
       latestBookings,
       dailyBookingCount,
       dailyBookingSum: dailyBookingSum._sum.price || 0,
