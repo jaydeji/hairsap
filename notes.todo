@@ -30,16 +30,15 @@ null->pending->accepted->paid
                rejected 
 
 add and edit services
-add removal of notifs to cancelled bookings
-change something to frontal braids
 
 RICHARD
 theres a new returned property for missed bookings
 There is a new property called pinnedBookings in /admin/pros/:userId
-There is a new cancelled pinstatus
-/bookings/:id/pin/cancel to cancel pinned booking
+There is a new cancelled pinStatus
+PATCH /bookings/:id/pin/cancel to cancel pinned booking
+PATCH /bookings/service to add or remove bookings. Just send all the subservices for the booking
+{subServiceIds:number[],bookingId:number} 
+for auto and manual bookings, you have to change subServiceId to subServiceIds
+you can now book multiple services at a time
 
-DANIEL
-I've fixed the notifications after cancelling but it will only work for new pins
-
-    queue.notifyQueue.removeRepeatableByKey(proKey),
+I've fixed the notifications after cancelling

@@ -479,31 +479,35 @@ const getPendingUserBookingByServiceAndRange =
       },
     })
 
-const addServiceToBooking =
+const setBookingSubservices =
   ({ db }: { db: PrismaClient }) =>
   async ({
-    subService: { subServiceId, name, price },
+    add,
+    remove,
     bookingId,
   }: {
-    subService: SubService
+    add: SubService[]
+    remove: number[]
     bookingId: number
     userId: number
   }) => {
     db.booking.update({
       data: {
         bookedSubServices: {
-          create: {
-            subServiceId: subServiceId,
+          createMany: {
+            data: add.map(({ subServiceId }) => ({ subServiceId })),
+          },
+          deleteMany: {
+            subServiceId: { in: remove },
           },
         },
         invoice: {
           update: {
             invoiceFees: {
-              create: {
-                subServiceId,
-                name,
-                price,
+              createMany: {
+                data: add,
               },
+              deleteMany: { subServiceId: { in: remove } },
             },
           },
         },
@@ -517,9 +521,11 @@ const addServiceToBooking =
 const bookPro =
   ({ db }: { db: PrismaClient }) =>
   (data: {
-    subServiceId: number
-    subServiceFee: number
-    subServiceName: string
+    subServices: {
+      subServiceId: number
+      subServiceFee: number
+      subServiceName: string
+    }[]
     userId: number
     proId: number
     address: string
@@ -545,8 +551,10 @@ const bookPro =
         samplePhotoKey: data.samplePhotoKey,
         samplePhotoOriginalFileName: data.samplePhotoOriginalFileName,
         bookedSubServices: {
-          create: {
-            subServiceId: data.subServiceId,
+          createMany: {
+            data: data.subServices.map(({ subServiceId }) => ({
+              subServiceId,
+            })),
           },
         },
         invoice: {
@@ -562,10 +570,12 @@ const bookPro =
                 }
               : undefined,
             invoiceFees: {
-              create: {
-                subServiceId: data.subServiceId,
-                name: data.subServiceName,
-                price: data.subServiceFee,
+              createMany: {
+                data: data.subServices.map((e) => ({
+                  subServiceId: e.subServiceId,
+                  name: e.subServiceName,
+                  price: e.subServiceFee,
+                })),
               },
             },
           },
@@ -606,6 +616,15 @@ const getSubService =
     db.subService.findUnique({
       where: {
         subServiceId,
+      },
+    })
+
+const getSubServices =
+  ({ db }: { db: PrismaClient }) =>
+  (subServiceIds: number[]) =>
+    db.subService.findMany({
+      where: {
+        subServiceId: { in: subServiceIds },
       },
     })
 
@@ -854,7 +873,8 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
     getSubService: getSubService({ db }),
-    addServiceToBooking: addServiceToBooking({ db }),
+    getSubServices: getSubServices({ db }),
+    setBookingSubservices: setBookingSubservices({ db }),
     getBookingById: getBookingById({ db }),
     getBookingByIdAndMore: getBookingByIdAndMore({ db }),
     getBookingAndInvoiceById: getBookingAndInvoiceById({ db }),

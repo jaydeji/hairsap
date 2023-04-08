@@ -3,7 +3,7 @@ import { CHANNEL } from '../../config/constants'
 
 export const PostManualBookReqSchema = z
   .object({
-    subServiceId: z.number(),
+    subServiceIds: z.array(z.number()).min(1),
     latitude: z.number().refine((e) => Math.abs(e) <= 90),
     longitude: z.number().refine((e) => Math.abs(e) <= 180),
     userId: z.number(),

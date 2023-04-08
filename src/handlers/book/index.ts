@@ -12,11 +12,11 @@ const makeBookingRouter = ({
   service: Service
 }) => {
   router.patch(
-    '/service/add',
+    '/service',
     allowOnly([ROLES.USER]),
     ah(async (req, res) => {
-      await service.book.addServiceToBooking({
-        subServiceId: req.body.subServiceId,
+      await service.book.setBookingSubservices({
+        subServiceIds: req.body.subServiceIds,
         bookingId: req.body.bookingId,
         userId: req.tokenData?.userId as number,
       })

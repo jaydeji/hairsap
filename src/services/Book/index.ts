@@ -59,7 +59,7 @@ const bookPro =
   }: {
     longitude: number
     latitude: number
-    subServiceId: number
+    subServiceIds: number[]
     userId: number
     proId: number
     address: string
@@ -84,14 +84,17 @@ const bookPro =
 
     // if (bookings.length >= 5) throw new ForbiddenError('pro currently busy')
 
-    const userBookingsBySubService =
-      await repo.book.getUserBookingsBySubService({
-        subServiceId: data.subServiceId,
-        userId,
-        status: BOOKING_STATUS.ACCEPTED,
-      })
+    const userBookingsBySubServices = await Promise.all(
+      data.subServiceIds.map((e) =>
+        repo.book.getUserBookingsBySubService({
+          subServiceId: e,
+          userId,
+          status: BOOKING_STATUS.ACCEPTED,
+        }),
+      ),
+    )
 
-    if (userBookingsBySubService.length)
+    if (userBookingsBySubServices.some((e) => e.length))
       throw new ForbiddenError('user has existing booking with service')
 
     const cardData = await repo.user.getCard({ userId })
@@ -120,24 +123,28 @@ const bookPro =
         throw new ForbiddenError('promo code has been used before')
     }
 
-    const [distance, subService] = await Promise.all([
+    const [distance, subServices] = await Promise.all([
       repo.pro.getDistBtwLoctions({
         latitude,
         longitude,
         proId,
       }),
-      repo.book.getSubService(data.subServiceId),
+      repo.book.getSubServices(data.subServiceIds),
     ])
 
-    if (!subService) throw new NotFoundError('subService does not exist')
+    if (subServices.length !== data.subServiceIds.length)
+      throw new NotFoundError('subService does not exist')
 
     const arrivalAt = getArrivalTime(distance)
 
     const booking = await repo.book.bookPro({
       ...data,
       distance,
-      subServiceFee: subService.price,
-      subServiceName: subService.name,
+      subServices: subServices.map((e) => ({
+        subServiceFee: e.price,
+        subServiceName: e.name,
+        subServiceId: e.subServiceId,
+      })),
       transportFee: getTransportPrice(distance),
       arrivalAt,
       samplePhotoOriginalFileName,
@@ -157,12 +164,16 @@ const bookPro =
     return booking
   }
 
-const addServiceToBooking =
+const setBookingSubservices =
   ({ repo }: { repo: Repo }) =>
-  async (data: { subServiceId: number; bookingId: number; userId: number }) => {
+  async (data: {
+    subServiceIds: number[]
+    bookingId: number
+    userId: number
+  }) => {
     PatchAddServiceSchema.parse(data)
 
-    const booking = await repo.book.getBookingById(data.bookingId)
+    const booking = await repo.book.getBookingByIdAndMore(data.bookingId)
 
     if (!booking || booking.userId !== data.userId)
       throw new NotFoundError('booking not found')
@@ -171,13 +182,35 @@ const addServiceToBooking =
       booking.status !== BOOKING_STATUS.ACCEPTED &&
       booking.status !== BOOKING_STATUS.PENDING
     )
-      throw new NotFoundError('Service can no longer be added to booking')
+      throw new NotFoundError(
+        `Service with ${booking.status} status can no longer be added to booking`,
+      )
 
-    const subService = await repo.book.getSubService(data.subServiceId)
-    if (!subService) throw new NotFoundError('service not found')
+    const subServices = await repo.book.getSubServices(data.subServiceIds)
+    if (subServices.length !== data.subServiceIds.length)
+      throw new NotFoundError('service not found')
 
-    await repo.book.addServiceToBooking({
-      subService,
+    //we need to NOT replace services incase price changes
+
+    const add = subServices.filter(
+      (e) =>
+        !booking.bookedSubServices.find(
+          (f) => f.subService.subServiceId === e.subServiceId,
+        ),
+    )
+
+    const remove = booking.bookedSubServices
+      .filter(
+        (e) =>
+          !subServices.find(
+            (f) => f.subServiceId === e.subService.subServiceId,
+          ),
+      )
+      .map((e) => e.subService.subServiceId)
+
+    await repo.book.setBookingSubservices({
+      add,
+      remove,
       bookingId: data.bookingId,
       userId: data.userId,
     })
@@ -1095,7 +1128,7 @@ const markPinnedBookingAsPaid =
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
     bookPro: bookPro({ repo, queue }),
-    addServiceToBooking: addServiceToBooking({ repo }),
+    setBookingSubservices: setBookingSubservices({ repo }),
     acceptBooking: acceptBooking({ repo, queue }),
     rejectBooking: rejectBooking({ repo, queue }),
     getAcceptedBookings: getAcceptedBookings({ repo }),

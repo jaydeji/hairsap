@@ -49,7 +49,7 @@ const makeProRouter = ({
       const data = await service.book.autoBook({
         userId: req.tokenData?.userId as number,
         lastProId: body.lastProId,
-        subServiceId: body.subServiceId, //TODO: multiple subservice?
+        subServiceIds: body.subServiceIds, //TODO: multiple subservice?
         latitude: body.latitude,
         longitude: body.longitude,
         distance: body.distance,
@@ -105,7 +105,7 @@ const makeProRouter = ({
       const data = await service.book.manualBook({
         userId: req.tokenData?.userId as number,
         proId: body.proId,
-        subServiceId: body.subServiceId, //TODO: multiple subservice?
+        subServiceIds: body.subServiceIds, //TODO: multiple subservice?
         latitude: body.latitude,
         longitude: body.longitude,
         address: body.address,

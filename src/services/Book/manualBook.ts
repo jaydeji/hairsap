@@ -13,10 +13,9 @@ export const manualBook =
   async (data: PostManualBookReq) => {
     PostManualBookReqSchema.parse(data)
 
-    const subService = await repo.other.getSubServiceById(data.subServiceId)
-    if (!subService) throw new NotFoundError('subService not found')
-
-    const { serviceId, price } = subService
+    const subServices = await repo.book.getSubServices(data.subServiceIds)
+    if (subServices.length !== data.subServiceIds.length)
+      throw new NotFoundError('subService not found')
 
     const { longitude, latitude, userId, proId } = data
 
@@ -34,14 +33,17 @@ export const manualBook =
     //   throw new ForbiddenError('pro currently busy')
     // }
 
-    const acceptedUserBookingsBySubService =
-      await repo.book.getUserBookingsByService({
-        serviceId,
-        userId,
-        status: BOOKING_STATUS.ACCEPTED,
-      })
+    const acceptedUserBookingsBySubServices = await Promise.all(
+      data.subServiceIds.map((e) =>
+        repo.book.getUserBookingsBySubService({
+          subServiceId: e,
+          userId,
+          status: BOOKING_STATUS.ACCEPTED,
+        }),
+      ),
+    )
 
-    if (acceptedUserBookingsBySubService.length)
+    if (acceptedUserBookingsBySubServices.some((e) => e.length))
       throw new ForbiddenError('user has existing booking with service')
 
     const cardData = await repo.user.getCard({ userId })
@@ -84,8 +86,11 @@ export const manualBook =
       ...data,
       proId,
       distance,
-      subServiceFee: subService.price,
-      subServiceName: subService.name,
+      subServices: subServices.map((e) => ({
+        subServiceFee: e.price,
+        subServiceName: e.name,
+        subServiceId: e.subServiceId,
+      })),
       transportFee: getTransportPrice(distance),
       arrivalAt,
     })

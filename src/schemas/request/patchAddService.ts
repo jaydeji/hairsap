@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const PatchAddServiceSchema = z
   .object({
-    subServiceId: z.number(),
+    subServiceIds: z.array(z.number()).min(1),
     bookingId: z.number(),
     userId: z.number(),
   })
