@@ -78,7 +78,7 @@ const serviceData: Prisma.ServiceCreateManyInput[] = [
 
 const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
   {
-    name: 'Frontal Installation and braids',
+    name: 'Frontal braids',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/85.jpeg',
     serviceId: 1,
