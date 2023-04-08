@@ -92,4 +92,5 @@ export const PIN_STATUS = {
   ACCEPTED: 'accepted',
   REJECTED: 'rejected',
   PAID: 'paid',
+  CANCELLED: 'cancelled',
 } as const

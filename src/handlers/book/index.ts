@@ -134,6 +134,18 @@ const makeBookingRouter = ({
     }),
   )
 
+  router.patch(
+    '/:id/pin/cancel',
+    allowOnly([ROLES.USER]),
+    ah(async (req, res) => {
+      const data = await service.book.cancelPinnedBooking({
+        bookingId: +req.params.id,
+        userId: req.tokenData?.userId as number,
+      })
+      res.status(201).send({ data })
+    }),
+  )
+
   router.post(
     '/:id/pin',
     allowOnly([ROLES.USER]),

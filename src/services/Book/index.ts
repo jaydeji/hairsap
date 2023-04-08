@@ -890,6 +890,44 @@ const rejectPinnedBooking =
     return _booking
   }
 
+const cancelPinnedBooking =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async ({ bookingId, userId }: { bookingId: number; userId: number }) => {
+    z.object({
+      bookingId: z.number(),
+      userId: z.number(),
+    })
+      .strict()
+      .parse({ bookingId, userId })
+    const booking = await repo.book.getBookingByIdAndMore(bookingId)
+    if (!booking || booking.userId !== userId)
+      throw new NotFoundError('booking not found')
+    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+      throw new ForbiddenError(
+        'The pin status for this booking is invalid for the operation',
+      )
+    }
+    if (dayjs().isAfter(dayjs(booking.pinDate))) {
+      throw new ForbiddenError(
+        'The scheduled pin date for this booking has expired',
+      )
+    }
+
+    const _booking = await repo.book.updateBooking(bookingId, {
+      pinStatus: PIN_STATUS.CANCELLED,
+    })
+
+    queue.notifyQueue.add({
+      userId: booking.proId,
+      title: 'User has cancelled pin',
+      body: 'User has cancelled pin',
+      type: 'booking',
+      status: 'cancel pin',
+    })
+
+    return _booking
+  }
+
 const markPinnedBookingAsPaid =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
@@ -1004,6 +1042,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     acceptPinnedBooking: acceptPinnedBooking({ repo, queue }),
     rejectPinnedBooking: rejectPinnedBooking({ repo, queue }),
     markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
+    cancelPinnedBooking: cancelPinnedBooking({ repo, queue }),
   }
 }
 

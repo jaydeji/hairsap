@@ -36,3 +36,5 @@ deduct 3k from total
 
 theres a new returned property for missed bookings
 There is a new property called pinnedBookings in /admin/pros/:userId
+There is a new cancelled pinstatus
+/bookings/:id/pin/cancel to cancel pinned booking
