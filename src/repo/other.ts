@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { BOOKING_STATUS } from '../config/constants'
 import { dayjs } from '../utils'
 
@@ -394,6 +394,26 @@ const getNotificationsById =
     })
   }
 
+const addBullIds =
+  ({ db }: { db: PrismaClient }) =>
+  (data: Prisma.BullIdsCreateManyInput[]) => {
+    return db.bullIds.createMany({
+      data,
+    })
+  }
+
+const getBullIds =
+  ({ db }: { db: PrismaClient }) =>
+  (where: Prisma.BullIdsWhereInput) => {
+    return db.bullIds.findMany({ where })
+  }
+
+const deleteBullIds =
+  ({ db }: { db: PrismaClient }) =>
+  (where: Prisma.BullIdsWhereInput) => {
+    return db.bullIds.deleteMany({ where })
+  }
+
 const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
   return {
     getServices: getServices({ db }),
@@ -421,6 +441,9 @@ const makeOtherRepo = ({ db }: { db: PrismaClient }) => {
     getMarketerAggregate: getMarketerAggregate({ db }),
     markNotificationAsRead: markNotificationAsRead({ db }),
     getNotificationsById: getNotificationsById({ db }),
+    addBullIds: addBullIds({ db }),
+    getBullIds: getBullIds({ db }),
+    deleteBullIds: deleteBullIds({ db }),
   }
 }
 

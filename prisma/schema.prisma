@@ -405,3 +405,16 @@ model Discount {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+enum BullIdType {
+  PIN
+}
+
+model BullIds {
+  jobId   String     @id
+  otherId Int
+  type    BullIdType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}

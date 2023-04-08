@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { BullIdType, Prisma } from '@prisma/client'
 import got from 'got-cjs'
 import { z } from 'zod'
 import {
@@ -38,6 +38,7 @@ import {
   logger,
   filterBadWords,
   addCommas,
+  uniqueId,
 } from '../../utils'
 import { ForbiddenError, InternalError, NotFoundError } from '../../utils/Error'
 import { Queue } from '../Queue'
@@ -269,6 +270,11 @@ const cancelBooking =
       status: BOOKING_STATUS.CANCELLED,
     })
 
+    deleteBullIds({ repo, queue })({
+      otherId: booking.bookingId,
+      type: BullIdType.PIN,
+    })
+
     queue.notifyQueue.add({
       userId: booking.proId,
       title: 'Booking cancelled',
@@ -297,6 +303,11 @@ const rejectBooking =
     await repo.book.updateBooking(bookingId, {
       status: BOOKING_STATUS.REJECTED,
       rejectedAt: new Date(),
+    })
+
+    deleteBullIds({ repo, queue })({
+      otherId: booking.bookingId,
+      type: BullIdType.PIN,
     })
 
     queue.notifyQueue.add({
@@ -852,6 +863,24 @@ const acceptPinnedBooking =
     return _booking
   }
 
+const deleteBullIds =
+  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+  async (data: { otherId: number; type: BullIdType }) => {
+    try {
+      const bullIds = await repo.other.getBullIds(data)
+
+      if (!bullIds.length) return
+
+      bullIds.forEach((e) => queue.notifyQueue.removeRepeatableByKey(e.jobId))
+
+      await repo.other.deleteBullIds({
+        jobId: { in: bullIds.map((e) => e.jobId) },
+      })
+    } catch (error) {
+      logger.err(error, 'error deleting bullids')
+    }
+  }
+
 const rejectPinnedBooking =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
@@ -877,6 +906,11 @@ const rejectPinnedBooking =
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.REJECTED,
+    })
+
+    deleteBullIds({ repo, queue })({
+      otherId: booking.bookingId,
+      type: BullIdType.PIN,
     })
 
     queue.notifyQueue.add({
@@ -915,6 +949,11 @@ const cancelPinnedBooking =
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.CANCELLED,
+    })
+
+    deleteBullIds({ repo, queue })({
+      otherId: booking.bookingId,
+      type: BullIdType.PIN,
     })
 
     queue.notifyQueue.add({
@@ -956,62 +995,99 @@ const markPinnedBookingAsPaid =
       pinAmount: PIN_AMOUNT,
     })
 
-    const relativeTime = dayjs().from(dayjs(booking.pinDate))
+    const pinDate = dayjs(booking.pinDate)
 
-    const pinHour = dayjs(booking.pinDate).subtract(3, 'h').get('h')
+    const pinHour = pinDate.subtract(1, 'h').get('h')
 
     const repeat: Bull.JobOptions['repeat'] = {
       // limit: 7,
-      endDate: dayjs(booking.pinDate).toISOString(),
-      cron: `* ${pinHour} * * *`, //every day by 3 hours to the meeting
+      endDate: pinDate.toISOString(),
+      cron: `* ${pinHour} * * *`, //every day by 1 hour to the meeting
     }
-    //  delay: dayjs.duration({ days: 2 }).as('ms')
 
-    const oneHourBeforeSchedule = dayjs(booking.pinDate).subtract(1, 'hour')
+    const oneHourBeforeSchedule = pinDate.subtract(1, 'hour')
     const oneDayBeforeSchedule = oneHourBeforeSchedule.subtract(1, 'day')
 
-    queue.notifyQueue.add(
-      {
-        userId: booking.userId,
-        title: 'Reminder for your pinned booking',
-        body: `This is to remind you that your pinned booking is ${relativeTime}`,
-        type: 'booking',
-        status: 'pin reminder',
-      },
-      {
-        repeat,
-      },
-    )
+    const day = pinDate.format('Do')
+    const month = pinDate.format('MMMM')
+    const year = pinDate.format('YYYY')
+    const time = pinDate.format('h:ma')
 
-    if (dayjs().isBefore(oneHourBeforeSchedule)) {
+    const notifications = []
+
+    notifications.push(
       queue.notifyQueue.add(
         {
-          userId: booking.proId,
+          userId: booking.userId,
           title: 'Reminder for your pinned booking',
-          body: `This is to remind you that your pinned booking is ${relativeTime}`,
+          body: `This is to remind you that your pinned booking is on the ${day} of ${month} ${year} by ${time}`,
           type: 'booking',
           status: 'pin reminder',
         },
         {
-          delay: oneHourBeforeSchedule.diff(dayjs()),
+          repeat,
+          jobId: uniqueId(),
         },
+      ),
+    )
+
+    if (dayjs().isBefore(oneHourBeforeSchedule)) {
+      notifications.push(
+        queue.notifyQueue.add(
+          {
+            userId: booking.proId,
+            title: 'Reminder for your pinned booking',
+            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+              booking.user.name
+            } is on the ${day} of ${month} ${year} by ${time}`,
+            type: 'booking',
+            status: 'pin reminder',
+          },
+          {
+            delay: oneHourBeforeSchedule.diff(dayjs()),
+            jobId: uniqueId(),
+          },
+        ),
       )
     }
 
     if (dayjs().isBefore(oneDayBeforeSchedule)) {
-      queue.notifyQueue.add(
-        {
-          userId: booking.proId,
-          title: 'Reminder for your pinned booking',
-          body: `This is to remind you that your pinned booking is ${relativeTime}`,
-          type: 'booking',
-          status: 'pin reminder',
-        },
-        {
-          delay: oneDayBeforeSchedule.diff(dayjs()),
-        },
+      notifications.push(
+        queue.notifyQueue.add(
+          {
+            userId: booking.proId,
+            title: 'Reminder for your pinned booking',
+            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+              booking.user.name
+            } is on the ${day} of ${month} ${year} by ${time}`,
+            type: 'booking',
+            status: 'pin reminder',
+          },
+          {
+            delay: oneDayBeforeSchedule.diff(dayjs()),
+            jobId: uniqueId(),
+          },
+        ),
       )
     }
+
+    const resolvedNotifications = await Promise.allSettled(notifications)
+
+    type QueueType = Awaited<typeof notifications[0]>
+
+    const ids = (
+      resolvedNotifications.filter(
+        (e) => e.status === 'fulfilled',
+      ) as PromiseFulfilledResult<QueueType>[]
+    ).map((e) => (e.value.opts.repeat as any)?.key as string)
+
+    await repo.other.addBullIds(
+      ids.map((e) => ({
+        jobId: e,
+        otherId: booking.bookingId,
+        type: BullIdType.PIN,
+      })),
+    )
 
     return _booking
   }

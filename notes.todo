@@ -30,11 +30,16 @@ null->pending->accepted->paid
                rejected 
 
 add and edit services
-cancel pinned bookings
-list of pinned bookings
-deduct 3k from total
+add removal of notifs to cancelled bookings
+change something to frontal braids
 
+RICHARD
 theres a new returned property for missed bookings
 There is a new property called pinnedBookings in /admin/pros/:userId
 There is a new cancelled pinstatus
 /bookings/:id/pin/cancel to cancel pinned booking
+
+DANIEL
+I've fixed the notifications after cancelling but it will only work for new pins
+
+    queue.notifyQueue.removeRepeatableByKey(proKey),
