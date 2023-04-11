@@ -507,7 +507,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 46,
     order: 46,
-    price: 19000 * 100,
+    price: 10000 * 100,
   },
   {
     name: 'Criss cross braids',
