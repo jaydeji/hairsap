@@ -106,7 +106,9 @@ FROM Booking b WHERE b.proId=${proId} AND (b.status='pending' OR b.status='cance
       })
     ).map((e) => ({ ...e, returned: remappedBooking.get(e.bookingId) }))
 
-    const total = bookings.reduce((acc, e) => acc + Number(e.bookingId), 0)
+    return bookings
 
-    return { count: bookings.length, bookings, total }
+    // const total = bookings.reduce((acc, e) => acc + Number(e.bookingId), 0)
+
+    // return { count: bookings.length, bookings, total }
   }
