@@ -134,6 +134,13 @@ const getDashboardBookingStats =
     return { data }
   }
 
+const getDashboardPinnedBookingStats =
+  ({ repo }: { repo: Repo }) =>
+  async () => {
+    const data = await repo.admin.getDashboardPinnedBookingStats()
+    return { data }
+  }
+
 const getDashboardDiscountedBookingStats =
   ({ repo }: { repo: Repo }) =>
   async () => {
@@ -237,6 +244,7 @@ const makeAdmin = ({
     }),
     deactivatePro: deactivatePro({ repo }),
     sendPushNotification: sendPushNotification({ push }),
+    getDashboardPinnedBookingStats: getDashboardPinnedBookingStats({ repo }),
   }
 }
 

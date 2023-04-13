@@ -174,6 +174,14 @@ const makeAdminRouter = ({
     }),
   )
 
+  router.get(
+    '/dashboard/bookings/pinned',
+    ah(async (_req, res) => {
+      const data = await service.admin.getDashboardPinnedBookingStats()
+      res.status(200).send(data)
+    }),
+  )
+
   router.post(
     '/dashboard/bookings/completed',
     ah(async (_req, res) => {
