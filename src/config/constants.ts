@@ -65,7 +65,7 @@ export const PERIODIC_CASH_AMOUNTS = {
   PRO_EARNING_PERCENT: 0.7,
 }
 
-export const PIN_AMOUNT = 3_000 * 100
+export const PIN_AMOUNT = 5_000 * 100
 
 export const PAYSTACK_URL = 'https://api.paystack.co'
 export const ADMIN_ID = 1
