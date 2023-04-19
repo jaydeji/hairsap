@@ -482,11 +482,11 @@ const getPendingUserBookingByServiceAndRange =
 const setBookingSubservices =
   ({ db }: { db: PrismaClient }) =>
   async ({
-    add,
+    all,
     remove,
     bookingId,
   }: {
-    add: SubService[]
+    all: SubService[]
     remove: number[]
     bookingId: number
     userId: number
@@ -495,7 +495,8 @@ const setBookingSubservices =
       data: {
         bookedSubServices: {
           createMany: {
-            data: add.map(({ subServiceId }) => ({ subServiceId })),
+            data: all.map(({ subServiceId }) => ({ subServiceId })),
+            skipDuplicates: true,
           },
           deleteMany: {
             subServiceId: { in: remove },
@@ -505,7 +506,7 @@ const setBookingSubservices =
           update: {
             invoiceFees: {
               createMany: {
-                data: add,
+                data: all,
               },
               deleteMany: { subServiceId: { in: remove } },
             },
