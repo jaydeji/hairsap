@@ -190,6 +190,15 @@ const setBookingSubservices =
     if (subServices.length !== data.subServiceIds.length)
       throw new NotFoundError('service not found')
 
+    //we need to NOT replace services incase price changes
+
+    const add = subServices.filter(
+      (e) =>
+        !booking.bookedSubServices.find(
+          (f) => f.subService.subServiceId === e.subServiceId,
+        ),
+    )
+
     const remove = booking.bookedSubServices
       .filter(
         (e) =>
@@ -200,7 +209,7 @@ const setBookingSubservices =
       .map((e) => e.subService.subServiceId)
 
     await repo.book.setBookingSubservices({
-      all: subServices,
+      add,
       remove,
       bookingId: data.bookingId,
       userId: data.userId,
