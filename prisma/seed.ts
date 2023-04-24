@@ -462,7 +462,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 42,
     order: 42,
-    price: 15000 * 100,
+    price: 20000 * 100,
   },
   {
     name: 'Stitch braids with design',
@@ -474,16 +474,16 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     price: 15000 * 100,
   },
   {
-    name: 'Lemonade / Tribal braids back length',
+    name: 'Lemonade / Tribal braids Butt - Knee Length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
     serviceId: 1,
     subServiceId: 84,
     order: 44,
-    price: 15000 * 100,
+    price: 20000 * 100,
   },
   {
-    name: 'Lemonade / Tribal braids shoulder length',
+    name: 'Lemonade / Tribal braids Shoulder- Mid back Length',
     photoUrl:
       'https://hairsap.fra1.cdn.digitaloceanspaces.com/subservicephoto/21.jpeg',
     serviceId: 1,
@@ -498,7 +498,7 @@ const subServiceBraids: Prisma.SubServiceCreateManyInput[] = [
     serviceId: 1,
     subServiceId: 45,
     order: 45,
-    price: 15000 * 100,
+    price: 20000 * 100,
   },
   {
     name: '6-8 Cornrow braids',
