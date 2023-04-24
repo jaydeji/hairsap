@@ -378,7 +378,7 @@ const getBookingActivity =
       new: !completedBookings.find((f) => e.userId === f.userId),
     }))
 
-    return _bookings
+    return _bookings.map((e) => computeBookingTotal(e))
   }
 
 const getProBookingsByProIdAndUserId =

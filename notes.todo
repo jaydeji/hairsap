@@ -33,5 +33,5 @@ add and edit services
 
 RICHARD
 no more accept pinned booking
-no more pending pinStatus
+pending pinStatus is deprecated
 POST /bookings/:id/pin is now done by pro
