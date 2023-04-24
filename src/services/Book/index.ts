@@ -272,6 +272,15 @@ const acceptBooking =
       status: BOOKING_STATUS.ACCEPTED,
       type: 'booking',
     })
+
+    queue.notifyQueue.add({
+      userId: booking.proId,
+      title: 'Pin this booking',
+      body: 'Pin this booking',
+      bookingId: booking.bookingId,
+      status: BOOKING_STATUS.ACCEPTED,
+      type: 'booking',
+    })
   }
 
 const cancelBooking =
@@ -803,22 +812,22 @@ const pinBooking =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({
     bookingId,
-    userId,
+    proId,
     date,
   }: {
     bookingId: number
-    userId: number
+    proId: number
     date: string
   }) => {
     z.object({
       bookingId: z.number(),
-      userId: z.number(),
+      proId: z.number(),
       date: z.string().datetime(),
     })
       .strict()
-      .parse({ bookingId, userId, date })
+      .parse({ bookingId, proId, date })
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
-    if (!booking || booking.userId !== userId)
+    if (!booking || booking.proId !== proId)
       throw new NotFoundError('Booking not found')
     if (booking.status !== BOOKING_STATUS.ACCEPTED)
       throw new ForbiddenError('This booking has not been accepted')
@@ -830,68 +839,19 @@ const pinBooking =
     // }
 
     const _booking = await repo.book.updateBooking(bookingId, {
-      pinStatus: PIN_STATUS.PENDING,
+      pinStatus: PIN_STATUS.ACCEPTED,
       pinDate: date,
     })
 
     queue.notifyQueue.add({
-      userId: booking.proId,
-      title: 'Pin request',
-      body: 'A request to pin a booking has been received. Go to your activity page to accept the pinned booking',
-      type: 'booking',
-      status: 'request pin',
-    })
-
-    return _booking
-  }
-
-const acceptPinnedBooking =
-  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
-  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
-    z.object({
-      bookingId: z.number(),
-      proId: z.number(),
-    })
-      .strict()
-      .parse({ bookingId, proId })
-    const booking = await repo.book.getBookingByIdAndMore(bookingId)
-    if (!booking || booking.proId !== proId)
-      throw new NotFoundError('booking not found')
-    if (booking.pinStatus !== PIN_STATUS.PENDING) {
-      throw new ForbiddenError(
-        'The pin status for this booking is invalid for the operation',
-      )
-    }
-    if (dayjs().isAfter(dayjs(booking.pinDate))) {
-      throw new ForbiddenError(
-        'The scheduled pin date for this booking has expired',
-      )
-    }
-
-    const _booking = await repo.book.updateBooking(bookingId, {
-      pinStatus: PIN_STATUS.ACCEPTED,
-    })
-
-    queue.notifyQueue.add({
       userId: booking.userId,
-      title: 'You pin has been accepted',
-      body: `Your pin has been accepted, kindly make a deposit of ${addCommas(
+      title: 'Pin created',
+      body: `Your pin has been created, kindly make a deposit of ${addCommas(
         PIN_AMOUNT / 100,
       )} to the pro to complete this pinning, this amount is deducted from your total service fee upon completion of your appointment`,
       type: 'booking',
-      status: 'accept pin',
+      status: 'create pin',
     })
-    queue.notifyQueue.add({
-      userId: booking.proId,
-      title: 'Pin accepted',
-      body: `Click Paid if you’ve received a deposit of ${addCommas(
-        PIN_AMOUNT / 100,
-      )}`,
-      type: 'booking',
-      status: 'request pin',
-    })
-
-    //setup seven day notification cron
 
     return _booking
   }
@@ -926,7 +886,10 @@ const rejectPinnedBooking =
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
     if (!booking || booking.proId !== proId)
       throw new NotFoundError('booking not found')
-    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+    if (
+      booking.pinStatus === PIN_STATUS.CANCELLED ||
+      booking.pinStatus === PIN_STATUS.REJECTED
+    ) {
       throw new ForbiddenError(
         'The pin status for this booking is invalid for the operation',
       )
@@ -969,7 +932,10 @@ const cancelPinnedBooking =
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('booking not found')
-    if (booking.pinStatus !== PIN_STATUS.PENDING) {
+    if (
+      booking.pinStatus === PIN_STATUS.CANCELLED ||
+      booking.pinStatus === PIN_STATUS.REJECTED
+    ) {
       throw new ForbiddenError(
         'The pin status for this booking is invalid for the operation',
       )
@@ -1148,7 +1114,6 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     autoBook: autoBook({ repo, queue }),
     manualBook: manualBook({ repo, queue }),
     pinBooking: pinBooking({ repo, queue }),
-    acceptPinnedBooking: acceptPinnedBooking({ repo, queue }),
     rejectPinnedBooking: rejectPinnedBooking({ repo, queue }),
     markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
     cancelPinnedBooking: cancelPinnedBooking({ repo, queue }),

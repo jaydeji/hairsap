@@ -32,13 +32,6 @@ null->pending->accepted->paid
 add and edit services
 
 RICHARD
-theres a new returned property for missed bookings
-There is a new property called pinnedBookings in /admin/pros/:userId
-There is a new cancelled pinStatus
-PATCH /bookings/:id/pin/cancel to cancel pinned booking
-PATCH /bookings/service to add or remove bookings. Just send all the subservices for the booking
-{subServiceIds:number[],bookingId:number} 
-for auto and manual bookings, you have to change subServiceId to subServiceIds
-you can now book multiple services at a time
-
-I've fixed the notifications after cancelling
+no more accept pinned booking
+no more pending pinStatus
+POST /bookings/:id/pin is now done by pro

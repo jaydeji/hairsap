@@ -88,6 +88,9 @@ export const NOTIFICATION_TYPE = {
 } as const
 
 export const PIN_STATUS = {
+  /**
+   * @deprecated
+   */
   PENDING: 'pending',
   ACCEPTED: 'accepted',
   REJECTED: 'rejected',

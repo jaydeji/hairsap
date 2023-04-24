@@ -99,18 +99,6 @@ const makeBookingRouter = ({
   )
 
   router.patch(
-    '/:id/pin/accept',
-    allowOnly([ROLES.PRO]),
-    ah(async (req, res) => {
-      const data = await service.book.acceptPinnedBooking({
-        bookingId: +req.params.id,
-        proId: req.tokenData?.userId as number,
-      })
-      res.status(201).send({ data })
-    }),
-  )
-
-  router.patch(
     '/:id/pin/paid',
     allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
@@ -148,11 +136,11 @@ const makeBookingRouter = ({
 
   router.post(
     '/:id/pin',
-    allowOnly([ROLES.USER]),
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.book.pinBooking({
         bookingId: +req.params.id,
-        userId: req.tokenData?.userId as number,
+        proId: req.tokenData?.userId as number,
         date: req.body.date,
       })
       res.status(201).send({ data })
