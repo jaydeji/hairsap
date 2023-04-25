@@ -484,6 +484,7 @@ const getProInfo =
             profilePhotoUrl: true,
             bio: true,
             proServices: true,
+            account: true,
           },
         }),
         db.booking.aggregate({
