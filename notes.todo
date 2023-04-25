@@ -32,6 +32,6 @@ null->pending->accepted->paid
 add and edit services
 
 RICHARD
-no more accept pinned booking
-pending pinStatus is deprecated
+pending pinStatus is no longer deprecated
 POST /bookings/:id/pin is now done by pro
+PATCH /bookings/:id/accept is now done by user
