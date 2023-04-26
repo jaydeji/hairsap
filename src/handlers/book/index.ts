@@ -112,11 +112,11 @@ const makeBookingRouter = ({
 
   router.patch(
     '/:id/pin/paid',
-    allowOnly([ROLES.USER]),
+    allowOnly([ROLES.PRO]),
     ah(async (req, res) => {
       const data = await service.book.markPinnedBookingAsPaid({
         bookingId: +req.params.id,
-        userId: req.tokenData?.userId as number,
+        proId: req.tokenData?.userId as number,
       })
       res.status(201).send({ data })
     }),

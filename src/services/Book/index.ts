@@ -1019,15 +1019,15 @@ const cancelPinnedBooking =
 
 const markPinnedBookingAsPaid =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
-  async ({ bookingId, userId }: { bookingId: number; userId: number }) => {
+  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
     z.object({
       bookingId: z.number(),
-      userId: z.number(),
+      proId: z.number(),
     })
       .strict()
-      .parse({ bookingId, userId })
+      .parse({ bookingId, proId })
     const booking = await repo.book.getBookingByIdAndMore(bookingId)
-    if (!booking || booking.userId !== userId)
+    if (!booking || booking.proId !== proId)
       throw new NotFoundError('booking not found')
     if (booking.pinStatus !== PIN_STATUS.ACCEPTED) {
       throw new ForbiddenError(

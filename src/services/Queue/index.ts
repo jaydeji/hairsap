@@ -92,7 +92,7 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
   bulkNotifyQueue.add(
     {
       title: 'Schedule an appointment',
-      body: 'Hello Queens! Don’t forget to schedule an appointment this week',
+      body: `Hello Queen! Don’t forget to schedule an appointment this week`,
       audience: PushAudience.USERS,
     },
     {
