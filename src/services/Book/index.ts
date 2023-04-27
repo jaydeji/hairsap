@@ -880,7 +880,7 @@ const acceptPinnedBooking =
     }
 
     const _booking = await repo.book.updateBooking(bookingId, {
-      pinStatus: PIN_STATUS.ACCEPTED,
+      pinStatus: PIN_STATUS.PAID,
     })
 
     queue.notifyQueue.add({
