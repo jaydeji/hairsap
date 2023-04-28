@@ -945,11 +945,11 @@ const rejectPinnedBooking =
         'The pin status for this booking is invalid for the operation',
       )
     }
-    if (dayjs().isAfter(dayjs(booking.pinDate))) {
-      throw new ForbiddenError(
-        'The scheduled pin date for this booking has expired',
-      )
-    }
+    // if (dayjs().isAfter(dayjs(booking.pinDate))) {
+    //   throw new ForbiddenError(
+    //     'The scheduled pin date for this booking has expired',
+    //   )
+    // }
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.REJECTED,
@@ -991,11 +991,11 @@ const cancelPinnedBooking =
         'The pin status for this booking is invalid for the operation',
       )
     }
-    if (dayjs().isAfter(dayjs(booking.pinDate))) {
-      throw new ForbiddenError(
-        'The scheduled pin date for this booking has expired',
-      )
-    }
+    // if (dayjs().isAfter(dayjs(booking.pinDate))) {
+    //   throw new ForbiddenError(
+    //     'The scheduled pin date for this booking has expired',
+    //   )
+    // }
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.CANCELLED,
@@ -1034,11 +1034,11 @@ const markPinnedBookingAsPaid =
         'The pin status for this booking is invalid for the operation',
       )
     }
-    if (dayjs().isAfter(dayjs(booking.pinDate))) {
-      throw new ForbiddenError(
-        'The scheduled pin date for this booking has expired',
-      )
-    }
+    // if (dayjs().isAfter(dayjs(booking.pinDate))) {
+    //   throw new ForbiddenError(
+    //     'The scheduled pin date for this booking has expired',
+    //   )
+    // }
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.PAID,
