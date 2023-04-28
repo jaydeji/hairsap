@@ -532,6 +532,7 @@ const getProInfo =
         name: user.name,
         profilePhotoUrl: user.profilePhotoUrl,
         service: user.proServices[0],
+        account: user.account,
       },
       bookings,
       rating: rating._avg.rating,
