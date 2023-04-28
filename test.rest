@@ -128,7 +128,7 @@ Authorization: Bearer {{ptoken}}
 
 {
     "account":{
-         "accountName": "jj", "accountNumber": "1777", "bankName": "hh"
+         "accountName": "jj", "accountNumber": "2777", "bankName": "hh"
     }
 }
 

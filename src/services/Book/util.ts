@@ -71,14 +71,17 @@ const bookingWithTotal = Prisma.validator<Prisma.BookingArgs>()({
 type BookingWithTotal = Prisma.BookingGetPayload<typeof bookingWithTotal>
 
 export const computeBookingTotal = (booking: BookingWithTotal) => {
+  const resolvedAmount = resolveAmount({
+    invoice:
+      booking?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0,
+    transport: booking?.invoice?.transportFee || 0,
+    code: booking?.invoice?.promo?.discount.name,
+    pinAmount: booking.pinAmount,
+  })
+
   return {
     ...booking,
-    total: resolveAmount({
-      invoice:
-        booking?.invoice?.invoiceFees.reduce((acc, e) => acc + e.price, 0) || 0,
-      transport: booking?.invoice?.transportFee || 0,
-      code: booking?.invoice?.promo?.discount.name,
-      pinAmount: booking.pinAmount,
-    }).total,
+    ...resolvedAmount,
+    // total: .total,
   }
 }

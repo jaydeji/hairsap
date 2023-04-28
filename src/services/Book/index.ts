@@ -711,7 +711,7 @@ const getBookingActivity =
       userId,
     })
 
-    return bookingActivities.map((ba) => computeBookingTotal(ba))
+    return bookingActivities
   }
 
 const getUserBookings =
