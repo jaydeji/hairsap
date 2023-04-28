@@ -304,8 +304,8 @@ const cancelBooking =
     if (!booking || booking.userId !== userId)
       throw new NotFoundError('booking not found')
 
-    if (booking.status !== BOOKING_STATUS.PENDING)
-      throw new NotFoundError('Booking cannot be cancelled')
+    // if (booking.status !== BOOKING_STATUS.PENDING)
+    //   throw new NotFoundError('Booking cannot be cancelled')
 
     await repo.book.updateBooking(bookingId, {
       cancelledAt: new Date(),
