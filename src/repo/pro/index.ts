@@ -373,6 +373,7 @@ const searchPro =
         ],
         role: ROLES.PRO,
         approved: true,
+        deactivated: false,
       },
       select: {
         name: true,

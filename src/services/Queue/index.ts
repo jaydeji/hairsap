@@ -100,6 +100,17 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
     },
   ) //every day 5pm
 
+  bulkNotifyQueue.add(
+    {
+      title: 'Enjoy 20% discount',
+      body: `Enjoy 20% discount with code HAIRSAP on all our braiding services`,
+      audience: PushAudience.USERS,
+    },
+    {
+      repeat: { cron: '0 9 * * *' },
+    },
+  ) //every day 9am
+
   // paymentThreshold.add(
   //   { email: req.body.email },
   //   {
