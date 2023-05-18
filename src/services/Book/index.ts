@@ -1017,6 +1017,17 @@ const cancelPinnedBooking =
     return _booking
   }
 
+const getOngoingPinnedBookings =
+  ({ repo }: { repo: Repo }) =>
+  ({ proId }: { proId: number }) => {
+    z.object({
+      proId: z.number(),
+    })
+      .strict()
+      .parse({ proId })
+    return repo.book.getOngoingPinnedBookings(proId)
+  }
+
 const markPinnedBookingAsPaid =
   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
   async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
@@ -1177,6 +1188,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     rejectPinnedBooking: rejectPinnedBooking({ repo, queue }),
     markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
     cancelPinnedBooking: cancelPinnedBooking({ repo, queue }),
+    getOngoingPinnedBookings: getOngoingPinnedBookings({ repo }),
   }
 }
 

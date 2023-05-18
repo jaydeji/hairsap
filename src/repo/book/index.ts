@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, SubService } from '@prisma/client'
-import { BOOKING_STATUS, CHANNEL } from '../../config/constants'
+import { BOOKING_STATUS, CHANNEL, PIN_STATUS } from '../../config/constants'
 import { PageReq } from '../../schemas/request/Page'
 import { computeBookingTotal, resolveAmount } from '../../services/Book/util'
 import { BookingStatus } from '../../types'
@@ -875,6 +875,23 @@ const updateInvoice =
       data,
     })
 
+const getOngoingPinnedBookings =
+  ({ db }: { db: PrismaClient }) =>
+  (proId: number) =>
+    db.booking.findMany({
+      where: {
+        proId,
+        pinStatus: { notIn: [PIN_STATUS.CANCELLED, PIN_STATUS.REJECTED] },
+        status: {
+          notIn: [
+            BOOKING_STATUS.CANCELLED,
+            BOOKING_STATUS.COMPLETED,
+            BOOKING_STATUS.REJECTED,
+          ],
+        },
+      },
+    })
+
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
   return {
     bookPro: bookPro({ db }),
@@ -909,6 +926,7 @@ const makeBookRepo = ({ db }: { db: PrismaClient }) => {
       getPendingUserBookingByServiceAndRange({ db }),
     getProbookingCount: getProbookingCount({ db }),
     getMissedBookings: getMissedBookings({ db }),
+    getOngoingPinnedBookings: getOngoingPinnedBookings({ db }),
   }
 }
 
