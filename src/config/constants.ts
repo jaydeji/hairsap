@@ -80,6 +80,7 @@ export const DISCOUNT = {
   TWENTY_PERCENT: '20% discount',
   TEN_PERCENT: '10% discount',
   FIFTY_PERCENT: '50% discount',
+  SIXTY_PERCENT: '60% discount',
 } as const
 
 export const NOTIFICATION_TYPE = {

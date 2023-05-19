@@ -42,6 +42,13 @@ export const resolveAmount = ({
         promoAmount: 0.5 * invoice,
       }
     }
+    case DISCOUNT.SIXTY_PERCENT: {
+      return {
+        amount,
+        total: amount - 0.6 * invoice,
+        promoAmount: 0.6 * invoice,
+      }
+    }
     default:
       return { amount, total: invoice, promoAmount: 0 }
   }
