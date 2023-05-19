@@ -160,11 +160,11 @@ const makeBookingRouter = ({
   )
 
   router.get(
-    '/pin',
-    allowOnly([ROLES.PRO]),
+    '/:id/pin',
+    allowOnly([ROLES.ADMIN]),
     ah(async (req, res) => {
       const data = await service.book.getOngoingPinnedBookings({
-        proId: req.tokenData?.userId as number,
+        proId: +req.params.id,
       })
       res.status(200).send({ data })
     }),
