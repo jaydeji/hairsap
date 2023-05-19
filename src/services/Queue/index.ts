@@ -21,6 +21,7 @@ import {
   PushAudience,
 } from '../../schemas/request/postPushNotification'
 import { resolveAmount } from '../Book/util'
+import { dayjs } from '../../utils'
 
 const redisUrl = process.env.REDIS_URL
 
@@ -102,14 +103,47 @@ const makeQueue = ({ repo, push }: { repo: Repo; push: Push }) => {
 
   bulkNotifyQueue.add(
     {
-      title: 'Enjoy 20% discount',
-      body: `Enjoy 20% discount with code HAIRSAP on all our braiding services`,
+      title: 'Enjoy 60% discount',
+      body: `Enjoy 60% discount with code HAIRSAP on all our braiding services`,
       audience: PushAudience.USERS,
     },
     {
       repeat: { cron: '0 9 * * *' },
+      jobId: 'BD088420-5850-48BC-A531-1CFF5AB33CF5',
     },
   ) //every day 9am
+
+  const title1 = 'Enjoy 60% discount'
+  const body1 =
+    'Pay N4,000 for knotless braids now! Use the code “HAIRSAP” for 60% discount on our services. We come to you at the comfort of your location.'
+  const startDate1 = dayjs('2023-05-19T17:00:00.000Z').toISOString()
+
+  bulkNotifyQueue.add(
+    {
+      title: title1,
+      body: body1,
+      audience: PushAudience.USERS,
+    },
+    {
+      repeat: { cron: '0 10 * * *', startDate: startDate1 },
+      jobId: '9665D957-1D8A-47E5-9A52-422AC020FBB0', // to create unique options and prevent overwriting
+    },
+  ) //every day 10am
+
+  bulkNotifyQueue.add(
+    {
+      title: title1,
+      body: body1,
+      audience: PushAudience.USERS,
+    },
+    {
+      repeat: {
+        cron: '0 17 * * *',
+        startDate: startDate1,
+      },
+      jobId: 'D29A096E-3642-480B-99AE-048ADF0B7027',
+    },
+  ) //every day 5pm
 
   // paymentThreshold.add(
   //   { email: req.body.email },
