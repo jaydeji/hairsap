@@ -881,28 +881,102 @@ const acceptPinnedBooking =
 
     const _booking = await repo.book.updateBooking(bookingId, {
       pinStatus: PIN_STATUS.PAID,
+      pinAmount: PIN_AMOUNT,
     })
 
-    queue.notifyQueue.add({
-      userId: booking.userId,
-      title: 'Your pin has been accepted',
-      body: `Your pin has been accepted, kindly make a deposit of ${addCommas(
-        PIN_AMOUNT / 100,
-      )} to the pro to complete this pinning, this amount is deducted from your total service fee upon completion of your appointment`,
-      type: 'booking',
-      status: 'accept pin',
-    })
-    queue.notifyQueue.add({
-      userId: booking.proId,
-      title: 'Pin accepted',
-      body: `Click Paid if you’ve received a deposit of ${addCommas(
-        PIN_AMOUNT / 100,
-      )}`,
-      type: 'booking',
-      status: 'request pin',
-    })
+    const pinDate = dayjs(booking.pinDate)
 
-    //setup seven day notification cron
+    const pinHour = pinDate.subtract(1, 'h').get('h')
+
+    const repeat: Bull.JobOptions['repeat'] = {
+      // limit: 7,
+      endDate: pinDate.toISOString(),
+      cron: `* ${pinHour} * * *`, //every day by 1 hour to the meeting
+    }
+
+    const oneHourBeforeSchedule = pinDate.subtract(1, 'hour')
+    const oneDayBeforeSchedule = oneHourBeforeSchedule.subtract(1, 'day')
+
+    const day = pinDate.format('Do')
+    const month = pinDate.format('MMMM')
+    const year = pinDate.format('YYYY')
+    const time = pinDate.format('h:ma')
+
+    const notifications = []
+
+    notifications.push(
+      queue.notifyQueue.add(
+        {
+          userId: booking.userId,
+          title: 'Reminder for your pinned booking',
+          body: `This is to remind you that your pinned booking is on the ${day} of ${month} ${year} by ${time}`,
+          type: 'booking',
+          status: 'pin reminder',
+        },
+        {
+          repeat,
+          jobId: uniqueId(),
+        },
+      ),
+    )
+
+    if (dayjs().isBefore(oneHourBeforeSchedule)) {
+      notifications.push(
+        queue.notifyQueue.add(
+          {
+            userId: booking.proId,
+            title: 'Reminder for your pinned booking',
+            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+              booking.user.name
+            } is on the ${day} of ${month} ${year} by ${time}`,
+            type: 'booking',
+            status: 'pin reminder',
+          },
+          {
+            delay: oneHourBeforeSchedule.diff(dayjs()),
+            jobId: uniqueId(),
+          },
+        ),
+      )
+    }
+
+    if (dayjs().isBefore(oneDayBeforeSchedule)) {
+      notifications.push(
+        queue.notifyQueue.add(
+          {
+            userId: booking.proId,
+            title: 'Reminder for your pinned booking',
+            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+              booking.user.name
+            } is on the ${day} of ${month} ${year} by ${time}`,
+            type: 'booking',
+            status: 'pin reminder',
+          },
+          {
+            delay: oneDayBeforeSchedule.diff(dayjs()),
+            jobId: uniqueId(),
+          },
+        ),
+      )
+    }
+
+    const resolvedNotifications = await Promise.allSettled(notifications)
+
+    type QueueType = Awaited<typeof notifications[0]>
+
+    const ids = (
+      resolvedNotifications.filter(
+        (e) => e.status === 'fulfilled',
+      ) as PromiseFulfilledResult<QueueType>[]
+    ).map((e) => (e.value.opts.repeat as any)?.key as string)
+
+    await repo.other.addBullIds(
+      ids.map((e) => ({
+        jobId: e,
+        otherId: booking.bookingId,
+        type: BullIdType.PIN,
+      })),
+    )
 
     return _booking
   }
@@ -1028,138 +1102,138 @@ const getOngoingPinnedBookings =
     return repo.book.getOngoingPinnedBookings(proId)
   }
 
-const markPinnedBookingAsPaid =
-  ({ repo, queue }: { repo: Repo; queue: Queue }) =>
-  async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
-    z.object({
-      bookingId: z.number(),
-      proId: z.number(),
-    })
-      .strict()
-      .parse({ bookingId, proId })
-    const booking = await repo.book.getBookingByIdAndMore(bookingId)
-    if (!booking || booking.proId !== proId)
-      throw new NotFoundError('booking not found')
-    if (booking.pinStatus !== PIN_STATUS.ACCEPTED) {
-      throw new ForbiddenError(
-        'The pin status for this booking is invalid for the operation',
-      )
-    }
-    // if (dayjs().isAfter(dayjs(booking.pinDate))) {
-    //   throw new ForbiddenError(
-    //     'The scheduled pin date for this booking has expired',
-    //   )
-    // }
+// const markPinnedBookingAsPaid =
+//   ({ repo, queue }: { repo: Repo; queue: Queue }) =>
+//   async ({ bookingId, proId }: { bookingId: number; proId: number }) => {
+//     z.object({
+//       bookingId: z.number(),
+//       proId: z.number(),
+//     })
+//       .strict()
+//       .parse({ bookingId, proId })
+//     const booking = await repo.book.getBookingByIdAndMore(bookingId)
+//     if (!booking || booking.proId !== proId)
+//       throw new NotFoundError('booking not found')
+//     if (booking.pinStatus !== PIN_STATUS.ACCEPTED) {
+//       throw new ForbiddenError(
+//         'The pin status for this booking is invalid for the operation',
+//       )
+//     }
+//     // if (dayjs().isAfter(dayjs(booking.pinDate))) {
+//     //   throw new ForbiddenError(
+//     //     'The scheduled pin date for this booking has expired',
+//     //   )
+//     // }
 
-    const _booking = await repo.book.updateBooking(bookingId, {
-      pinStatus: PIN_STATUS.PAID,
-      pinAmount: PIN_AMOUNT,
-    })
+//     const _booking = await repo.book.updateBooking(bookingId, {
+//       pinStatus: PIN_STATUS.PAID,
+//       pinAmount: PIN_AMOUNT,
+//     })
 
-    queue.notifyQueue.add({
-      userId: booking.proId,
-      title: `Customer has made payment`,
-      body: `This customer ${booking.user.name} has made payment`,
-      type: 'booking',
-      status: 'paid pin',
-    })
+//     queue.notifyQueue.add({
+//       userId: booking.proId,
+//       title: `Customer has made payment`,
+//       body: `This customer ${booking.user.name} has made payment`,
+//       type: 'booking',
+//       status: 'paid pin',
+//     })
 
-    const pinDate = dayjs(booking.pinDate)
+//     const pinDate = dayjs(booking.pinDate)
 
-    const pinHour = pinDate.subtract(1, 'h').get('h')
+//     const pinHour = pinDate.subtract(1, 'h').get('h')
 
-    const repeat: Bull.JobOptions['repeat'] = {
-      // limit: 7,
-      endDate: pinDate.toISOString(),
-      cron: `* ${pinHour} * * *`, //every day by 1 hour to the meeting
-    }
+//     const repeat: Bull.JobOptions['repeat'] = {
+//       // limit: 7,
+//       endDate: pinDate.toISOString(),
+//       cron: `* ${pinHour} * * *`, //every day by 1 hour to the meeting
+//     }
 
-    const oneHourBeforeSchedule = pinDate.subtract(1, 'hour')
-    const oneDayBeforeSchedule = oneHourBeforeSchedule.subtract(1, 'day')
+//     const oneHourBeforeSchedule = pinDate.subtract(1, 'hour')
+//     const oneDayBeforeSchedule = oneHourBeforeSchedule.subtract(1, 'day')
 
-    const day = pinDate.format('Do')
-    const month = pinDate.format('MMMM')
-    const year = pinDate.format('YYYY')
-    const time = pinDate.format('h:ma')
+//     const day = pinDate.format('Do')
+//     const month = pinDate.format('MMMM')
+//     const year = pinDate.format('YYYY')
+//     const time = pinDate.format('h:ma')
 
-    const notifications = []
+//     const notifications = []
 
-    notifications.push(
-      queue.notifyQueue.add(
-        {
-          userId: booking.userId,
-          title: 'Reminder for your pinned booking',
-          body: `This is to remind you that your pinned booking is on the ${day} of ${month} ${year} by ${time}`,
-          type: 'booking',
-          status: 'pin reminder',
-        },
-        {
-          repeat,
-          jobId: uniqueId(),
-        },
-      ),
-    )
+//     notifications.push(
+//       queue.notifyQueue.add(
+//         {
+//           userId: booking.userId,
+//           title: 'Reminder for your pinned booking',
+//           body: `This is to remind you that your pinned booking is on the ${day} of ${month} ${year} by ${time}`,
+//           type: 'booking',
+//           status: 'pin reminder',
+//         },
+//         {
+//           repeat,
+//           jobId: uniqueId(),
+//         },
+//       ),
+//     )
 
-    if (dayjs().isBefore(oneHourBeforeSchedule)) {
-      notifications.push(
-        queue.notifyQueue.add(
-          {
-            userId: booking.proId,
-            title: 'Reminder for your pinned booking',
-            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
-              booking.user.name
-            } is on the ${day} of ${month} ${year} by ${time}`,
-            type: 'booking',
-            status: 'pin reminder',
-          },
-          {
-            delay: oneHourBeforeSchedule.diff(dayjs()),
-            jobId: uniqueId(),
-          },
-        ),
-      )
-    }
+//     if (dayjs().isBefore(oneHourBeforeSchedule)) {
+//       notifications.push(
+//         queue.notifyQueue.add(
+//           {
+//             userId: booking.proId,
+//             title: 'Reminder for your pinned booking',
+//             body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+//               booking.user.name
+//             } is on the ${day} of ${month} ${year} by ${time}`,
+//             type: 'booking',
+//             status: 'pin reminder',
+//           },
+//           {
+//             delay: oneHourBeforeSchedule.diff(dayjs()),
+//             jobId: uniqueId(),
+//           },
+//         ),
+//       )
+//     }
 
-    if (dayjs().isBefore(oneDayBeforeSchedule)) {
-      notifications.push(
-        queue.notifyQueue.add(
-          {
-            userId: booking.proId,
-            title: 'Reminder for your pinned booking',
-            body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
-              booking.user.name
-            } is on the ${day} of ${month} ${year} by ${time}`,
-            type: 'booking',
-            status: 'pin reminder',
-          },
-          {
-            delay: oneDayBeforeSchedule.diff(dayjs()),
-            jobId: uniqueId(),
-          },
-        ),
-      )
-    }
+//     if (dayjs().isBefore(oneDayBeforeSchedule)) {
+//       notifications.push(
+//         queue.notifyQueue.add(
+//           {
+//             userId: booking.proId,
+//             title: 'Reminder for your pinned booking',
+//             body: `This is to remind you that your accepted pinned booking for ${booking.bookedSubServices.join()} by ${
+//               booking.user.name
+//             } is on the ${day} of ${month} ${year} by ${time}`,
+//             type: 'booking',
+//             status: 'pin reminder',
+//           },
+//           {
+//             delay: oneDayBeforeSchedule.diff(dayjs()),
+//             jobId: uniqueId(),
+//           },
+//         ),
+//       )
+//     }
 
-    const resolvedNotifications = await Promise.allSettled(notifications)
+//     const resolvedNotifications = await Promise.allSettled(notifications)
 
-    type QueueType = Awaited<typeof notifications[0]>
+//     type QueueType = Awaited<typeof notifications[0]>
 
-    const ids = (
-      resolvedNotifications.filter(
-        (e) => e.status === 'fulfilled',
-      ) as PromiseFulfilledResult<QueueType>[]
-    ).map((e) => (e.value.opts.repeat as any)?.key as string)
+//     const ids = (
+//       resolvedNotifications.filter(
+//         (e) => e.status === 'fulfilled',
+//       ) as PromiseFulfilledResult<QueueType>[]
+//     ).map((e) => (e.value.opts.repeat as any)?.key as string)
 
-    await repo.other.addBullIds(
-      ids.map((e) => ({
-        jobId: e,
-        otherId: booking.bookingId,
-        type: BullIdType.PIN,
-      })),
-    )
+//     await repo.other.addBullIds(
+//       ids.map((e) => ({
+//         jobId: e,
+//         otherId: booking.bookingId,
+//         type: BullIdType.PIN,
+//       })),
+//     )
 
-    return _booking
-  }
+//     return _booking
+//   }
 
 const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
   return {
@@ -1186,7 +1260,7 @@ const makeBook = ({ repo, queue }: { repo: Repo; queue: Queue }) => {
     pinBooking: pinBooking({ repo, queue }),
     acceptPinnedBooking: acceptPinnedBooking({ repo, queue }),
     rejectPinnedBooking: rejectPinnedBooking({ repo, queue }),
-    markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
+    // markPinnedBookingAsPaid: markPinnedBookingAsPaid({ repo, queue }),
     cancelPinnedBooking: cancelPinnedBooking({ repo, queue }),
     getOngoingPinnedBookings: getOngoingPinnedBookings({ repo }),
   }
