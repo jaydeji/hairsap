@@ -890,6 +890,28 @@ const getOngoingPinnedBookings =
           ],
         },
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+            userId: true,
+            profilePhotoUrl: true,
+          },
+        },
+        bookedSubServices: {
+          select: {
+            subService: {
+              select: {
+                name: true,
+                subServiceId: true,
+                price: true,
+                info: true,
+                photoUrl: true,
+              },
+            },
+          },
+        },
+      },
     })
 
 const makeBookRepo = ({ db }: { db: PrismaClient }) => {
