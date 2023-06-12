@@ -23,10 +23,10 @@ export const manualBook =
 
     if (!pro?.available) throw new ForbiddenError('Pro is not available')
 
-    const bookings = await repo.book.getProBookingsByStatus(
-      proId,
-      BOOKING_STATUS.ACCEPTED,
-    )
+    // const bookings = await repo.book.getProBookingsByStatus(
+    //   proId,
+    //   BOOKING_STATUS.ACCEPTED,
+    // )
 
     // if (bookings.length >= 5) {
     //   return {}
@@ -95,13 +95,12 @@ export const manualBook =
       arrivalAt,
     })
 
-    if (bookings.length < 1) {
-      queue.notifyQueue.add({
-        title: 'NewBooking',
-        body: 'New booking has been received',
-        userId: proId,
-        type: 'booking',
-      })
-    }
+    queue.notifyQueue.add({
+      title: 'NewBooking',
+      body: 'New booking has been received',
+      userId: proId,
+      type: 'booking',
+    })
+
     return booking
   }

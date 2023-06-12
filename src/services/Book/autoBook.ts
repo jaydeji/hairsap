@@ -38,10 +38,10 @@ export const autoBook =
 
     const { distance, userId: proId } = nearestPro
 
-    const bookings = await repo.book.getProBookingsByStatus(
-      proId,
-      BOOKING_STATUS.ACCEPTED,
-    )
+    // const bookings = await repo.book.getProBookingsByStatus(
+    //   proId,
+    //   BOOKING_STATUS.ACCEPTED,
+    // )
 
     // if (bookings.length >= 5) {
     //   return
@@ -112,13 +112,12 @@ export const autoBook =
       arrivalAt,
     })
 
-    if (bookings.length < 1) {
-      queue.notifyQueue.add({
-        title: 'NewBooking',
-        body: 'New booking has been received',
-        userId: proId,
-        type: 'booking',
-      })
-    }
+    queue.notifyQueue.add({
+      title: 'NewBooking',
+      body: 'New booking has been received',
+      userId: proId,
+      type: 'booking',
+    })
+
     return booking
   }
