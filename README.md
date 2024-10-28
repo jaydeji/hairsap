@@ -1,5 +1,7 @@
 # Hairsap API :haircut:
 
+The **Hairsap Backend API** is the server-side application that powers the Hairsap mobile app, a marketplace for beauty professionals and clients. The backend API facilitates seamless data handling, account management, real-time booking, and notification services, ensuring robust support for users, beauty pros, and admin activities.
+
 ## Running for the first time
 
 create a .env file from the `.env.example` file and fill values without quotes
